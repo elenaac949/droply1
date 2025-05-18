@@ -1,0 +1,13 @@
+/* Ocupa toda la altura de la ventana */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Contenedor principal entre header y footer */
+.contenedor {
+  flex: 1; 
+  padding: 16px;
+  box-sizing: border-box;
+}

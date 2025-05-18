@@ -33,4 +33,16 @@ router.post(
   authController.signup
 );
 
+router.post(
+  '/login',
+  [
+    body('email')
+      .isEmail().withMessage('Email inválido.')
+      .normalizeEmail(),
+    body('password')
+      .trim()
+      .notEmpty().withMessage('La contraseña es obligatoria.')
+  ],
+  authController.login
+);
 module.exports = router;

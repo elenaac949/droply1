@@ -1,0 +1,17 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+mat-card {
+  width: 350px;
+  padding: 2rem 1.5rem;
+}
+.full-width {
+  width: 100%;
+}
+.register-link {
+  margin-top: 1rem;
+  text-align: center;
+}

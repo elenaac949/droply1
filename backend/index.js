@@ -1,9 +1,15 @@
+require('dotenv').config();
+
 const express = require('express');
 const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/error');
 
+
+
 const app = express();
 const ports = process.env.PORT || 3000;
+
+
 
 // Middleware
 app.use(express.json());

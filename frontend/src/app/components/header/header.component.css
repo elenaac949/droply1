@@ -1,0 +1,20 @@
+mat-toolbar {
+  background-color: #e3f2fd;
+  height: 80px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 50px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.conectarse-btn {
+  font-size: 18px; /* Tamaño de letra mayor */
+  font-weight: 500;
+}

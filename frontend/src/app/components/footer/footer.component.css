@@ -1,0 +1,28 @@
+.footer {
+  background-color: #1c1c1c; /* color oscuro */
+  color: #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.footer a {
+  color: #f0f0f0;
+  text-decoration: none;
+  margin: 0 12px;
+  transition: color 0.3s;
+}
+
+.footer a:hover {
+  color: #90caf9; /* azul claro al hacer hover */
+}
+
+.footer-links,
+.footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}

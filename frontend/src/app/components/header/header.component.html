@@ -1,0 +1,20 @@
+<mat-toolbar color="primary" class="header-toolbar">
+  <span class="logo">Droply</span>
+  <span class="spacer"></span>
+
+  <!-- Solo muestra si NO está logueado -->
+  <ng-container *ngIf="!(authService.isLoggedIn$ | async)">
+    <button mat-button routerLink="/login">Iniciar sesión</button>
+    <button mat-stroked-button routerLink="/register">Registrarse</button>
+  </ng-container>
+
+  <!-- Solo muestra si está logueado -->
+  <ng-container *ngIf="authService.isLoggedIn$ | async">
+    <button mat-button routerLink="/add-source">Añadir fuente</button>
+    <button mat-button [matMenuTriggerFor]="menu">Menú</button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item routerLink="/profile">Perfil</button>
+      <button mat-menu-item (click)="logout()">Cerrar sesión</button>
+    </mat-menu>
+  </ng-container>
+</mat-toolbar>
