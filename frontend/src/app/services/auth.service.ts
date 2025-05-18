@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 
-const API_URL = 'http://localhost:3000/auth'; 
 
 @Injectable({
   providedIn: 'root'
@@ -53,5 +52,14 @@ export class AuthService {
   private hasToken(): boolean {
     return !!localStorage.getItem('token');
   }
+
+  register(username: string, email: string, password: string) {
+  return this.http.post('http://localhost:3000/auth/signup', {
+    username,
+    email,
+    password
+  });
+}
+
 
 }

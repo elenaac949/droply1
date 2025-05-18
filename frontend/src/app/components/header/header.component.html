@@ -1,11 +1,11 @@
 <mat-toolbar color="primary" class="header-toolbar">
-  <span class="logo">Droply</span>
+  <span class="logo" routerLink="">Droply</span>
   <span class="spacer"></span>
 
   <!-- Solo muestra si NO está logueado -->
   <ng-container *ngIf="!(authService.isLoggedIn$ | async)">
     <button mat-button routerLink="/login">Iniciar sesión</button>
-    <button mat-stroked-button routerLink="/register">Registrarse</button>
+    <button mat-stroked-button routerLink="/signup">Registrarse</button>
   </ng-container>
 
   <!-- Solo muestra si está logueado -->

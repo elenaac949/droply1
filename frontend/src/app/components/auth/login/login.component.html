@@ -1,4 +1,10 @@
 <div class="login-container">
+  <mat-card *ngIf="registrationSuccess" color="success" style="margin-bottom: 1em;">
+    <div style="color: green; font-weight: 600; text-align: center;">
+      ¡Registro correcto! Ahora puedes iniciar sesión.
+    </div>
+  </mat-card>
+
   <mat-card>
     <mat-card-title>Iniciar sesión</mat-card-title>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
@@ -31,4 +37,3 @@
     </mat-error>
   </mat-card>
 </div>
-
