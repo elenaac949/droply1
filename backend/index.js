@@ -2,14 +2,11 @@ require('dotenv').config();
 
 const express = require('express');
 const authRoutes = require('./routes/auth');
+const waterSourceRoutes = require('./routes/waterSource');
 const errorController = require('./controllers/error');
-
-
 
 const app = express();
 const ports = process.env.PORT || 3000;
-
-
 
 // Middleware
 app.use(express.json());
@@ -22,8 +19,12 @@ app.use((req, res, next) => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/water-sources', waterSourceRoutes);
 
+//los errores van despues 
 app.use(errorController.notFoundHandler);
 app.use(errorController.errorHandler);
+
+
 
 app.listen(ports, () => console.log(`Escuchando el puerto ${ports}`));
