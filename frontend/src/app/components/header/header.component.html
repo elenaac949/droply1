@@ -2,18 +2,19 @@
   <span class="logo" routerLink="">Droply</span>
   <span class="spacer"></span>
 
-  <!-- Solo muestra si NO está logueado -->
   <ng-container *ngIf="!(authService.isLoggedIn$ | async)">
     <button mat-button routerLink="/login">Iniciar sesión</button>
     <button mat-stroked-button routerLink="/signup">Registrarse</button>
   </ng-container>
 
-  <!-- Solo muestra si está logueado -->
   <ng-container *ngIf="authService.isLoggedIn$ | async">
-    <button mat-button routerLink="/add-source">Añadir fuente</button>
+    <button mat-button routerLink="/water-source">Añadir fuente</button>
     <button mat-button [matMenuTriggerFor]="menu">Menú</button>
     <mat-menu #menu="matMenu">
-      <button mat-menu-item routerLink="/profile">Perfil</button>
+      <!-- Si el usuario es admin, muestra el botón de administrador -->
+      <button *ngIf="authService.isAdmin()" mat-menu-item routerLink="/admin">Administrador</button>
+      <!-- Si NO es admin, muestra el botón de perfil -->
+      <button *ngIf="!authService.isAdmin()" mat-menu-item routerLink="/profile">Perfil</button>
       <button mat-menu-item (click)="logout()">Cerrar sesión</button>
     </mat-menu>
   </ng-container>

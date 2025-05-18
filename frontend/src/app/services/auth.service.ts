@@ -16,6 +16,11 @@ export class AuthService {
   
   constructor(private http: HttpClient, private router: Router) {}
 
+  isAdmin(): boolean {
+    return this.getUserId() === '2c7bcacd-3421-11f0-a782-a83b76296ff4'; 
+  }
+
+
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>('http://localhost:3000/auth/login', { email, password }).pipe(
       tap(response => {

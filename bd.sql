@@ -9,6 +9,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 -- Crear tabla water_sources
 CREATE TABLE water_sources (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
@@ -64,3 +65,5 @@ CREATE TABLE photos (
         OR (water_source_id IS NULL AND review_id IS NOT NULL)
     )
 );
+
+
