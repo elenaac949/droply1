@@ -4,6 +4,9 @@ const express = require('express');
 const authRoutes = require('./routes/auth');
 const waterSourceRoutes = require('./routes/waterSource');
 const errorController = require('./controllers/error');
+const waterSourceAprovedRoutes = require('./routes/waterSource');
+
+
 
 const app = express();
 const ports = process.env.PORT || 3000;
@@ -20,6 +23,7 @@ app.use((req, res, next) => {
 
 app.use('/auth', authRoutes);
 app.use('/water-sources', waterSourceRoutes);
+app.use('/api/water-sources', waterSourceAprovedRoutes);
 
 //los errores van despues 
 app.use(errorController.notFoundHandler);

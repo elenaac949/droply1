@@ -32,4 +32,7 @@ router.post(
 // Ruta para listar todas las fuentes de agua
 router.get('/', waterSourceController.getAllWaterSources);
 
+// Ruta para mostrar las fuentes aprobadas (para el mapa)
+router.get('/approved', waterSourceController.getApprovedWaterSources);
+
 module.exports = router;

@@ -25,7 +25,7 @@ CREATE TABLE water_sources (
         'natural_spring',
         'other'
     ) DEFAULT 'other',
-    accessible BOOLEAN DEFAULT FALSE,
+    is_accessible BOOLEAN DEFAULT FALSE,
     schedule VARCHAR(100),
     created_by CHAR(36),
     status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',

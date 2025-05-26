@@ -31,4 +31,18 @@ module.exports = class WaterSource {
     static findById(id) {
         return db.execute('SELECT * FROM water_sources WHERE id = ?', [id]);
     }
+    static fetchApproved() {
+        return db.execute(
+            'SELECT id, name, latitude, longitude, type, is_accessible FROM water_sources WHERE status = ?',
+            ['approved']
+        );
+    }
+
+    static existsAtCoordinates(latitude, longitude) {
+        return db.execute(
+            'SELECT COUNT(*) as count FROM water_sources WHERE ABS(latitude - ?) < 0.00001 AND ABS(longitude - ?) < 0.00001',
+            [latitude, longitude]
+        );
+    }
+
 };
