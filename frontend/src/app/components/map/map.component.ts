@@ -12,19 +12,10 @@ import 'leaflet.markercluster';
   styleUrl: './map.component.css'
 })
 export class MapComponent implements AfterViewInit {
-
   map!: L.Map;
-  osmCluster = L.markerClusterGroup();
-  mySourcesCluster = L.markerClusterGroup();
 
-  myIcon = L.icon({
-    iconUrl: 'assets/marker-icon-green.png', // Icono personalizado verde
-    shadowUrl: 'assets/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  });
+  osmCluster = L.markerClusterGroup();       // Clúster para fuentes OSM
+  mySourcesCluster = L.markerClusterGroup(); // Clúster para tus propias fuentes
 
   constructor(private http: HttpClient, private osmService: OsmService) {}
 
@@ -35,39 +26,34 @@ export class MapComponent implements AfterViewInit {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
-    this.map.addLayer(this.osmCluster);       // Añadir clúster de OSM
-    this.map.addLayer(this.mySourcesCluster); // Añadir clúster propio
+    this.map.addLayer(this.osmCluster);
+    this.map.addLayer(this.mySourcesCluster);
 
     this.loadMyWaterSources();
     this.loadOSMWaterSources();
 
     this.map.on('moveend', () => {
       const zoom = this.map.getZoom();
-      if (zoom >= 5) {
+      if (zoom >= 13) {
         this.loadOSMWaterSources();
-      } else {
-        this.osmCluster.clearLayers();
       }
     });
   }
 
-  // ✅ Tus fuentes desde el backend
+  // Tus fuentes desde el backend
   loadMyWaterSources() {
     this.mySourcesCluster.clearLayers();
 
-    this.http.get<any[]>('/api/water-sources/approved').subscribe(data => {
+    this.http.get<any[]>('http://localhost:3000/api/water-sources/approved').subscribe(data => {
       data.forEach(f => {
-        const marker = L.marker([f.latitude, f.longitude], {
-          icon: this.myIcon,
-          title: f.name
-        }).bindPopup(`<strong>${f.name}</strong><br>${f.description || ''}`);
-        
+        const marker = L.marker([f.latitude, f.longitude])
+          .bindPopup(`<strong>${f.name}</strong><br>${f.description || ''}`);
         this.mySourcesCluster.addLayer(marker);
       });
     });
   }
 
-  // ✅ Fuentes desde OSM
+  // Fuentes desde OSM
   loadOSMWaterSources() {
     this.osmCluster.clearLayers();
 
