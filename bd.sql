@@ -17,6 +17,16 @@ CREATE TABLE water_sources (
     description TEXT,
     latitude DECIMAL(10,8) NOT NULL,
     longitude DECIMAL(11,8) NOT NULL,
+    type ENUM(
+        'drinking',
+        'tap',
+        'decorative',
+        'bottle_refill',
+        'natural_spring',
+        'other'
+    ) DEFAULT 'other',
+    accessible BOOLEAN DEFAULT FALSE,
+    schedule VARCHAR(100),
     created_by CHAR(36),
     status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -24,6 +34,7 @@ CREATE TABLE water_sources (
     CONSTRAINT fk_water_source_user FOREIGN KEY (created_by) REFERENCES users(id)
         ON DELETE SET NULL
 );
+
 
 -- Crear tabla reviews
 CREATE TABLE reviews (
