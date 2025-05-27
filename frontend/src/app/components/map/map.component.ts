@@ -21,54 +21,54 @@ export class MapComponent implements AfterViewInit {
   constructor(private http: HttpClient, private osmService: OsmService) { }
 
   ngAfterViewInit(): void {
-  if (navigator.geolocation) {
-    navigator.geolocation.watchPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
 
-        if (!this.map) {
-          // Crear mapa solo la primera vez
-          this.map = L.map('map').setView([userLat, userLng], 15);
+          if (!this.map) {
+            // Crear mapa solo la primera vez
+            this.map = L.map('map').setView([userLat, userLng], 15);
 
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-          }).addTo(this.map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap contributors'
+            }).addTo(this.map);
 
-          this.map.addLayer(this.osmCluster);
-          this.map.addLayer(this.mySourcesCluster);
+            this.map.addLayer(this.osmCluster);
+            this.map.addLayer(this.mySourcesCluster);
 
-          this.loadMyWaterSources();
-          this.loadOSMWaterSources();
+            this.loadMyWaterSources();
+            this.loadOSMWaterSources();
 
-          this.map.on('moveend', () => {
-            const zoom = this.map.getZoom();
-            if (zoom >= 13) {
-              this.loadOSMWaterSources();
-            }
-          });
+            this.map.on('moveend', () => {
+              const zoom = this.map.getZoom();
+              if (zoom >= 13) {
+                this.loadOSMWaterSources();
+              }
+            });
+          }
+
+          // ⬅️ Aquí: actualiza el marcador de la ubicación actual
+          if (this.userMarker) {
+            this.userMarker.setLatLng([userLat, userLng]);
+          } else {
+            this.userMarker = L.marker([userLat, userLng])
+              .addTo(this.map)
+              .bindPopup('Tú estás aquí')
+              .openPopup();
+          }
+        },
+        (error) => {
+          console.error('Geolocalización no disponible. Cargando vista por defecto.', error);
+          this.loadDefaultMap();
         }
-
-        // ⬅️ Aquí: actualiza el marcador de la ubicación actual
-        if (this.userMarker) {
-          this.userMarker.setLatLng([userLat, userLng]);
-        } else {
-          this.userMarker = L.marker([userLat, userLng])
-            .addTo(this.map)
-            .bindPopup('Tú estás aquí')
-            .openPopup();
-        }
-      },
-      (error) => {
-        console.error('Geolocalización no disponible. Cargando vista por defecto.', error);
-        this.loadDefaultMap();
-      }
-    );
-  } else {
-    console.warn('Geolocalización no soportada');
-    this.loadDefaultMap();
+      );
+    } else {
+      console.warn('Geolocalización no soportada');
+      this.loadDefaultMap();
+    }
   }
-}
 
 
   loadDefaultMap(): void {
@@ -94,49 +94,77 @@ export class MapComponent implements AfterViewInit {
 
 
   // uentes desde el backend
+
   loadMyWaterSources() {
     this.mySourcesCluster.clearLayers();
 
     this.http.get<any[]>('http://localhost:3000/api/water-sources/approved').subscribe(data => {
       data.forEach(f => {
+        // Traducciones de tipo
+        const typeMap: { [key: string]: string } = {
+          drinking: 'Agua potable',
+          tap: 'Grifo público',
+          decorative: 'Fuente decorativa',
+          bottle_refill: 'Recarga de botellas',
+          natural_spring: 'Manantial',
+          other: 'Otros'
+        };
+
+        const tooltipText = `
+        <strong>${f.name || 'Desconocido'}</strong><br>
+        ${f.description ? f.description : 'Descripción: Desconocida'}<br>
+        Tipo: ${typeMap[f.type] || 'Desconocido'}<br>
+        Accesible: ${f.is_accessible === true ? 'Sí' : f.is_accessible === false ? 'No' : 'Desconocido'}<br>
+        Horario: ${f.schedule || 'Desconocido'}<br>
+        Estado: ${f.status || 'Desconocido'}<br>
+        Fecha: ${f.created_at ? new Date(f.created_at).toLocaleDateString() : 'Desconocida'}
+      `;
+
+
         const marker = L.marker([f.latitude, f.longitude])
-          .bindPopup(`<strong>${f.name}</strong><br>${f.description || ''}`);
+          .bindTooltip(tooltipText, {
+            direction: 'top',
+            offset: [0, -10],
+            opacity: 0.9
+          });
+
         this.mySourcesCluster.addLayer(marker);
       });
     });
   }
 
+
   // Fuentes desde OSM
   loadOSMWaterSources() {
-  this.osmCluster.clearLayers();
+    this.osmCluster.clearLayers();
 
-  const b = this.map.getBounds();
-  this.osmService.getWaterSourcesByBounds(
-    b.getSouth(), b.getWest(), b.getNorth(), b.getEast()
-  ).subscribe((result: any) => {
-    result.elements.forEach((el: any) => {
-      const lat = el.lat;
-      const lon = el.lon;
-      const tags = el.tags || {};
+    const b = this.map.getBounds();
+    this.osmService.getWaterSourcesByBounds(
+      b.getSouth(), b.getWest(), b.getNorth(), b.getEast()
+    ).subscribe((result: any) => {
+      result.elements.forEach((el: any) => {
+        const lat = el.lat;
+        const lon = el.lon;
+        const tags = el.tags || {};
 
-      // Generar texto para el tooltip
-      let tooltipText = 'Fuente pública';
-      if (tags.name) tooltipText += `: ${tags.name}`;
-      if (tags.description) tooltipText += `\n${tags.description}`;
-      if (tags.operator) tooltipText += `\nOperador: ${tags.operator}`;
-      if (tags.access) tooltipText += `\nAcceso: ${tags.access}`;
-      if (tags.note) tooltipText += `\nNota: ${tags.note}`;
+        // Generar texto para el tooltip
+        let tooltipText = 'Fuente pública';
+        if (tags.name) tooltipText += `: ${tags.name}`;
+        if (tags.description) tooltipText += `\n${tags.description}`;
+        if (tags.operator) tooltipText += `\nOperador: ${tags.operator}`;
+        if (tags.access) tooltipText += `\nAcceso: ${tags.access}`;
+        if (tags.note) tooltipText += `\nNota: ${tags.note}`;
 
-      const marker = L.marker([lat, lon])
-        .bindTooltip(tooltipText, {
-          direction: 'top',
-          offset: [0, -10],
-          opacity: 0.9
-        });
+        const marker = L.marker([lat, lon])
+          .bindTooltip(tooltipText, {
+            direction: 'top',
+            offset: [0, -10],
+            opacity: 0.9
+          });
 
-      this.osmCluster.addLayer(marker);
+        this.osmCluster.addLayer(marker);
+      });
     });
-  });
-}
+  }
 
 }

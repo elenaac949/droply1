@@ -27,7 +27,7 @@ CREATE TABLE water_sources (
     ) DEFAULT 'other',
     is_accessible BOOLEAN DEFAULT FALSE,
     schedule VARCHAR(100),
-    created_by CHAR(36),
+    created_by CHAR(36), /* `poner un default admin */
     status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
