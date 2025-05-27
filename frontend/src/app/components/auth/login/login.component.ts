@@ -55,7 +55,7 @@ export class LoginComponent {
     this.loginError = '';
     const { email, password } = this.loginForm.value;
     this.authService.login(email!, password!).subscribe({
-      next: () => this.router.navigate(['/map']),
+      next: () => this.router.navigate(['/home']),
       error: err => {
         this.loginError = err.error?.message || 'Login incorrecto';
       }

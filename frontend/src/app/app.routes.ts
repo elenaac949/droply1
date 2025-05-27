@@ -8,13 +8,14 @@ import { WaterFormComponent } from './components/water-form/water-form.component
 import { AdminComponent } from './components/admin/admin.component';
 import { HomeComponent } from './components/home/home.component';
 import { MapComponent } from './components/map/map.component';
+import { NoAuthGuard } from './guards/no-auth.guard';
 
 
 
 export const routes: Routes = [
-    {path: '', component: LandingComponent}, //ruta predeterminada 
-    {path: 'login', component: LoginComponent},
-    {path: 'signup', component: RegisterComponent},
+    {path: '', component: LandingComponent, canActivate: [NoAuthGuard]}, //ruta predeterminada 
+    {path: 'login', component: LoginComponent, canActivate: [NoAuthGuard]},
+    {path: 'signup', component: RegisterComponent, canActivate: [NoAuthGuard]},
     {path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
     {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
     {path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
