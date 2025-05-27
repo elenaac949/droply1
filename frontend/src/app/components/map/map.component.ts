@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import * as L from 'leaflet';
 import { OsmService } from '../../services/osm.service';
 import { HttpClient } from '@angular/common/http';
@@ -11,65 +11,36 @@ import 'leaflet.markercluster';
   templateUrl: './map.component.html',
   styleUrl: './map.component.css'
 })
-export class MapComponent implements AfterViewInit {
-  map!: L.Map;
+export class MapComponent implements AfterViewInit, OnChanges {
+  @Input() useGeolocation = false;
 
-  osmCluster = L.markerClusterGroup();       // Clúster para fuentes OSM
-  mySourcesCluster = L.markerClusterGroup(); // Clúster para tus propias fuentes
+  map!: L.Map;
   userMarker?: L.Marker;
+  osmCluster = L.markerClusterGroup();
+  mySourcesCluster = L.markerClusterGroup();
 
   constructor(private http: HttpClient, private osmService: OsmService) { }
 
   ngAfterViewInit(): void {
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(
-        (position) => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
-
-          if (!this.map) {
-            // Crear mapa solo la primera vez
-            this.map = L.map('map').setView([userLat, userLng], 15);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: '© OpenStreetMap contributors'
-            }).addTo(this.map);
-
-            this.map.addLayer(this.osmCluster);
-            this.map.addLayer(this.mySourcesCluster);
-
-            this.loadMyWaterSources();
-            this.loadOSMWaterSources();
-
-            this.map.on('moveend', () => {
-              const zoom = this.map.getZoom();
-              if (zoom >= 13) {
-                this.loadOSMWaterSources();
-              }
-            });
-          }
-
-          // ⬅️ Aquí: actualiza el marcador de la ubicación actual
-          if (this.userMarker) {
-            this.userMarker.setLatLng([userLat, userLng]);
-          } else {
-            this.userMarker = L.marker([userLat, userLng])
-              .addTo(this.map)
-              .bindPopup('Tú estás aquí')
-              .openPopup();
-          }
-        },
-        (error) => {
-          console.error('Geolocalización no disponible. Cargando vista por defecto.', error);
-          this.loadDefaultMap();
-        }
-      );
-    } else {
-      console.warn('Geolocalización no soportada');
-      this.loadDefaultMap();
-    }
+    this.loadDefaultMap();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['useGeolocation'] && !changes['useGeolocation'].firstChange) {
+      const before = changes['useGeolocation'].previousValue;
+      const current = changes['useGeolocation'].currentValue;
+
+
+      // Solo si se activa
+      if (!before && current) {
+        this.centerOnUserLocation();
+      }
+
+      console.log('ngOnChanges: useGeolocation =', this.useGeolocation);
+
+      // Si se desactiva: no hacemos nada (el mapa se queda como está)
+    }
+  }
 
   loadDefaultMap(): void {
     this.map = L.map('map').setView([40.5, -3.7], 11);
@@ -92,15 +63,39 @@ export class MapComponent implements AfterViewInit {
     });
   }
 
+  centerOnUserLocation(): void {
+    if (!navigator.geolocation) {
+      console.warn('Geolocalización no soportada');
+      return;
+    }
 
-  // uentes desde el backend
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
-  loadMyWaterSources() {
+        this.map.setView([lat, lng], 15);
+
+        if (this.userMarker) {
+          this.userMarker.setLatLng([lat, lng]);
+        } else {
+          this.userMarker = L.marker([lat, lng])
+            .addTo(this.map)
+            .bindPopup('Tú estás aquí')
+            .openPopup();
+        }
+      },
+      (error) => {
+        console.error('Error al obtener ubicación del usuario', error);
+      }
+    );
+  }
+
+  loadMyWaterSources(): void {
     this.mySourcesCluster.clearLayers();
 
     this.http.get<any[]>('http://localhost:3000/api/water-sources/approved').subscribe(data => {
       data.forEach(f => {
-        // Traducciones de tipo
         const typeMap: { [key: string]: string } = {
           drinking: 'Agua potable',
           tap: 'Grifo público',
@@ -111,14 +106,13 @@ export class MapComponent implements AfterViewInit {
         };
 
         const tooltipText = `
-        <strong>${f.name || 'Desconocido'}</strong><br>
-        ${f.description ? f.description : 'Descripción: Desconocida'}<br>
-        Tipo: ${typeMap[f.type] || 'Desconocido'}<br>
-        Accesible: ${f.is_accessible === true ? 'Sí' : f.is_accessible === false ? 'No' : 'Desconocido'}<br>
-        Horario: ${f.schedule || 'Desconocido'}<br>
-        Fecha: ${f.created_at ? new Date(f.created_at).toLocaleDateString() : 'Desconocida'}
-      `;
-
+          <strong>${f.name || 'Desconocido'}</strong><br>
+          ${f.description ? f.description : 'Descripción: Desconocida'}<br>
+          Tipo: ${typeMap[f.type] || 'Desconocido'}<br>
+          Accesible: ${f.is_accessible === true ? 'Sí' : f.is_accessible === false ? 'No' : 'Desconocido'}<br>
+          Horario: ${f.schedule || 'Desconocido'}<br>
+          Fecha: ${f.created_at ? new Date(f.created_at).toLocaleDateString() : 'Desconocida'}
+        `;
 
         const marker = L.marker([f.latitude, f.longitude])
           .bindTooltip(tooltipText, {
@@ -132,9 +126,7 @@ export class MapComponent implements AfterViewInit {
     });
   }
 
-
-  // Fuentes desde OSM
-  loadOSMWaterSources() {
+  loadOSMWaterSources(): void {
     this.osmCluster.clearLayers();
 
     const b = this.map.getBounds();
@@ -146,7 +138,6 @@ export class MapComponent implements AfterViewInit {
         const lon = el.lon;
         const tags = el.tags || {};
 
-        // Generar texto para el tooltip
         let tooltipText = 'Fuente pública';
         if (tags.name) tooltipText += `: ${tags.name}`;
         if (tags.description) tooltipText += `\n${tags.description}`;
@@ -165,5 +156,4 @@ export class MapComponent implements AfterViewInit {
       });
     });
   }
-
 }

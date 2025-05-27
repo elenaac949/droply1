@@ -1,2 +1,8 @@
-<app-filters></app-filters>
-<app-map></app-map>
+<app-filters
+  [useGeolocation]="useGeolocation"
+  (toggleGeo)="handleToggleGeo()"
+></app-filters>
+<div *ngIf="isLoadingGeo" class="loading-message">
+  Un momento...
+</div>
+<app-map [useGeolocation]="useGeolocation"></app-map>

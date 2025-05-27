@@ -1,2 +1,5 @@
 <p>filters works!</p>
-<!-- <button (click)="toggleGeolocation()">Activar/Desactivar geolocalización</button> -->
+<button (click)="toggleGeolocation()" [ngClass]="useGeolocation ? 'btn-geo-on' : 'btn-geo-off'">
+  {{ useGeolocation ? 'Desactivar geolocalización' : 'Activar geolocalización' }}
+</button>
+
