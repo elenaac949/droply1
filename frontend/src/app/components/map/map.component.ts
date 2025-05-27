@@ -116,7 +116,6 @@ export class MapComponent implements AfterViewInit {
         Tipo: ${typeMap[f.type] || 'Desconocido'}<br>
         Accesible: ${f.is_accessible === true ? 'Sí' : f.is_accessible === false ? 'No' : 'Desconocido'}<br>
         Horario: ${f.schedule || 'Desconocido'}<br>
-        Estado: ${f.status || 'Desconocido'}<br>
         Fecha: ${f.created_at ? new Date(f.created_at).toLocaleDateString() : 'Desconocida'}
       `;
 
