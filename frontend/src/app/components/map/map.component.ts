@@ -17,9 +17,52 @@ export class MapComponent implements AfterViewInit {
   osmCluster = L.markerClusterGroup();       // Clúster para fuentes OSM
   mySourcesCluster = L.markerClusterGroup(); // Clúster para tus propias fuentes
 
-  constructor(private http: HttpClient, private osmService: OsmService) {}
+  constructor(private http: HttpClient, private osmService: OsmService) { }
 
   ngAfterViewInit(): void {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+
+          this.map = L.map('map').setView([userLat, userLng], 15);
+
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(this.map);
+
+          // 📍 Añadir marcador de ubicación actual
+          const userMarker = L.marker([userLat, userLng])
+            .addTo(this.map)
+            .bindPopup('Tú estás aquí')
+            .openPopup();
+
+          this.map.addLayer(this.osmCluster);
+          this.map.addLayer(this.mySourcesCluster);
+
+          this.loadMyWaterSources();
+          this.loadOSMWaterSources();
+
+          this.map.on('moveend', () => {
+            const zoom = this.map.getZoom();
+            if (zoom >= 13) {
+              this.loadOSMWaterSources();
+            }
+          });
+        },
+        (error) => {
+          console.error('Geolocalización no disponible. Cargando vista por defecto.', error);
+          this.loadDefaultMap();
+        }
+      );
+    } else {
+      console.warn('Geolocalización no soportada');
+      this.loadDefaultMap();
+    }
+  }
+
+  loadDefaultMap(): void {
     this.map = L.map('map').setView([40.5, -3.7], 11);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -40,7 +83,8 @@ export class MapComponent implements AfterViewInit {
     });
   }
 
-  // Tus fuentes desde el backend
+
+  // uentes desde el backend
   loadMyWaterSources() {
     this.mySourcesCluster.clearLayers();
 
