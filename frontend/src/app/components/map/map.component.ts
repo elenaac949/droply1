@@ -14,6 +14,14 @@ import 'leaflet.markercluster';
 export class MapComponent implements AfterViewInit, OnChanges {
   @Input() useGeolocation = false;
 
+  userIcon = L.icon({
+    iconUrl: 'assets/marker-icon-purple.png',
+    shadowUrl: 'assets/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
   map!: L.Map;
   userMarker?: L.Marker;
   osmCluster = L.markerClusterGroup();
@@ -38,7 +46,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
 
       console.log('ngOnChanges: useGeolocation =', this.useGeolocation);
 
-      // Si se desactiva: no hacemos nada (el mapa se queda como está)
+      // Si se desactiva:el mapa se queda como está
     }
   }
 
@@ -79,7 +87,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
         if (this.userMarker) {
           this.userMarker.setLatLng([lat, lng]);
         } else {
-          this.userMarker = L.marker([lat, lng])
+          this.userMarker = L.marker([lat, lng], { icon: this.userIcon })
             .addTo(this.map)
             .bindPopup('Tú estás aquí')
             .openPopup();
