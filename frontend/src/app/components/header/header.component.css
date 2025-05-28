@@ -1,20 +1,45 @@
 mat-toolbar {
-  background-color: #e3f2fd;
+  background-color: #cceeff;
   height: 80px;
   padding: 0 16px;
   display: flex;
   align-items: center;
+  font-size: 1.2rem;
 }
 
 .logo {
-  height: 50px;
+  font-size: 1.6rem; 
+  font-weight: bold;
+  color: #005c99;
+  cursor: pointer;
 }
 
 .spacer {
   flex: 1 1 auto;
 }
 
-.conectarse-btn {
-  font-size: 18px; /* Tamaño de letra mayor */
-  font-weight: 500;
+/* Botones dentro del toolbar */
+mat-toolbar button {
+  font-size: 1.1rem;
+  margin-left: 8px;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 600px) {
+  mat-toolbar {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 8px;
+    font-size: 1rem;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+  }
+
+  mat-toolbar button {
+    font-size: 1rem;
+    margin: 4px 4px;
+  }
 }
