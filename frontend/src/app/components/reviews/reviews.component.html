@@ -1,23 +1,35 @@
 <div class="modal">
   <button class="close-btn" (click)="close()">×</button>
 
+  <h2>{{ sourceData.name }}</h2>
+  <p><strong>Creado por:</strong> {{ sourceData.created_by_username || 'Desconocido' }}</p>
+
+  <p *ngIf="sourceData.total_reviews > 0">
+    <strong>Valoraciones:</strong> {{ sourceData.total_reviews }}<br>
+    <strong>Puntuación media:</strong> {{ sourceData.average_rating }} / 5
+  </p>
+  <p *ngIf="sourceData.total_reviews === 0">
+    Aún no hay valoraciones para esta fuente.
+  </p>
+
   <div class="tabs">
     <button [class.active]="activeTab() === 'reviews'" (click)="activeTab.set('reviews')">Valoraciones</button>
     <button [class.active]="activeTab() === 'add'" (click)="activeTab.set('add')">Añadir valoración</button>
   </div>
 
+  <!-- TAB 1: Ver valoraciones -->
   <div *ngIf="activeTab() === 'reviews'" class="tab-content">
-    <h2>Valoraciones</h2>
     <div *ngIf="reviews().length === 0">Aún no hay valoraciones.</div>
     <div *ngFor="let r of reviews()" class="review">
+      <p><strong>Usuario:</strong> {{ r.username }}</p>
       <p><strong>Puntuación:</strong> {{ r.rating }}/5</p>
       <p>{{ r.comment }}</p>
       <p class="date">{{ r.created_at | date:'short' }}</p>
     </div>
   </div>
 
+  <!-- TAB 2: Añadir valoración -->
   <div *ngIf="activeTab() === 'add'" class="tab-content">
-    <h2>Añadir valoración</h2>
     <form (ngSubmit)="submitReview()">
       <label>Puntuación:
         <select [(ngModel)]="form.rating" name="rating" required>

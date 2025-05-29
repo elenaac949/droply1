@@ -79,7 +79,7 @@ exports.login = async (req, res, next) => {
         userId: user.id   // O el campo que uses como identificador
       },
       process.env.JWT_PRIVATE_KEY, // Se guarda en una variable de entorno
-      { expiresIn: '1h' }
+      { expiresIn: '6h' }
     );
 
     // 5) Responder con token y datos

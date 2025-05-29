@@ -35,4 +35,11 @@ router.get('/', waterSourceController.getAllWaterSources);
 // Ruta para mostrar las fuentes aprobadas (para el mapa)
 router.get('/approved', waterSourceController.getApprovedWaterSources);
 
+/* obtener el id de la fuente de agua */
+router.get('/:id', waterSourceController.getById);
+
+
+router.put('/:id/status', authMiddleware, waterSourceController.updateStatus);
+
+
 module.exports = router;
