@@ -44,6 +44,11 @@ mat-card-title.login-title {
   color: #3c763d;
   font-weight: 600;
   justify-content: center;
+  font-size: larger;
+}
+
+mat-error{
+  font-size: 1.1rem;
 }
 
 mat-icon {
@@ -58,6 +63,7 @@ mat-icon {
   margin-top: 1.2rem;
   background-color: #007acc;
   color: white;
+  font-size: 1.2rem;
   font-weight: 500;
 }
 
@@ -86,6 +92,7 @@ mat-icon {
   text-align: center;
   margin-top: 1rem;
   color: red;
+  font-size: 1.2rem;
 }
 
 @media (max-width: 480px) {
