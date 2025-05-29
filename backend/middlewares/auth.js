@@ -20,11 +20,15 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ error: 'No autenticado.' });
   }
 
-  // El login pone "userId" en el token (¡ojo, no "id"!)
+  // authMiddleware.js
+  function isAdmin(req, res, next) {
+    if (req.user.role !== 'admin') return res.status(403).json({ mensaje: 'Solo admins pueden hacer esto' });
+    next();
+  }
+
   req.user = {
     id: decodedToken.userId,
     email: decodedToken.email
-    // ...puedes añadir aquí otros campos si los metiste en el payload
   };
 
   next();

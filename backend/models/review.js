@@ -1,0 +1,40 @@
+const db = require('../util/database');
+
+module.exports = class Review {
+  constructor(water_source_id, user_id, rating, comment) {
+    this.water_source_id = water_source_id;
+    this.user_id = user_id;
+    this.rating = rating;
+    this.comment = comment;
+  }
+
+  /* Crear valoraciones */
+  static create(review) {
+    return db.execute(
+      `INSERT INTO reviews (id, water_source_id, user_id, rating, comment, status)
+       VALUES (UUID(), ?, ?, ?, ?, 'pending')`,
+      [review.water_source_id, review.user_id, review.rating, review.comment]
+    );
+  }
+
+  /* Obtener valoraciones relacioonadas con una fuente de agua */
+  static getByWaterSource(water_source_id) {
+    return db.execute(
+      `SELECT * FROM reviews WHERE water_source_id = ? AND status = 'approved' ORDER BY created_at DESC`,
+      [water_source_id]
+    );
+  }
+
+  /* Obtener todas las valoraciones */
+  static getAll() {
+    return db.execute(`SELECT * FROM reviews ORDER BY created_at DESC`);
+  }
+
+  /* moderar */
+  static moderate(id, status) {
+    return db.execute(
+      `UPDATE reviews SET status = ? WHERE id = ?`,
+      [status, id]
+    );
+  }
+};
