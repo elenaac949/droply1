@@ -1,8 +1,16 @@
-<app-filters
-  [useGeolocation]="useGeolocation"
-  (toggleGeo)="handleToggleGeo()"
-></app-filters>
-<div *ngIf="isLoadingGeo" class="loading-message">
-  Un momento...
+<div class="home-container">
+  <section class="filters-section">
+    <app-filters
+      [useGeolocation]="useGeolocation"
+      (toggleGeo)="handleToggleGeo()"
+    ></app-filters>
+  </section>
+
+  <section *ngIf="isLoadingGeo" class="loading-message">
+    Un momento...
+  </section>
+
+  <section class="map-section">
+    <app-map [useGeolocation]="useGeolocation"></app-map>
+  </section>
 </div>
-<app-map [useGeolocation]="useGeolocation"></app-map>
