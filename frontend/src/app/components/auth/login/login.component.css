@@ -8,6 +8,7 @@
   align-items: center;
   padding: 1rem;
   box-sizing: border-box;
+  
 }
 
 
@@ -18,6 +19,7 @@ mat-card.login-card {
   box-shadow: 0 8px 24px rgba(0, 92, 153, 0.15);
   border-radius: 16px;
   background-color: #ffffff;
+  
 }
 
 mat-card-title.login-title {

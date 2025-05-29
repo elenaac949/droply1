@@ -22,7 +22,7 @@ mat-toolbar {
 mat-toolbar button {
   font-size: 1.2rem;
   margin-left: 8px;
-   font-family: 'Poppins', sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 /* Responsive para pantallas pequeñas */

@@ -27,10 +27,12 @@
           La contraseña es obligatoria
         </mat-error>
       </mat-form-field>
-
+      <mat-checkbox formControlName="rememberMe">Recordarme</mat-checkbox>
       <button mat-raised-button color="primary" class="full-width login-button" [disabled]="loginForm.invalid">
         Entrar
       </button>
+      
+
     </form>
     <div class="register-link">
       ¿No tienes cuenta? <a routerLink="/signup">Regístrate aquí</a>
