@@ -1,0 +1,33 @@
+<div class="modal">
+  <button class="close-btn" (click)="close()">×</button>
+
+  <div class="tabs">
+    <button [class.active]="activeTab() === 'reviews'" (click)="activeTab.set('reviews')">Valoraciones</button>
+    <button [class.active]="activeTab() === 'add'" (click)="activeTab.set('add')">Añadir valoración</button>
+  </div>
+
+  <div *ngIf="activeTab() === 'reviews'" class="tab-content">
+    <h2>Valoraciones</h2>
+    <div *ngIf="reviews().length === 0">Aún no hay valoraciones.</div>
+    <div *ngFor="let r of reviews()" class="review">
+      <p><strong>Puntuación:</strong> {{ r.rating }}/5</p>
+      <p>{{ r.comment }}</p>
+      <p class="date">{{ r.created_at | date:'short' }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab() === 'add'" class="tab-content">
+    <h2>Añadir valoración</h2>
+    <form (ngSubmit)="submitReview()">
+      <label>Puntuación:
+        <select [(ngModel)]="form.rating" name="rating" required>
+          <option *ngFor="let r of [1,2,3,4,5]" [value]="r">{{ r }}</option>
+        </select>
+      </label>
+      <label>Comentario:
+        <textarea [(ngModel)]="form.comment" name="comment" required></textarea>
+      </label>
+      <button type="submit">Enviar valoración</button>
+    </form>
+  </div>
+</div>

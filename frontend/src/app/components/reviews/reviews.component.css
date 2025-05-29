@@ -1,0 +1,105 @@
+/* Fondo oscuro detrás del modal */
+:host {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* fondo oscuro */
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Contenedor del modal */
+.modal {
+  background-color: white;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  border-radius: 12px;
+  padding: 2rem;
+  overflow-y: auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Botón cerrar */
+.close-btn {
+  align-self: flex-end;
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #007acc;
+  margin-bottom: 1rem;
+}
+
+/* Pestañas */
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tabs button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background-color: #eee;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.tabs button.active {
+  background-color: #007acc;
+  color: white;
+}
+
+/* Contenido de pestañas */
+.tab-content {
+  flex: 1;
+}
+
+/* Lista de valoraciones */
+.review {
+  border-bottom: 1px solid #ddd;
+  padding: 0.8rem 0;
+}
+
+.review p {
+  margin: 0.3rem 0;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* Formulario */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+form select,
+form textarea,
+form button {
+  font-size: 1rem;
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+form button {
+  background-color: #007acc;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #005c99;
+}

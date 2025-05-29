@@ -3,14 +3,18 @@ import * as L from 'leaflet';
 import { OsmService } from '../../services/osm.service';
 import { HttpClient } from '@angular/common/http';
 import 'leaflet.markercluster';
+import { ReviewsComponent } from '../reviews/reviews.component';
+import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, ReviewsComponent],
   templateUrl: './map.component.html',
   styleUrl: './map.component.css'
 })
+
 export class MapComponent implements AfterViewInit, OnChanges {
   @Input() useGeolocation = false;
 
@@ -22,10 +26,22 @@ export class MapComponent implements AfterViewInit, OnChanges {
     popupAnchor: [1, -34],
     shadowSize: [41, 41]
   });
+
   map!: L.Map;
   userMarker?: L.Marker;
   osmCluster = L.markerClusterGroup();
   mySourcesCluster = L.markerClusterGroup();
+
+  /* Control del modal de las valoraicones */
+  selectedSourceId: string | null = null;
+
+  openModal(id: string) {
+    this.selectedSourceId = id;
+  }
+
+  closeModal() {
+    this.selectedSourceId = null;
+  }
 
   constructor(private http: HttpClient, private osmService: OsmService) { }
 
@@ -127,7 +143,9 @@ export class MapComponent implements AfterViewInit, OnChanges {
             direction: 'top',
             offset: [0, -10],
             opacity: 0.9
-          });
+          })
+          .on('click', () => this.openModal(f.id)) /* cuando hacemos click en el modal */
+          ;
 
         this.mySourcesCluster.addLayer(marker);
       });

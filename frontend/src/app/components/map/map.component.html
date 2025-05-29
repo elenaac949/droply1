@@ -1,1 +1,7 @@
+<app-reviews
+  *ngIf="selectedSourceId"
+  [waterSourceId]="selectedSourceId"
+  [close]="closeModal.bind(this)"
+></app-reviews>
 <div id="map"></div>
+
