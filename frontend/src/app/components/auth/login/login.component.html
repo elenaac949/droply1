@@ -1,12 +1,13 @@
 <div class="login-container">
-  <mat-card *ngIf="registrationSuccess" color="success" style="margin-bottom: 1em;">
-    <div style="color: green; font-weight: 600; text-align: center;">
+  <mat-card *ngIf="registrationSuccess" class="success-card">
+    <div class="success-text">
+      <mat-icon>check_circle</mat-icon>
       ¡Registro correcto! Ahora puedes iniciar sesión.
     </div>
   </mat-card>
 
-  <mat-card>
-    <mat-card-title>Iniciar sesión</mat-card-title>
+  <mat-card class="login-card">
+    <mat-card-title class="login-title">Iniciar sesión</mat-card-title>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
@@ -27,12 +28,14 @@
         </mat-error>
       </mat-form-field>
 
-      <button mat-raised-button color="primary" class="full-width" [disabled]="loginForm.invalid">Entrar</button>
+      <button mat-raised-button color="primary" class="full-width login-button" [disabled]="loginForm.invalid">
+        Entrar
+      </button>
     </form>
     <div class="register-link">
       ¿No tienes cuenta? <a routerLink="/signup">Regístrate aquí</a>
     </div>
-    <mat-error *ngIf="loginError">
+    <mat-error *ngIf="loginError" class="error-message">
       {{ loginError }}
     </mat-error>
   </mat-card>

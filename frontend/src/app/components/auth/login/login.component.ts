@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatError } from '@angular/material/form-field';
 import { Router, RouterModule } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
 
 
 import { AuthService } from '../../../services/auth.service';
@@ -22,7 +23,8 @@ import { AuthService } from '../../../services/auth.service';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    RouterModule],
+    RouterModule,
+    MatIcon],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

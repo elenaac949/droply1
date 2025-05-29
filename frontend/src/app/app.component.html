@@ -1,10 +1,12 @@
-<app-header></app-header>
+<div class="layout">
+  <header class="sticky-header">
+    <app-header></app-header>
+  </header>
 
+  <main>
+    <router-outlet></router-outlet>
+    <app-cookies></app-cookies>
+  </main>
 
-<div class="contenedor">
-  <router-outlet></router-outlet>
+  <app-footer></app-footer>
 </div>
-
-<app-cookies></app-cookies>
-
-<app-footer></app-footer>

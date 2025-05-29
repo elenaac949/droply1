@@ -1,20 +1,24 @@
-/* Ocupa toda la altura de la ventana */
-:host {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+
+.layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100%;
 }
 
-app-header {
+html, body, app-root {
+  height: 100%;
+  margin: 0;
+}
+
+main {
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.sticky-header {
   position: sticky;
   top: 0;
-  z-index: 1000;
-}
-
-
-/* Contenedor principal entre header y footer */
-.contenedor {
-  flex: 1; 
-  padding: 16px;
-  box-sizing: border-box;
+  z-index: 1000; 
+  background-color: #cceeff; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
 }
