@@ -54,7 +54,7 @@ exports.login = async (req, res, next) => {
 
   const { email, password } = req.body;
   try {
-    // 2) Buscar usuario por email
+    // Buscar usuario por email
     const [rows] = await User.find(email);
     if (rows.length === 0) {// Email no encontrado, pero devolvemos mensaje genérico
       const error = new Error('Email o contraseña incorrectos.');
@@ -64,7 +64,7 @@ exports.login = async (req, res, next) => {
 
     const user = rows[0];
 
-    // 3) Verificar contraseña
+    // Verificar contraseña
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
       const error = new Error('Email o contraseña incorrectos');
@@ -75,7 +75,6 @@ exports.login = async (req, res, next) => {
     // 4) Generar JWT
     const token = jwt.sign(
       {
-        email: user.email,
         userId: user.id,   // O el campo que uses como identificador
         role: user.role
       },
@@ -85,9 +84,10 @@ exports.login = async (req, res, next) => {
 
     // 5) Responder con token y datos
     res.status(200).json({
-      token: token,
-      userId: user.id,
-      role:user.role
+      token: token,       // Para autenticación
+      userId: user.id,    // Para referencia rápida
+      role: user.role,    // Para lógica de frontend
+      username: user.username,  // Para mostrar en UI
     });
 
   } catch (err) {
