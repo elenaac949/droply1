@@ -38,19 +38,26 @@ export class WaterFormComponent {
     postal_code: ['', Validators.maxLength(20)],
     address: ['', Validators.maxLength(255)]
   });
+
   onSubmit() {
-    if (this.form.valid) {
-      this.http.post('/api/water-sources', this.form.value)
-        .subscribe({
-          next: () => {
-            alert('Fuente de agua añadida con éxito!');
-            this.router.navigate(['/']);
-          },
-          error: (err) => {
-            console.error('Error al añadir la fuente:', err);
-            alert('Error al añadir la fuente. Por favor, inténtalo de nuevo.');
-          }
-        });
-    }
+  if (this.form.valid) {
+    const token = localStorage.getItem('token'); 
+
+    this.http.post('http://localhost:3000/api/water-sources', this.form.value, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).subscribe({
+      next: () => {
+        alert('Fuente de agua añadida con éxito!');
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        console.error('Error al añadir la fuente:', err);
+        alert('Error al añadir la fuente. Por favor, inténtalo de nuevo.');
+      }
+    });
   }
+}
+
 }

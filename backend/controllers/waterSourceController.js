@@ -8,25 +8,46 @@ exports.createWaterSource = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  try {
-    const { name, description, latitude, longitude } = req.body;
-    const created_by = req.user.id; // El middleware de auth debe poner esto
 
-    // 💡 Verificar si ya existe una fuente cercana
+  try {
+    const {
+      name, description, latitude, longitude,
+      type, is_accessible, schedule,
+      country, city, postal_code, address
+    } = req.body;
+
+    const user_id = req.user.id;
+
+    // Verificar si ya existe una fuente cercana
     const [[{ count }]] = await WaterSource.existsAtCoordinates(latitude, longitude);
     if (count > 0) {
       return res.status(400).json({ error: 'Ya existe una fuente en esa ubicación.' });
     }
 
-    const waterSource = new WaterSource(name, description, latitude, longitude, created_by);
-    await WaterSource.save(waterSource);
+    const waterSource = new WaterSource(
+      name,
+      description,
+      latitude,
+      longitude,
+      type,
+      is_accessible,
+      schedule,
+      country,
+      city,
+      postal_code,
+      address,
+      user_id
+    );
 
+    await WaterSource.save(waterSource);
     res.status(201).json({ message: 'Fuente de agua creada correctamente.' });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al crear la fuente de agua' });
   }
 };
+
 
 // Listar todas las fuentes de agua
 exports.getAllWaterSources = async (req, res) => {

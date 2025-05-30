@@ -2,7 +2,7 @@
 const db = require('../util/database');
 
 module.exports = class WaterSource {
-  constructor(name, description, latitude, longitude, type, is_accessible, schedule, created_by) {
+  constructor(name, description, latitude, longitude, type, is_accessible, schedule, country, city, postal_code, address, user_id) {
     this.name = name;
     this.description = description;
     this.latitude = latitude;
@@ -10,14 +10,18 @@ module.exports = class WaterSource {
     this.type = type;
     this.is_accessible = is_accessible;
     this.schedule = schedule;
-    this.created_by = created_by;
+    this.country = country;
+    this.city = city;
+    this.postal_code = postal_code;
+    this.address = address;
+    this.user_id = user_id;
   }
 
   static save(waterSource) {
     return db.execute(
       `INSERT INTO water_sources 
-       (id, name, description, latitude, longitude, type, is_accessible, schedule, created_by)
-       VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (id, name, description, latitude, longitude, type, is_accessible, schedule, country, city, postal_code, address, user_id)
+       VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         waterSource.name,
         waterSource.description,
@@ -26,7 +30,11 @@ module.exports = class WaterSource {
         waterSource.type,
         waterSource.is_accessible,
         waterSource.schedule,
-        waterSource.created_by
+        waterSource.country,
+        waterSource.city,
+        waterSource.postal_code,
+        waterSource.address,
+        waterSource.user_id
       ]
     );
   }
