@@ -66,7 +66,7 @@ export class ReviewsComponent implements OnInit {
       next: () => {
         this.form = { rating: 5, comment: '' };
         this.activeTab.set('reviews');
-        this.loadApprovedReviews();
+        this.loadApprovedReviews();/* recragra valoraciones cuando se crea una nueva pero da iguall porque no esta aprobada  */
       },
       error: err => {
         alert('Error al enviar valoración');
