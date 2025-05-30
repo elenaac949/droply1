@@ -12,9 +12,9 @@
     <button mat-button [matMenuTriggerFor]="menu">Menú</button>
     <mat-menu #menu="matMenu">
       <!-- Si el usuario es admin, muestra el botón de administrador -->
-      <button *ngIf="authService.isAdmin()" mat-menu-item routerLink="/admin">Administrador</button>
+      <button *ngIf="(authService.isAdmin$ | async)" mat-menu-item routerLink="/admin">Administrador</button>
       <!-- Si NO es admin, muestra el botón de perfil -->
-      <button *ngIf="!authService.isAdmin()" mat-menu-item routerLink="/profile">Perfil</button>
+      <button *ngIf="!(authService.isAdmin$ | async)" mat-menu-item routerLink="/profile">Perfil</button>
       <button mat-menu-item (click)="logout()">Cerrar sesión</button>
     </mat-menu>
   </ng-container>

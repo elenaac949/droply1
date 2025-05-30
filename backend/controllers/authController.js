@@ -76,7 +76,8 @@ exports.login = async (req, res, next) => {
     const token = jwt.sign(
       {
         email: user.email,
-        userId: user.id   // O el campo que uses como identificador
+        userId: user.id,   // O el campo que uses como identificador
+        role: user.role
       },
       process.env.JWT_PRIVATE_KEY, // Se guarda en una variable de entorno
       { expiresIn: '6h' }
@@ -85,7 +86,8 @@ exports.login = async (req, res, next) => {
     // 5) Responder con token y datos
     res.status(200).json({
       token: token,
-      userId: user.id
+      userId: user.id,
+      role:user.role
     });
 
   } catch (err) {
