@@ -1,1 +1,30 @@
-<p>admin works!</p>
+<div class="admin-layout">
+    <!-- Navbar Superior (reemplaza al sidebar) -->
+    <nav class="admin-navbar mat-elevation-z4">
+        <div class="navbar-title">
+            <h2>Panel de administración</h2>
+        </div>
+        
+        <mat-nav-list class="nav-list">
+            <a mat-list-item routerLink="user-management" routerLinkActive="active">
+                <mat-icon>people</mat-icon>
+                <span class="nav-label">Gestión de Usuarios</span>
+            </a>
+            
+            <a mat-list-item routerLink="source-moderation" routerLinkActive="active">
+                <mat-icon>water_drop</mat-icon>
+                <span class="nav-label">Gestión de Fuentes</span>
+            </a>
+            
+            <a mat-list-item routerLink="review-moderation" routerLinkActive="active">
+                <mat-icon>rate_review</mat-icon>
+                <span class="nav-label">Gestión de Valoraciones</span>
+            </a>
+        </mat-nav-list>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="admin-content">
+        <router-outlet></router-outlet>
+    </main>
+</div>
