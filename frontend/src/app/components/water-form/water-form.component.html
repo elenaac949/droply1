@@ -1,1 +1,76 @@
-<p>water-form works!</p>
+<!-- water-source-form.component.html -->
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="water-source-form">
+  <h2>Añadir Nueva Fuente de Agua</h2>
+  
+  <div class="form-group">
+    <label for="name">Nombre*</label>
+    <input id="name" type="text" formControlName="name" placeholder="Nombre de la fuente">
+    <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="error-message">
+      El nombre es requerido (máx. 100 caracteres)
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="description">Descripción</label>
+    <textarea id="description" formControlName="description" rows="3" placeholder="Descripción de la fuente"></textarea>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="latitude">Latitud*</label>
+      <input id="latitude" type="text" formControlName="latitude" placeholder="Ej: 40.416775">
+      <div *ngIf="form.get('latitude')?.invalid && form.get('latitude')?.touched" class="error-message">
+        Formato inválido (ej: 40.416775)
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="longitude">Longitud*</label>
+      <input id="longitude" type="text" formControlName="longitude" placeholder="Ej: -3.703790">
+      <div *ngIf="form.get('longitude')?.invalid && form.get('longitude')?.touched" class="error-message">
+        Formato inválido (ej: -3.703790)
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="type">Tipo de fuente*</label>
+    <select id="type" formControlName="type">
+      <option *ngFor="let type of waterSourceTypes" [value]="type.value">{{type.label}}</option>
+    </select>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <input type="checkbox" id="is_accessible" formControlName="is_accessible">
+    <label for="is_accessible">Accesible para personas con movilidad reducida</label>
+  </div>
+
+  <div class="form-group">
+    <label for="schedule">Horario</label>
+    <input id="schedule" type="text" formControlName="schedule" placeholder="Ej: 24h, L-V 8:00-20:00">
+  </div>
+
+  <div class="form-group">
+    <label for="country">País</label>
+    <input id="country" type="text" formControlName="country">
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="city">Ciudad</label>
+      <input id="city" type="text" formControlName="city">
+    </div>
+
+    <div class="form-group">
+      <label for="postal_code">Código Postal</label>
+      <input id="postal_code" type="text" formControlName="postal_code">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="address">Dirección</label>
+    <input id="address" type="text" formControlName="address" placeholder="Dirección completa">
+  </div>
+
+  <button type="submit" [disabled]="form.invalid" class="submit-btn">Añadir Fuente</button>
+</form>
