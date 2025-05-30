@@ -1,8 +1,8 @@
 const express = require('express');
 const { body } = require('express-validator');
 
-const waterSourceController = require('../controllers/waterSource');
-const authMiddleware = require('../middlewares/auth'); // Asegúrate que existe
+const waterSourceController = require('../controllers/waterSourceController');
+const authMiddleware = require('../middlewares/authMiddleware'); 
 
 const router = express.Router();
 

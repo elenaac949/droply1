@@ -1,4 +1,4 @@
-const Review = require('../models/review');
+const Review = require('../models/reviewModel');
 
 exports.createReview = async (req, res, next) => {
   const { water_source_id, rating, comment } = req.body;

@@ -1,10 +1,10 @@
 require('dotenv').config();
 
 const express = require('express');
-const authRoutes = require('./routes/auth');
-const waterSourceRoutes = require('./routes/waterSource');
-const errorController = require('./controllers/error');
-const waterSourceAprovedRoutes = require('./routes/waterSource');
+const authRoutes = require('./routes/authRoute');
+const waterSourceRoutes = require('./routes/waterSourceRoute');
+const errorController = require('./controllers/errorController');
+const waterSourceAprovedRoutes = require('./routes/waterSourceRoute');
 const reviewRoutes = require('./routes/reviewRoutes');
 
 
