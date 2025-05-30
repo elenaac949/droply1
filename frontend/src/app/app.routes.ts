@@ -9,6 +9,8 @@ import { AdminComponent } from './components/admin/admin.component';
 import { HomeComponent } from './components/home/home.component';
 import { MapComponent } from './components/map/map.component';
 import { NoAuthGuard } from './guards/no-auth.guard';
+import { AdminGuard } from './guards/admin.guard';
+
 
 
 
@@ -18,7 +20,7 @@ export const routes: Routes = [
     {path: 'signup', component: RegisterComponent, canActivate: [NoAuthGuard]},
     {path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
     {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-    {path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
+    {path: 'admin', component: AdminComponent, canActivate: [AuthGuard,AdminGuard] },
     {path: 'water-form', component: WaterFormComponent, canActivate: [AuthGuard] },
     {path: '**', redirectTo: ''} //las rutas que no se encuentran te llevan al landing
     
