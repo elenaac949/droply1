@@ -53,4 +53,32 @@ module.exports = class WaterSource {
       [latitude, longitude]
     );
   }
+
+  // Nueva función para obtener fuente con información básica (sin usuario ni reviews)
+  static getBasicById(id) {
+    return db.execute(
+      'SELECT * FROM water_sources WHERE id = ?',
+      [id]
+    );
+  }
+
+  // Función para actualizar el estado de una fuente
+  static updateStatus(id, status) {
+    return db.execute(
+      'UPDATE water_sources SET status = ? WHERE id = ?',
+      [status, id]
+    );
+  }
+
+  // Función para obtener reviews de una fuente
+  static getReviews(waterSourceId) {
+    return db.execute(
+      `SELECT r.rating, r.comment, r.created_at, u.username
+       FROM reviews r
+       INNER JOIN users u ON r.user_id = u.id
+       WHERE r.water_source_id = ? AND r.status = 'approved'
+       ORDER BY r.created_at DESC`,
+      [waterSourceId]
+    );
+  }
 };

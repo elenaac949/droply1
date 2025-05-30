@@ -50,18 +50,13 @@ exports.getApprovedWaterSources = async (req, res) => {
   }
 };
 
+/* Obtener informacion sobre una fuente de agua en base a su id */
 exports.getById = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    // 1. Obtener datos de la fuente + su creador
-    const [sourceRows] = await db.execute(
-      `SELECT ws.*, u.username AS created_by_username
-       FROM water_sources ws
-       LEFT JOIN users u ON ws.created_by = u.id
-       WHERE ws.id = ?`,
-      [id]
-    );
+    // 1. Obtener datos básicos de la fuente
+    const [sourceRows] = await WaterSource.getBasicById(id);
 
     if (sourceRows.length === 0) {
       return res.status(404).json({ message: 'Fuente no encontrada' });
@@ -69,17 +64,10 @@ exports.getById = async (req, res, next) => {
 
     const source = sourceRows[0];
 
-    // 2. Obtener valoraciones + nombre del usuario que las hizo
-    const [reviews] = await db.execute(
-      `SELECT r.rating, r.comment, r.created_at, u.username
-       FROM reviews r
-       INNER JOIN users u ON r.user_id = u.id
-       WHERE r.water_source_id = ? AND r.status = 'approved'
-       ORDER BY r.created_at DESC`,
-      [id]
-    );
+    // 2. Obtener valoraciones aprobadas
+    const [reviews] = await WaterSource.getReviews(id);
 
-    // 3. Calcular media y total
+    // 3. Calcular media y total 
     let average_rating = null;
     let total_reviews = reviews.length;
 
@@ -88,7 +76,7 @@ exports.getById = async (req, res, next) => {
       average_rating = parseFloat((sum / total_reviews).toFixed(2));
     }
 
-    // 4. Responder
+    // 4. Responder con los datos combinados
     res.status(200).json({
       ...source,
       reviews,
@@ -111,11 +99,7 @@ exports.updateStatus = async (req, res, next) => {
   }
 
   try {
-    const [result] = await db.execute(
-      `UPDATE water_sources SET status = ? WHERE id = ?`,
-      [status, id]
-    );
-
+    await WaterSource.updateStatus(id, status);
     res.status(200).json({ message: `Estado actualizado a '${status}'` });
   } catch (err) {
     console.error('Error al actualizar estado:', err);

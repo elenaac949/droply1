@@ -18,12 +18,23 @@ module.exports = class Review {
   }
 
   /* Obtener valoraciones relacioonadas con una fuente de agua */
-  static getByWaterSource(water_source_id) {
+  /* static getByWaterSource(water_source_id) {
     return db.execute(
       `SELECT * FROM reviews WHERE water_source_id = ? AND status = 'approved' ORDER BY created_at DESC`,
       [water_source_id]
     );
-  }
+  } */
+ static getByWaterSource(water_source_id) {
+  return db.execute(
+    `SELECT r.rating, r.comment, r.created_at, u.username
+     FROM reviews r
+     INNER JOIN users u ON r.user_id = u.id
+     WHERE r.water_source_id = ? AND r.status = 'approved'
+     ORDER BY r.created_at DESC`,
+    [water_source_id]
+  );
+}
+
 
   /* Obtener todas las valoraciones */
   static getAll() {

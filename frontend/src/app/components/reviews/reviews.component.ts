@@ -30,7 +30,7 @@ export class ReviewsComponent implements OnInit {
     this.loadSourceInfo();       // Nombre + creador
     this.loadApprovedReviews();  // Solo valoraciones aprobadas
   }
-
+/* Ceafamos la informacion de la duente */
   loadSourceInfo(): void {
     this.http.get<any>(`http://localhost:3000/api/water-sources/${this.waterSourceId}`)
       .subscribe(data => {
@@ -39,6 +39,7 @@ export class ReviewsComponent implements OnInit {
       });
   }
 
+  /* Cargamos la valoraciones aprobadas */
   loadApprovedReviews(): void {
     this.http.get<any[]>(`http://localhost:3000/api/reviews/source/${this.waterSourceId}`)
       .subscribe(data => {
