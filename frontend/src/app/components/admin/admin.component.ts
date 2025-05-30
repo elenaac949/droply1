@@ -5,7 +5,6 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 
-
 @Component({
   selector: 'app-admin',
   standalone:true,
@@ -20,4 +19,5 @@ import { CommonModule } from '@angular/common';
 })
 export class AdminComponent {
   
+
 }

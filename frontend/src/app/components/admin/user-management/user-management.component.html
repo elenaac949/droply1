@@ -1,3 +1,29 @@
-<p>
-  user-management works!
-</p>
+<h1>Gestión de Usuarios</h1>
+
+<div class="actions">
+  <button (click)="addUser()">Agregar Usuario</button>
+  <input [(ngModel)]="searchTerm" placeholder="Buscar usuario..." />
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Usuario</th>
+      <th>Email</th>
+      <th>Rol</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of filteredUsers">
+      
+      <td>{{ user.username }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.role }}</td>
+      <td>
+        <button (click)="editUser(user)">Editar</button>
+        <button (click)="deleteUser(user.id)">Eliminar</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

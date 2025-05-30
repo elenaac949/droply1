@@ -13,16 +13,7 @@ exports.createReview = async (req, res, next) => {
   }
 };
 
-/* exports.getReviewsByWaterSource = async (req, res, next) => {
-  const { id } = req.params;
-  try {
-    const [rows] = await Review.getByWaterSource(id);
-    res.status(200).json(rows);
-  } catch (err) {
-    err.statusCode = 500;
-    next(err);
-  }
-}; */
+
 exports.getReviewsByWaterSource = async (req, res, next) => {
   const { id } = req.params;
   try {

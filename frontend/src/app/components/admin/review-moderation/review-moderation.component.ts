@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-review-moderation',
+  standalone:true,
+  imports:[],
   templateUrl: './review-moderation.component.html',
   styleUrls: ['./review-moderation.component.css']
 })
