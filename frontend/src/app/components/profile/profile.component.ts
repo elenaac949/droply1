@@ -133,7 +133,7 @@ export class ProfileComponent {
       newPassword: '',
       confirmNewPassword: ''
     };
-    this.isCurrentPasswordValid = true; 
+    this.isCurrentPasswordValid = true;
   }
 
 
@@ -179,6 +179,17 @@ export class ProfileComponent {
         error: () => this.isCurrentPasswordValid = false
       });
   }
+
+
+  passwordsDoNotMatch(): boolean {
+  return (
+    this.passwordData.newPassword !== '' &&
+    this.passwordData.confirmNewPassword !== '' &&
+    this.passwordData.newPassword !== this.passwordData.confirmNewPassword
+  );
+}
+
+
 
 
 }
