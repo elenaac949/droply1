@@ -86,29 +86,32 @@ div:empty + div {
   background: rgba(204, 238, 255, 0.1);
 }
 
-button.mat-button {
-  font-weight: 500;
-  border-radius: 4px;
-  padding: 0 1rem;
-  transition: all 0.3s ease;
+/* Botones */
+button[mat-raised-button].approve-btn {
+  background-color: #27ae60 !important;
+  color: white !important;
+  border: none;
 }
 
-button.mat-button:first-child {
-  color: #27ae60;
-  border: 1px solid rgba(39, 174, 96, 0.3);
+button[mat-raised-button].reject-btn {
+  background-color: #e74c3c !important;
+  color: white !important;
+  border: none;
 }
 
-button.mat-button:first-child:hover {
-  background: rgba(39, 174, 96, 0.1);
+/* Efectos hover */
+button[mat-raised-button].approve-btn:hover {
+  background-color: #2ecc71 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-button.mat-button:last-child {
-  color: #e74c3c;
-  border: 1px solid rgba(231, 76, 60, 0.3);
+button[mat-raised-button].reject-btn:hover {
+  background-color: #c0392b !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-button.mat-button:last-child:hover {
-  background: rgba(231, 76, 60, 0.1);
+.reject-btn:hover {
+  background: rgba(231, 76, 60, 0.1) !important;
 }
 
 /* Responsive */
@@ -126,7 +129,7 @@ button.mat-button:last-child:hover {
     gap: 0.5rem;
   }
   
-  button.mat-button {
+  .mat-card-actions button.mat-button {
     width: 100%;
     padding: 0.5rem;
   }

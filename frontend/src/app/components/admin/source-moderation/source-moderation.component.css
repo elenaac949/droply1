@@ -1,23 +1,174 @@
-.container {
-  padding: 20px;
+/* Contenedor principal */
+:host {
+  display: block;
+  padding: 2rem;
+  background-color: #f9fbfd;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
+h2 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #cceeff;
+}
+
+/* Estados (loading, error, empty) */
 .loading {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 1rem;
+  padding: 2rem;
+  color: #3498db;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .error-message {
-  color: #f44336;
-  margin: 20px 0;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: #e74c3c;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
+.error-message button {
+  margin-left: auto;
+  background: transparent !important;
+  color: #3498db;
+  border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+/* Empty state */
+.container > div:empty {
+  text-align: center;
+  padding: 2rem;
+  color: #7f8c8d;
+  font-style: italic;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Tarjetas */
 .source-card {
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
-mat-card-actions button {
-  margin-right: 10px;
+mat-card {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease;
+  border-radius: 4px !important;
+  overflow: hidden;
+  background: white;
+  border: 1px solid #ecf0f1;
+}
+
+mat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  border-color: #cceeff;
+}
+
+/* Encabezado */
+.mat-card-title {
+  color: #3498db !important;
+  font-size: 1.25rem !important;
+  margin-bottom: 0.5rem !important;
+  font-weight: 500;
+}
+
+.mat-card-subtitle {
+  color: #7f8c8d !important;
+  font-size: 0.875rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Contenido */
+.mat-card-content {
+  padding: 1rem 0 !important;
+  color: #34495e;
+  line-height: 1.6;
+  font-size: 0.9375rem;
+}
+
+.mat-card-content p {
+  margin: 0.5rem 0;
+}
+
+.mat-card-content strong {
+  color: #2c3e50;
+}
+
+/* Botones transparentes */
+.mat-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem !important;
+  border-top: 1px solid #ecf0f1 !important;
+  background: rgba(204, 238, 255, 0.1) !important;
+  margin: 0 !important;
+}
+/* Botones */
+button[mat-raised-button].approve-btn {
+  background-color: #27ae60 !important;
+  color: white !important;
+  border: none;
+}
+
+button[mat-raised-button].reject-btn {
+  background-color: #e74c3c !important;
+  color: white !important;
+  border: none;
+}
+
+/* Efectos hover */
+button[mat-raised-button].approve-btn:hover {
+  background-color: #2ecc71 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+button[mat-raised-button].reject-btn:hover {
+  background-color: #c0392b !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.reject-btn:hover {
+  background: rgba(231, 76, 60, 0.1) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  :host {
+    padding: 1rem;
+  }
+  
+  .source-card {
+    margin: 1rem 0;
+  }
+  
+  .mat-card-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  button[mat-raised-button] {
+    width: 100%;
+    padding: 0.5rem !important;
+  }
+  
+  .mat-card-header {
+    padding: 1rem 1rem 0 !important;
+  }
+  
+  .mat-card-content {
+    padding: 0 1rem 1rem !important;
+  }
 }

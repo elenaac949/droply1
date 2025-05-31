@@ -1,6 +1,6 @@
 <div class="container">
   <h2>Moderación de Fuentes de Agua</h2>
-  
+
   <!-- Loading state -->
   <div *ngIf="isLoading" class="loading">
     <mat-spinner diameter="40"></mat-spinner>
@@ -33,12 +33,8 @@
         <p><strong>Ubicación:</strong> {{ source.latitude }}, {{ source.longitude }}</p>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-raised-button color="primary" (click)="moderateSource(source.id, 'approved')">
-          Aprobar
-        </button>
-        <button mat-raised-button color="warn" (click)="moderateSource(source.id, 'rejected')">
-          Rechazar
-        </button>
+        <button mat-raised-button class="approve-btn" (click)="moderateSource(source.id, 'approved')">Aceptar</button>
+        <button mat-raised-button class="reject-btn" (click)="moderateSource(source.id, 'rejected')">Rechazar</button>
       </mat-card-actions>
     </mat-card>
   </div>
