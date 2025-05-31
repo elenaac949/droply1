@@ -41,6 +41,7 @@ router.get('/:id', waterSourceController.getById);
 /* actualizar el estado de la valoracion */
 router.put('/:id/status', authMiddleware, waterSourceController.updateStatus);
 
-
+/* router.get('/pending', waterSourceController.getPendingSources); */
+router.get('/pending', authMiddleware, waterSourceController.getPendingSources);
 
 module.exports = router;

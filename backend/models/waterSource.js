@@ -55,6 +55,16 @@ module.exports = class WaterSource {
     );
   }
 
+  static fetchPending() {
+  return db.execute(`
+    SELECT w.id, w.name, w.description, w.created_at, w.status, u.username
+    FROM water_sources w
+    INNER JOIN users u ON w.user_id = u.id
+    WHERE w.status = 'pending'
+    ORDER BY w.created_at DESC
+  `);
+}
+
   static existsAtCoordinates(latitude, longitude) {
     return db.execute(
       'SELECT COUNT(*) as count FROM water_sources WHERE ABS(latitude - ?) < 0.00001 AND ABS(longitude - ?) < 0.00001',

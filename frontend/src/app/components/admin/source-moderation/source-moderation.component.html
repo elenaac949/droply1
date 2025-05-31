@@ -1,3 +1,17 @@
-<p>
-  source-moderation works!
-</p>
+<h2>Fuentes de agua pendientes</h2>
+
+<div *ngIf="pendingSources.length === 0">
+  No hay fuentes pendientes de aprobación.
+</div>
+
+<mat-card *ngFor="let source of pendingSources" class="source-card">
+  <mat-card-title>{{ source.name }}</mat-card-title>
+  <mat-card-subtitle>Creada por: {{ source.username }} – {{ source.created_at | date:'short' }}</mat-card-subtitle>
+  <mat-card-content>
+    <p>{{ source.description }}</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button color="primary" (click)="moderateSource(source.id, 'approved')">Aprobar</button>
+    <button mat-button color="warn" (click)="moderateSource(source.id, 'rejected')">Rechazar</button>
+  </mat-card-actions>
+</mat-card>

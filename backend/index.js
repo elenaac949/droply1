@@ -1,17 +1,12 @@
 require('dotenv').config();
 
 const express = require('express');
-
-const authRoutes = require('./routes/authRoute');
-
-const waterSourceRoutes = require('./routes/waterSourceRoute');
-const waterSourceAprovedRoutes = require('./routes/waterSourceRoute');
-
 const errorController = require('./controllers/errorController');
 
+const authRoutes = require('./routes/authRoutes');
+const waterSourceRoutes = require('./routes/waterSourceRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
-
-const userRoutes = require('./routes/userRoute');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const ports = process.env.PORT || 3000;
@@ -27,8 +22,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/auth', authRoutes);
-app.use('/water-sources', waterSourceRoutes);
-app.use('/api/water-sources', waterSourceAprovedRoutes);
+app.use('/api/water-sources', waterSourceRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
 

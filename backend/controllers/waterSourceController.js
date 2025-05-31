@@ -127,3 +127,14 @@ exports.updateStatus = async (req, res, next) => {
     res.status(500).json({ message: 'Error al actualizar el estado' });
   }
 };
+
+/* obtener las funetes pendientes de aprobar */
+exports.getPendingSources = async (req, res) => {
+  try {
+    const [rows] = await WaterSource.fetchPending();
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener fuentes pendientes' });
+  }
+};
