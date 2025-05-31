@@ -6,8 +6,8 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  password?: string; 
-  role: 'user' | 'admin' ;
+  password?: string;
+  role: 'user' | 'admin';
   phone?: string;
   country?: string;
   city?: string;
@@ -31,8 +31,8 @@ export class UserService {
     return this.http.get<User[]>(this.apiUrl);
   }
   createUser(user: Partial<User>): Observable<any> {
-  return this.http.post(this.apiUrl, user);
-}
+    return this.http.post(this.apiUrl, user);
+  }
 
   deleteUser(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
@@ -43,6 +43,11 @@ export class UserService {
   }
 
   checkEmailExists(email: string): Observable<boolean> {
-  return this.http.get<boolean>(`${this.apiUrl}/exists?email=${encodeURIComponent(email)}`);
-}
+    return this.http.get<boolean>(`${this.apiUrl}/exists?email=${encodeURIComponent(email)}`);
+  }
+  
+  getUserById(id: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${id}`);
+  }
+
 }

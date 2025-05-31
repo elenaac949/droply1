@@ -113,3 +113,20 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar el usuario' });
   }
 };
+
+/* Obtener usuario por id */
+
+exports.getUserById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await User.findById(id);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener el usuario' });
+  }
+};
+

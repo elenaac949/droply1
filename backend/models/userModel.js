@@ -56,8 +56,6 @@ module.exports = class User {
         `);
     }
 
-
-
     /* Borrar ususarios por id */
     static deleteById(id) {
         return db.execute('DELETE FROM users WHERE id = ?', [id]);
@@ -84,5 +82,7 @@ module.exports = class User {
         );
     }
 
-
+    static findById(id) {
+        return db.execute('SELECT * FROM users WHERE id = ?', [id]);
+    }
 }

@@ -1,1 +1,25 @@
-<p>profile works!</p>
+<div class="profile-container" *ngIf="user">
+  <mat-card class="profile-card">
+    <mat-card-title>Mi perfil</mat-card-title>
+    
+    <div class="profile-info">
+      <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Teléfono:</strong> {{ user.phone || '-' }}</p>
+      <p><strong>País:</strong> {{ user.country || '-' }}</p>
+      <p><strong>Ciudad:</strong> {{ user.city || '-' }}</p>
+      <p><strong>Código Postal:</strong> {{ user.postal_code || '-' }}</p>
+      <p><strong>Dirección:</strong> {{ user.address || '-' }}</p>
+      <p><strong>Rol:</strong> {{ user.role === 'admin' ? 'Administrador' : 'Usuario' }}</p>
+    </div>
+
+    <div class="profile-actions">
+      <button mat-raised-button color="primary" (click)="editarPerfil()">Editar perfil</button>
+      <button mat-stroked-button color="accent" (click)="cambiarContrasena()">Cambiar contraseña</button>
+
+      <button *ngIf="user.role === 'user'" mat-raised-button color="warn" (click)="eliminarCuenta()">
+        Eliminar cuenta
+      </button>
+    </div>
+  </mat-card>
+</div>
