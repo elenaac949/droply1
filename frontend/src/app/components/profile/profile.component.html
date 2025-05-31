@@ -1,74 +1,91 @@
 <div class="profile-container" *ngIf="user">
-  <mat-card class="profile-card">
-    <mat-card-title>Mi perfil</mat-card-title>
-    
-    <div class="profile-info">
-      <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
-      <p><strong>Email:</strong> {{ user.email }}</p>
-      <p><strong>Teléfono:</strong> {{ user.phone || '-' }}</p>
-      <p><strong>País:</strong> {{ user.country || '-' }}</p>
-      <p><strong>Ciudad:</strong> {{ user.city || '-' }}</p>
-      <p><strong>Código Postal:</strong> {{ user.postal_code || '-' }}</p>
-      <p><strong>Dirección:</strong> {{ user.address || '-' }}</p>
-      <p><strong>Rol:</strong> {{ user.role === 'admin' ? 'Administrador' : 'Usuario' }}</p>
-    </div>
+    <mat-card class="profile-card">
+        <mat-card-title>Mi perfil</mat-card-title>
 
-    <div class="profile-actions">
-      <button mat-raised-button color="primary" (click)="editarPerfil()">Editar perfil</button>
-      <button mat-stroked-button color="accent" (click)="cambiarContrasena()">Cambiar contraseña</button>
+        <div class="profile-info">
+            <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Teléfono:</strong> {{ user.phone || '-' }}</p>
+            <p><strong>País:</strong> {{ user.country || '-' }}</p>
+            <p><strong>Ciudad:</strong> {{ user.city || '-' }}</p>
+            <p><strong>Código Postal:</strong> {{ user.postal_code || '-' }}</p>
+            <p><strong>Dirección:</strong> {{ user.address || '-' }}</p>
+            <p><strong>Rol:</strong> {{ user.role === 'admin' ? 'Administrador' : 'Usuario' }}</p>
+        </div>
 
-      <button *ngIf="user.role === 'user'" mat-raised-button color="warn" (click)="eliminarCuenta()">
-        Eliminar cuenta
-      </button>
-    </div>
-  </mat-card>
+        <div class="profile-actions">
+            <button mat-raised-button color="primary" (click)="editarPerfil()">Editar perfil</button>
+            <button mat-stroked-button color="accent" (click)="cambiarContrasena()">Cambiar contraseña</button>
+
+            <button *ngIf="user.role === 'user'" mat-raised-button color="warn" (click)="eliminarCuenta()">
+                Eliminar cuenta
+            </button>
+        </div>
+    </mat-card>
 </div>
 
 <!-- Modal de edición -->
 <div class="modal" *ngIf="editProfileForm && userToEdit">
-  <mat-card class="modal-card">
-    <mat-card-title>Editar perfil</mat-card-title>
-    <form (ngSubmit)="guardarCambios()" #editForm="ngForm">
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Nombre de usuario</mat-label>
-        <input matInput [(ngModel)]="userToEdit.username" name="editUsername" required>
-      </mat-form-field>
+    <mat-card class="modal-card">
+        <mat-card-title>Editar perfil</mat-card-title>
+        <form (ngSubmit)="guardarCambiosPerfil()" #editForm="ngForm">
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Nombre de usuario</mat-label>
+                <input matInput [(ngModel)]="userToEdit.username" name="editUsername" required>
+            </mat-form-field>
 
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Email</mat-label>
-        <input matInput [(ngModel)]="userToEdit.email" name="editEmail" required>
-      </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Email</mat-label>
+                <input matInput [(ngModel)]="userToEdit.email" name="editEmail" required email
+                    (blur)="validateEmailEdit(userToEdit.email || '')" #editEmailCtrl="ngModel" />
 
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Teléfono</mat-label>
-        <input matInput [(ngModel)]="userToEdit.phone" name="editPhone">
-      </mat-form-field>
+                <mat-error *ngIf="editEmailCtrl.errors?.['required']">
+                    El email es obligatorio
+                </mat-error>
+                <mat-error *ngIf="editEmailCtrl.errors?.['email']">
+                    Formato de email inválido
+                </mat-error>
+                <mat-error *ngIf="emailExistsEdit">
+                    Este email ya está registrado
+                </mat-error>
+            </mat-form-field>
 
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>País</mat-label>
-        <input matInput [(ngModel)]="userToEdit.country" name="editCountry">
-      </mat-form-field>
 
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Ciudad</mat-label>
-        <input matInput [(ngModel)]="userToEdit.city" name="editCity">
-      </mat-form-field>
 
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Código Postal</mat-label>
-        <input matInput [(ngModel)]="userToEdit.postal_code" name="editPostalCode">
-      </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Teléfono</mat-label>
+                <input matInput [(ngModel)]="userToEdit.phone" name="editPhone">
+            </mat-form-field>
 
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Dirección</mat-label>
-        <textarea matInput [(ngModel)]="userToEdit.address" name="editAddress"></textarea>
-      </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>País</mat-label>
+                <input matInput [(ngModel)]="userToEdit.country" name="editCountry">
+            </mat-form-field>
 
-      <div class="actions">
-        <button mat-raised-button color="primary" type="submit" [disabled]="editForm.invalid">Guardar</button>
-        <button mat-button type="button" (click)="cerrarEdicion()">Cancelar</button>
-      </div>
-    </form>
-  </mat-card>
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Ciudad</mat-label>
+                <input matInput [(ngModel)]="userToEdit.city" name="editCity">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Código Postal</mat-label>
+                <input matInput [(ngModel)]="userToEdit.postal_code" name="editPostalCode">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Dirección</mat-label>
+                <textarea matInput [(ngModel)]="userToEdit.address" name="editAddress"></textarea>
+            </mat-form-field>
+
+            <div class="actions">
+                <button mat-raised-button color="primary" type="submit"
+                    [disabled]="editForm.invalid || emailExistsEdit">
+                    Guardar
+                </button>
+
+
+                <button mat-button type="button" (click)="cerrarEdicion()">Cancelar</button>
+            </div>
+        </form>
+    </mat-card>
 </div>
-

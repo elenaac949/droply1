@@ -7,6 +7,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-profile',
@@ -14,11 +16,12 @@ import { MatInputModule } from '@angular/material/input';
   imports: [
     CommonModule,
     NgIf,
-    FormsModule, 
+    FormsModule,
     MatCardModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatSnackBarModule
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
@@ -28,10 +31,13 @@ export class ProfileComponent {
   user: User | null = null;
   editProfileForm: boolean = false;
   userToEdit: User | null = null;
+  originalEmail: string = '';
+  emailExistsEdit: boolean = false;
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -53,9 +59,21 @@ export class ProfileComponent {
 
   editarPerfil() {
     this.userToEdit = { ...this.user! };
+    this.originalEmail = this.user!.email;
     this.editProfileForm = true;
   }
 
+  validateEmailEdit(email: string): void {
+    if (!email || email === this.originalEmail) {
+      this.emailExistsEdit = false;
+      return;
+    }
+
+    this.userService.checkEmailExists(email).subscribe({
+      next: (res) => this.emailExistsEdit = res === true,
+      error: () => this.emailExistsEdit = false
+    });
+  }
   cerrarEdicion() {
     this.editProfileForm = false;
     this.userToEdit = null;
@@ -70,19 +88,34 @@ export class ProfileComponent {
     }
   }
 
-  guardarCambios() {
+  guardarCambiosPerfil() {
     if (!this.userToEdit) return;
-    this.userService.updateUser(this.userToEdit).subscribe(() => {
-      this.user = { ...this.userToEdit! }; // actualizamos en pantalla
-      this.cerrarEdicion();
 
-      // Feedback opcional
-      console.log('Perfil actualizado correctamente');
+    this.userService.updateUser(this.userToEdit).subscribe({
+      next: () => {
+        this.snackBar.open('Perfil actualizado correctamente ', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
+
+        this.user = { ...(this.userToEdit as User) };
+
+        this.editProfileForm = false;
+      },
+      error: () => {
+        this.snackBar.open('Error al actualizar el perfil ', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
+      }
     });
   }
 
+
   cambiarContrasena() {
-  console.log('Cambiar contraseña'); // Aquí luego puedes abrir un modal o navegar
-}
+    console.log('Cambiar contraseña'); // Aquí luego puedes abrir un modal o navegar
+  }
 
 }
