@@ -5,7 +5,7 @@
 <mat-card *ngFor="let review of pendingReviews" class="review-card">
   <mat-card-title>{{ review.rating }} ★</mat-card-title>
   <mat-card-subtitle>
-    Fuente: {{ review.source_name }} — Usuario: {{ review.username }} — {{ review.created_at | date:'short' }}
+    {{ review.source_name }} — Usuario: {{ review.username }} — {{ review.created_at | date:'short' }}
   </mat-card-subtitle>
 
   <mat-card-content>
