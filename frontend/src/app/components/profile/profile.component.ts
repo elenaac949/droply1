@@ -26,6 +26,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
+
+
 export class ProfileComponent {
 
   user: User | null = null;
@@ -33,14 +35,16 @@ export class ProfileComponent {
   userToEdit: User | null = null;
   originalEmail: string = '';
   emailExistsEdit: boolean = false;
-  cambiarPasswordForm: boolean = false;
+  changePasswordForm: boolean = false;
   passwordData = {
-    current: '',
-    new: '',
-    confirm: ''
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: ''
   };
 
   passwordError: string = '';
+  isCurrentPasswordValid: boolean = true;
+
 
   constructor(
     private userService: UserService,
@@ -122,42 +126,57 @@ export class ProfileComponent {
   }
 
 
+  openChangePasswordModal() {
+    this.changePasswordForm = true;
+    this.passwordData = {
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: ''
+    };
+  }
+
   cambiarContrasena() {
-    this.cambiarPasswordForm = true;
-    this.passwordData = { current: '', new: '', confirm: '' };
-    this.passwordError = '';
-  }
-
-  guardarNuevaPassword() {
-  if (!this.passwordData.current || !this.passwordData.new || !this.passwordData.confirm) {
-    this.passwordError = 'Todos los campos son obligatorios';
-    return;
-  }
-
-  if (this.passwordData.new.length < 7) {
-    this.passwordError = 'La nueva contraseña debe tener al menos 7 caracteres';
-    return;
-  }
-
-  if (this.passwordData.new !== this.passwordData.confirm) {
-    this.passwordError = 'Las nuevas contraseñas no coinciden';
-    return;
-  }
-
-  // Aquí va tu llamada al servicio para cambiar la contraseña
-  // this.userService.changePassword(...)
-
-  this.snackBar.open('Contraseña actualizada correctamente', 'Cerrar', {
-    duration: 3000,
-    horizontalPosition: 'right',
-    verticalPosition: 'top',
-  });
-
-  this.cerrarCambioPassword();
+  this.openChangePasswordModal();
 }
 
-  cerrarCambioPassword() {
-    this.cambiarPasswordForm = false;
+
+  submitPasswordChange() {
+  const { currentPassword, newPassword, confirmNewPassword } = this.passwordData;
+  if (!currentPassword || !newPassword || newPassword.length < 7) {
+    this.snackBar.open('La nueva contraseña debe tener al menos 7 caracteres', 'Cerrar', { duration: 3000 });
+    return;
   }
+
+  if (newPassword !== confirmNewPassword) {
+    this.snackBar.open('Las contraseñas no coinciden', 'Cerrar', { duration: 3000 });
+    return;
+  }
+
+  const userId = this.user?.id;
+  if (!userId) return;
+
+  this.userService.changePassword(userId, currentPassword, newPassword).subscribe({
+    next: () => {
+      this.snackBar.open('Contraseña actualizada correctamente ✅', 'Cerrar', { duration: 3000 });
+      this.changePasswordForm = false;
+    },
+    error: (err:any) => {
+      const msg = err.error?.message || 'Error al cambiar la contraseña';
+      this.snackBar.open(msg, 'Cerrar', { duration: 3000 });
+    }
+  });
+}
+
+checkCurrentPassword(): void {
+  const userId = this.user?.id;
+  if (!userId || !this.passwordData.currentPassword) return;
+
+  this.userService.verifyCurrentPassword(userId, this.passwordData.currentPassword)
+    .subscribe({
+      next: (isValid) => this.isCurrentPasswordValid = isValid,
+      error: () => this.isCurrentPasswordValid = false
+    });
+}
+
 
 }

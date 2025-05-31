@@ -90,37 +90,56 @@
     </mat-card>
 </div>
 
-
 <!-- Modal de cambio de contraseña -->
-<div class="modal" *ngIf="cambiarPasswordForm">
-  <mat-card class="modal-card">
-    <mat-card-title>Cambiar contraseña</mat-card-title>
+<div class="modal" *ngIf="changePasswordForm">
+    <mat-card class="modal-card">
+        <mat-card-title>Cambiar contraseña</mat-card-title>
+        <form (ngSubmit)="submitPasswordChange()" #passwordForm="ngForm">
 
-    <form (ngSubmit)="guardarNuevaPassword()" #passwordForm="ngForm">
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Contraseña actual</mat-label>
-        <input matInput [(ngModel)]="passwordData.current" name="current" type="password" required />
-      </mat-form-field>
+            <!-- Contraseña actual -->
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Contraseña actual</mat-label>
+                <input matInput [(ngModel)]="passwordData.currentPassword" name="currentPassword" type="password"
+                    required minlength="7" (blur)="checkCurrentPassword()" #currentCtrl="ngModel">
 
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Nueva contraseña</mat-label>
-        <input matInput [(ngModel)]="passwordData.new" name="new" type="password" required minlength="7" />
-      </mat-form-field>
+                <mat-error *ngIf="currentCtrl.invalid && currentCtrl.touched">
+                    La contraseña actual es obligatoria y debe tener al menos 7 caracteres
+                </mat-error>
+                <mat-error *ngIf="currentCtrl.valid && !isCurrentPasswordValid">
+                    Contraseña incorrecta
+                </mat-error>
 
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Repetir nueva contraseña</mat-label>
-        <input matInput [(ngModel)]="passwordData.confirm" name="confirm" type="password" required />
-      </mat-form-field>
+            </mat-form-field>
 
-      <mat-error *ngIf="passwordError">{{ passwordError }}</mat-error>
+            <!-- Nueva contraseña -->
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Nueva contraseña</mat-label>
+                <input matInput [(ngModel)]="passwordData.newPassword" name="newPassword" required minlength="7"
+                    type="password" #newCtrl="ngModel">
+                <mat-error *ngIf="newCtrl.invalid && newCtrl.touched">
+                    La nueva contraseña es obligatoria y debe tener al menos 7 caracteres
+                </mat-error>
+            </mat-form-field>
 
-      <div class="actions">
-        <button mat-raised-button color="primary" type="submit"
-          [disabled]="passwordForm.invalid || passwordData.new !== passwordData.confirm">
-          Guardar
-        </button>
-        <button mat-button type="button" (click)="cerrarCambioPassword()">Cancelar</button>
-      </div>
-    </form>
-  </mat-card>
+            <!-- Confirmar nueva contraseña -->
+            <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Repetir nueva contraseña</mat-label>
+                <input matInput [(ngModel)]="passwordData.confirmNewPassword" name="confirmNewPassword" required
+                    minlength="7" type="password" #confirmCtrl="ngModel">
+                <mat-error *ngIf="confirmCtrl.invalid && confirmCtrl.touched">
+                    Este campo es obligatorio y debe tener al menos 7 caracteres
+                </mat-error>
+                <mat-error
+                    *ngIf="passwordData.confirmNewPassword && passwordData.newPassword !== passwordData.confirmNewPassword">
+                    Las contraseñas no coinciden
+                </mat-error>
+            </mat-form-field>
+
+            <div class="actions">
+                <button mat-raised-button color="primary" type="submit"
+                    [disabled]="!isCurrentPasswordValid || passwordForm.invalid || passwordData.newPassword !== passwordData.confirmNewPassword">Cambiar</button>
+                <button mat-button type="button" (click)="changePasswordForm = false">Cancelar</button>
+            </div>
+        </form>
+    </mat-card>
 </div>

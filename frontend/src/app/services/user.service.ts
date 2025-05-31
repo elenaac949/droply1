@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable,map } from 'rxjs';
 
 export interface User {
   id: string;
@@ -45,9 +45,22 @@ export class UserService {
   checkEmailExists(email: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/exists?email=${encodeURIComponent(email)}`);
   }
-  
+
   getUserById(id: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
+
+  changePassword(userId: string, currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${userId}/password`, {
+      currentPassword,
+      newPassword
+    });
+  }
+
+  verifyCurrentPassword(userId: string, password: string): Observable<boolean> {
+    return this.http.post<{ valid: boolean }>(`${this.apiUrl}/verify-password/${userId}`, { currentPassword: password })
+      .pipe(map(res => res.valid));
+  }
+
 
 }

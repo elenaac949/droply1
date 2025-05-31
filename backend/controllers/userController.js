@@ -130,3 +130,53 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+// verificar contraseña actual
+exports.verifyPassword = async (req, res) => {
+  const { userId } = req.params;
+  const { currentPassword } = req.body;
+
+  try {
+    const [rows] = await User.findById(userId);
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const user = rows[0];
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ valid: false });
+    }
+
+    res.json({ valid: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al verificar contraseña' });
+  }
+};
+
+/* actualizar contraseña */
+exports.updatePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.params.id;
+
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'Faltan campos obligatorios' });
+    }
+
+    try {
+        const [rows] = await User.findById(userId);
+        const user = rows[0];
+
+        const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await User.updatePassword(userId, hashedPassword);
+
+        res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al cambiar la contraseña' });
+    }
+};

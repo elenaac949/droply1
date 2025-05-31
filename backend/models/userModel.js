@@ -81,8 +81,16 @@ module.exports = class User {
             ]
         );
     }
-
+    /* encontrar usuario por id */
     static findById(id) {
         return db.execute('SELECT * FROM users WHERE id = ?', [id]);
     }
+    /* actualizar la contraseña */
+    static async updatePassword(userId, hashedPassword) {
+        return db.execute(
+            'UPDATE users SET password = ? WHERE id = ?',
+            [hashedPassword, userId]
+        );
+    }
+
 }
