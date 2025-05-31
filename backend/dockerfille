@@ -1,0 +1,20 @@
+# Usa una imagen oficial de Node (mejor usar una recomendada sin vulnerabilidades)
+FROM node:20-slim
+
+# Establece el directorio de trabajo
+WORKDIR /app
+
+# Copia los archivos de dependencias primero
+COPY package*.json ./
+
+# Instala las dependencias dentro del contenedor
+RUN npm install
+
+# Copia el resto del código de la aplicación
+COPY . .
+
+# Expón el puerto (el mismo que usas en tu app, por ejemplo 3000)
+EXPOSE 3000
+
+# Comando para iniciar tu app
+CMD ["node", "index.js"]
