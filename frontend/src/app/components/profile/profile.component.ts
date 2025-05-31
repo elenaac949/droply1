@@ -1,18 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService, User } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule,NgIf } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-profile',
-  standalone:true,
+  standalone: true,
   imports: [
     CommonModule,
     NgIf,
+    FormsModule, 
     MatCardModule,
-    MatButtonModule
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
@@ -20,14 +26,16 @@ import { MatButtonModule } from '@angular/material/button';
 export class ProfileComponent {
 
   user: User | null = null;
+  editProfileForm: boolean = false;
+  userToEdit: User | null = null;
 
   constructor(
     private userService: UserService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    
+
     const userId = this.authService.getUserId();
     console.log('ID del usuario actual:', userId);
     if (userId) {
@@ -44,14 +52,15 @@ export class ProfileComponent {
   }
 
   editarPerfil() {
-    // Aquí puedes abrir un modal o redirigir a un formulario
-    console.log('Editar perfil');
+    this.userToEdit = { ...this.user! };
+    this.editProfileForm = true;
   }
 
-  cambiarContrasena() {
-    // Abrir modal o redirigir a página de cambio de contraseña
-    console.log('Cambiar contraseña');
+  cerrarEdicion() {
+    this.editProfileForm = false;
+    this.userToEdit = null;
   }
+
 
   eliminarCuenta() {
     if (confirm('¿Estás seguro de que deseas eliminar tu cuenta?')) {
@@ -60,4 +69,20 @@ export class ProfileComponent {
       });
     }
   }
+
+  guardarCambios() {
+    if (!this.userToEdit) return;
+    this.userService.updateUser(this.userToEdit).subscribe(() => {
+      this.user = { ...this.userToEdit! }; // actualizamos en pantalla
+      this.cerrarEdicion();
+
+      // Feedback opcional
+      console.log('Perfil actualizado correctamente');
+    });
+  }
+
+  cambiarContrasena() {
+  console.log('Cambiar contraseña'); // Aquí luego puedes abrir un modal o navegar
+}
+
 }
