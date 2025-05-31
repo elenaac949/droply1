@@ -133,50 +133,52 @@ export class ProfileComponent {
       newPassword: '',
       confirmNewPassword: ''
     };
+    this.isCurrentPasswordValid = true; 
   }
 
+
   cambiarContrasena() {
-  this.openChangePasswordModal();
-}
+    this.openChangePasswordModal();
+  }
 
 
   submitPasswordChange() {
-  const { currentPassword, newPassword, confirmNewPassword } = this.passwordData;
-  if (!currentPassword || !newPassword || newPassword.length < 7) {
-    this.snackBar.open('La nueva contraseña debe tener al menos 7 caracteres', 'Cerrar', { duration: 3000 });
-    return;
-  }
-
-  if (newPassword !== confirmNewPassword) {
-    this.snackBar.open('Las contraseñas no coinciden', 'Cerrar', { duration: 3000 });
-    return;
-  }
-
-  const userId = this.user?.id;
-  if (!userId) return;
-
-  this.userService.changePassword(userId, currentPassword, newPassword).subscribe({
-    next: () => {
-      this.snackBar.open('Contraseña actualizada correctamente ✅', 'Cerrar', { duration: 3000 });
-      this.changePasswordForm = false;
-    },
-    error: (err:any) => {
-      const msg = err.error?.message || 'Error al cambiar la contraseña';
-      this.snackBar.open(msg, 'Cerrar', { duration: 3000 });
+    const { currentPassword, newPassword, confirmNewPassword } = this.passwordData;
+    if (!currentPassword || !newPassword || newPassword.length < 7) {
+      this.snackBar.open('La nueva contraseña debe tener al menos 7 caracteres', 'Cerrar', { duration: 3000 });
+      return;
     }
-  });
-}
 
-checkCurrentPassword(): void {
-  const userId = this.user?.id;
-  if (!userId || !this.passwordData.currentPassword) return;
+    if (newPassword !== confirmNewPassword) {
+      this.snackBar.open('Las contraseñas no coinciden', 'Cerrar', { duration: 3000 });
+      return;
+    }
 
-  this.userService.verifyCurrentPassword(userId, this.passwordData.currentPassword)
-    .subscribe({
-      next: (isValid) => this.isCurrentPasswordValid = isValid,
-      error: () => this.isCurrentPasswordValid = false
+    const userId = this.user?.id;
+    if (!userId) return;
+
+    this.userService.changePassword(userId, currentPassword, newPassword).subscribe({
+      next: () => {
+        this.snackBar.open('Contraseña actualizada correctamente ✅', 'Cerrar', { duration: 3000 });
+        this.changePasswordForm = false;
+      },
+      error: (err: any) => {
+        const msg = err.error?.message || 'Error al cambiar la contraseña';
+        this.snackBar.open(msg, 'Cerrar', { duration: 3000 });
+      }
     });
-}
+  }
+
+  checkCurrentPassword(): void {
+    const userId = this.user?.id;
+    if (!userId || !this.passwordData.currentPassword) return;
+
+    this.userService.verifyCurrentPassword(userId, this.passwordData.currentPassword)
+      .subscribe({
+        next: (isValid) => this.isCurrentPasswordValid = isValid,
+        error: () => this.isCurrentPasswordValid = false
+      });
+  }
 
 
 }

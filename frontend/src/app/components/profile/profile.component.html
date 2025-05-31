@@ -102,14 +102,19 @@
                 <input matInput [(ngModel)]="passwordData.currentPassword" name="currentPassword" type="password"
                     required minlength="7" (blur)="checkCurrentPassword()" #currentCtrl="ngModel">
 
-                <mat-error *ngIf="currentCtrl.invalid && currentCtrl.touched">
-                    La contraseña actual es obligatoria y debe tener al menos 7 caracteres
+                <mat-error *ngIf="currentCtrl.touched">
+                    <ng-container *ngIf="currentCtrl.errors?.['required']">
+                        La contraseña actual es obligatoria
+                    </ng-container>
+                    <ng-container *ngIf="currentCtrl.errors?.['minlength']">
+                        Debe tener al menos 7 caracteres
+                    </ng-container>
+                    <ng-container *ngIf="currentCtrl.valid && !isCurrentPasswordValid">
+                        Contraseña incorrecta
+                    </ng-container>
                 </mat-error>
-                <mat-error *ngIf="currentCtrl.valid && !isCurrentPasswordValid">
-                    Contraseña incorrecta
-                </mat-error>
-
             </mat-form-field>
+
 
             <!-- Nueva contraseña -->
             <mat-form-field appearance="outline" class="form-field">
