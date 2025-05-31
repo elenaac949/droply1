@@ -1,0 +1,23 @@
+.container {
+  padding: 20px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.error-message {
+  color: #f44336;
+  margin: 20px 0;
+}
+
+.source-card {
+  margin-bottom: 20px;
+}
+
+mat-card-actions button {
+  margin-right: 10px;
+}

@@ -5,11 +5,12 @@ import { MatCardModule } from '@angular/material/card';
 import { WaterSourceService } from '../../../services/water-source.service';
 import { CommonModule } from '@angular/common';
 import { WaterSource } from '../../../services/water-source.service'; 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-source-moderation',
   standalone: true,
-  imports: [NgIf, NgFor, MatCardModule, MatButtonModule, CommonModule],
+  imports: [NgIf, NgFor, MatCardModule, MatButtonModule, CommonModule,MatProgressSpinnerModule],
   templateUrl: './source-moderation.component.html',
   styleUrls: ['./source-moderation.component.css']
 })

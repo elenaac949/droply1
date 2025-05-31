@@ -31,7 +31,9 @@ router.post(
 
 // Ruta para listar todas las fuentes de agua
 router.get('/', waterSourceController.getAllWaterSources);
+/* poner el pending antes para que express no malinterprete las rutas */
 
+router.get('/pending', authMiddleware, waterSourceController.getPendingSources);
 // Ruta para mostrar las fuentes aprobadas (para el mapa)
 router.get('/approved', waterSourceController.getApprovedWaterSources);
 
@@ -41,7 +43,7 @@ router.get('/:id', waterSourceController.getById);
 /* actualizar el estado de la valoracion */
 router.put('/:id/status', authMiddleware, waterSourceController.updateStatus);
 
-/* router.get('/pending', waterSourceController.getPendingSources); */
-router.get('/pending', authMiddleware, waterSourceController.getPendingSources);
+
+
 
 module.exports = router;

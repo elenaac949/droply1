@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const WaterSource = require('../models/waterSource');
+const WaterSource = require('../models/waterSourceModel');
 const db = require('../util/database');
 
 // Crear una nueva fuente de agua
@@ -130,11 +130,19 @@ exports.updateStatus = async (req, res, next) => {
 
 /* obtener las funetes pendientes de aprobar */
 exports.getPendingSources = async (req, res) => {
+  console.log('Llamada a /pending recibida'); // ← Debug
   try {
     const [rows] = await WaterSource.fetchPending();
+    console.log('Resultados de DB:', rows); // ← Debug
+
+    if (!rows || rows.length === 0) {
+      console.log('No hay fuentes pendientes'); // ← Debug
+      return res.status(200).json([]);
+    }
+
     res.status(200).json(rows);
   } catch (err) {
-    console.error(err);
+    console.error('Error en /pending:', err); // ← Debug
     res.status(500).json({ error: 'Error al obtener fuentes pendientes' });
   }
 };
