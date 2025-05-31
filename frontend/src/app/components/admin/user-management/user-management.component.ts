@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormsModule,ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @Component({
@@ -32,14 +32,22 @@ export class UserManagementComponent implements OnInit {
   users: User[] = [];
   searchTerm: string = '';
   addUserForm: boolean = false;
-
   editUserForm: boolean = false;
   userToEdit: User | null = null;
+  emailExists: boolean = false;
+  originalEmail: string = '';
+  emailExistsEdit: boolean = false;
 
-  newUser = {
+
+  newUser: Partial<User> = {
     username: '',
     email: '',
-    password: ''
+    password: '',
+    phone: '',
+    country: '',
+    city: '',
+    postal_code: '',
+    address: ''
   };
 
   constructor(private userService: UserService, private snackBar: MatSnackBar) { }
@@ -61,41 +69,42 @@ export class UserManagementComponent implements OnInit {
     );
   }
 
-  deleteUser(id: number) {
+  deleteUser(id: string): void {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
       this.userService.deleteUser(id).subscribe(() => {
         this.users = this.users.filter(user => user.id !== id);
-        this.snackBar.open('Usuario eliminado correctamente ✅', 'Cerrar', {
-        duration: 3000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top'
-      });
+        this.snackBar.open('Usuario eliminado correctamente ', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
+        });
       });
     }
   }
 
   editUser(user: User) {
     this.userToEdit = { ...user }; /* copiamos los datos del usuario */
+    this.originalEmail = user.email;
     this.editUserForm = true;
   }
 
   submitEditUser() {
-  if (!this.userToEdit) return;
+    if (!this.userToEdit) return;
 
-  this.userService.updateUser(this.userToEdit).subscribe(() => {
-    this.loadUsers();
-    this.editUserForm = false;
-    this.userToEdit = null;
+    this.userService.updateUser(this.userToEdit).subscribe(() => {
+      this.loadUsers();
+      this.editUserForm = false;
+      this.userToEdit = null;
 
-    this.snackBar.open('Usuario editado correctamente ✏️', 'Cerrar', {
-      duration: 3000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top'
+      this.snackBar.open('Usuario editado correctamente ✏️', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top'
+      });
     });
-  });
-}
+  }
 
-  
+
 
   addUser() {
     this.addUserForm = true;
@@ -122,6 +131,38 @@ export class UserManagementComponent implements OnInit {
       });
     });
   }
+
+  validateEmailUniqueness(email: string): void {
+    if (!email) {
+      this.emailExists = false;
+      return;
+    }
+
+    this.userService.checkEmailExists(email).subscribe({
+      next: (response: any) => {
+        this.emailExists = response.exists;
+      },
+      error: () => {
+        this.emailExists = false; // por si el backend falla
+      }
+    });
+  }
+
+  validateEmailEdit(email: string): void {
+  if (!email || email === this.originalEmail) {
+    this.emailExistsEdit = false;
+    return;
+  }
+
+  this.userService.checkEmailExists(email).subscribe({
+    next: (response: any) => {
+      this.emailExistsEdit = response.exists;
+    },
+    error: () => {
+      this.emailExistsEdit = false;
+    }
+  });
+}
 
 }
 

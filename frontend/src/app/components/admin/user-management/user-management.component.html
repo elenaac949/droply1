@@ -1,9 +1,11 @@
 <h1>Gestión de Usuarios</h1>
+
 <div class="actions">
   <button mat-raised-button color="primary" (click)="addUser()">Añadir Usuario</button>
   <input [(ngModel)]="searchTerm" placeholder="Buscar usuario..." />
 </div>
-<!-- añadir nuevo usuario -->
+
+<!-- Formulario de creación de usuario -->
 <div class="modal" *ngIf="addUserForm">
   <mat-card class="modal-card">
     <mat-card-title>Nuevo Usuario</mat-card-title>
@@ -11,48 +13,62 @@
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Nombre de usuario</mat-label>
         <input matInput [(ngModel)]="newUser.username" name="username" required />
-        <mat-error *ngIf="userForm.submitted && !newUser.username">
-          El nombre de usuario es obligatorio
-        </mat-error>
+        <mat-error *ngIf="userForm.submitted && !newUser.username">El nombre de usuario es obligatorio</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Email</mat-label>
-        <input matInput type="email" name="email" required 
-               [(ngModel)]="newUser.email" #emailCtrl="ngModel"
-               pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" />
-        <mat-error *ngIf="emailCtrl.errors?.['required'] && emailCtrl.touched">
-          El email es obligatorio
-        </mat-error>
-        <mat-error *ngIf="emailCtrl.errors?.['pattern'] && emailCtrl.touched">
-          El formato del email no es válido (ejemplo: usuario&#64;dominio.com)
-        </mat-error>
+        <input matInput type="email" name="email" required [(ngModel)]="newUser.email" #emailCtrl="ngModel"
+          pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" />
+        <mat-error *ngIf="emailCtrl.errors?.['required'] && emailCtrl.touched">El email es obligatorio</mat-error>
+        <mat-error *ngIf="emailCtrl.errors?.['pattern'] && emailCtrl.touched">Formato de email inválido</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Contraseña</mat-label>
-        <input matInput [(ngModel)]="newUser.password" name="password" 
-               type="password" required minlength="7" #passCtrl="ngModel" />
-        <mat-error *ngIf="passCtrl.errors?.['required']">
-          La contraseña es obligatoria
-        </mat-error>
-        <mat-error *ngIf="passCtrl.errors?.['minlength']">
-          La contraseña debe tener al menos 7 caracteres
-        </mat-error>
+        <input matInput type="password" [(ngModel)]="newUser.password" name="password" required minlength="7"
+          #passCtrl="ngModel" />
+        <mat-error *ngIf="passCtrl.errors?.['required']">La contraseña es obligatoria</mat-error>
+        <mat-error *ngIf="passCtrl.errors?.['minlength']">Mínimo 7 caracteres</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Teléfono</mat-label>
+        <input matInput [(ngModel)]="newUser.phone" name="phone">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>País</mat-label>
+        <input matInput [(ngModel)]="newUser.country" name="country">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Ciudad</mat-label>
+        <input matInput [(ngModel)]="newUser.city" name="city">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Código Postal</mat-label>
+        <input matInput [(ngModel)]="newUser.postal_code" name="postal_code">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Dirección</mat-label>
+        <textarea matInput [(ngModel)]="newUser.address" name="address"></textarea>
       </mat-form-field>
 
       <div class="actions">
-        <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid">
+        <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid || emailExists">
           Guardar
         </button>
+
         <button mat-button type="button" (click)="closeAddUser()">Cancelar</button>
       </div>
     </form>
   </mat-card>
 </div>
 
-
-<!-- modal editar usuario -->
+<!-- Formulario de edición -->
 <div class="modal" *ngIf="editUserForm && userToEdit">
   <mat-card class="modal-card">
     <mat-card-title>Editar Usuario</mat-card-title>
@@ -64,7 +80,40 @@
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Email</mat-label>
-        <input matInput [(ngModel)]="userToEdit.email" name="editEmail" required>
+        <input matInput type="email" name="editEmail" required [(ngModel)]="userToEdit.email" #editEmailCtrl="ngModel"
+          pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" (blur)="validateEmailEdit(userToEdit.email || '')" />
+        <mat-error *ngIf="editEmailCtrl.errors?.['required'] && editEmailCtrl.touched">El email es
+          obligatorio</mat-error>
+        <mat-error *ngIf="editEmailCtrl.errors?.['pattern'] && editEmailCtrl.touched">Formato de email
+          inválido</mat-error>
+        <mat-error *ngIf="emailExistsEdit">Este email ya está registrado</mat-error>
+      </mat-form-field>
+
+
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Teléfono</mat-label>
+        <input matInput [(ngModel)]="userToEdit.phone" name="editPhone">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>País</mat-label>
+        <input matInput [(ngModel)]="userToEdit.country" name="editCountry">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Ciudad</mat-label>
+        <input matInput [(ngModel)]="userToEdit.city" name="editCity">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Código Postal</mat-label>
+        <input matInput [(ngModel)]="userToEdit.postal_code" name="editPostalCode">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Dirección</mat-label>
+        <textarea matInput [(ngModel)]="userToEdit.address" name="editAddress"></textarea>
       </mat-form-field>
 
       <div class="actions">
@@ -75,22 +124,31 @@
   </mat-card>
 </div>
 
-
+<!-- Tabla de usuarios -->
 <table>
   <thead>
     <tr>
       <th>Usuario</th>
       <th>Email</th>
+      <th>Teléfono</th>
+      <th>País</th>
+      <th>Ciudad</th>
+      <th>Código Postal</th>
+      <th>Dirección</th>
       <th>Rol</th>
       <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let user of filteredUsers">
-
       <td>{{ user.username }}</td>
       <td>{{ user.email }}</td>
-      <td>{{ user.role }}</td>
+      <td>{{ user.phone || '-' }}</td>
+      <td>{{ user.country || '-' }}</td>
+      <td>{{ user.city || '-' }}</td>
+      <td>{{ user.postal_code || '-' }}</td>
+      <td>{{ user.address || '-' }}</td>
+      <td>{{ user.role === 'admin' ? 'Admin' : 'Usuario' }}</td>
       <td>
         <button mat-button color="accent" (click)="editUser(user)">Editar</button>
         <button mat-button class="btn-delete" (click)="deleteUser(user.id)">Eliminar</button>

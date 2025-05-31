@@ -1,39 +1,97 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 
+
 /* Crear un nuevo usuario */
 exports.createUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  const {
+    username, email, password,
+    role, phone, country, city,
+    postal_code, address, profile_picture
+  } = req.body;
 
   if (!username || !email || !password) {
-    return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    return res.status(400).json({ error: 'Nombre, email y contraseña son obligatorios' });
+  }
+
+  if (password.length < 7) {
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 7 caracteres' });
   }
 
   try {
-    // Hashear la contraseña antes de guardar
+    // Verificar si el email ya existe
+    const [existingUser] = await User.find(email);
+    if (existingUser.length > 0) {
+      return res.status(409).json({ error: 'El email ya está registrado' });
+    }
+
+    // Hashear contraseña y guardar
     const hashedPassword = await bcrypt.hash(password, 10);
-    // Guardar con la contraseña hasheada
-    await User.save({ username, email, password: hashedPassword });
+
+    const userData = {
+      username,
+      email,
+      password: hashedPassword,
+      role: role || 'user',
+      phone,
+      country,
+      city,
+      postal_code,
+      address,
+      profile_picture
+    };
+
+    await User.save(userData);
     res.status(201).json({ message: 'Usuario creado correctamente' });
+
   } catch (error) {
-    console.error(error); 
+    console.error(error);
     res.status(500).json({ error: 'Error al crear el usuario' });
   }
 };
+
 /* editar un usuario */
 exports.updateUser = async (req, res) => {
-  const { username, email } = req.body;
+  const {
+    username, email, role, phone,
+    country, city, postal_code, address, profile_picture
+  } = req.body;
   const { id } = req.params;
 
   try {
-    await User.update(id, { username, email });
+    await User.update(id, {
+      username,
+      email,
+      role,
+      phone,
+      country,
+      city,
+      postal_code,
+      address,
+      profile_picture
+    });
     res.json({ message: 'Usuario actualizado' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al actualizar el usuario' });
   }
 };
+/* comporbar que el email eciste */
+exports.checkEmailExists = async (req, res) => {
+  const { email } = req.query;
 
+  if (!email) {
+    return res.status(400).json({ exists: false });
+  }
+
+  try {
+    const [result] = await User.find(email);
+    res.json({ exists: result.length > 0 });
+  } catch (error) {
+    console.error('Error al comprobar email:', error);
+    res.status(500).json({ error: 'Error al comprobar el email' });
+  }
+};
 
 /* Obtener todos los usuarios */
 exports.getAllUsers = async (req, res) => {
