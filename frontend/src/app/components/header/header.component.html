@@ -14,8 +14,8 @@
     <button mat-button routerLink="/water-form">Añadir fuente</button>
     <button mat-button [matMenuTriggerFor]="menu">Menú</button>
     <mat-menu #menu="matMenu">
-      <button *ngIf="(authService.isAdmin$ | async)" mat-menu-item routerLink="/admin">Administrador</button>
-      <button *ngIf="!(authService.isAdmin$ | async)" mat-menu-item routerLink="/profile">Perfil</button>
+      <button  mat-menu-item routerLink="/profile">Perfil</button>
+      <button *ngIf="(authService.isAdmin$ | async)" mat-menu-item routerLink="/admin">Administración</button>
       <button mat-menu-item (click)="logout()">Cerrar sesión</button>
     </mat-menu>
   </ng-container>
