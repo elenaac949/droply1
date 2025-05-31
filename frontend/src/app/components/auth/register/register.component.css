@@ -15,7 +15,7 @@
 /* Card principal del registro */
 mat-card.register-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 600px;
   padding: 2rem;
   box-shadow: 0 8px 24px rgba(0, 92, 153, 0.15);
   border-radius: 16px;
@@ -58,7 +58,7 @@ mat-form-field {
 }
 
 mat-error{
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 .register-button:hover {
   background-color: #005c99;
@@ -85,9 +85,26 @@ mat-error{
 /* Error */
 mat-error {
   text-align: center;
-  margin-top: 1rem;
+  margin-top: 0.2rem;
   color: red;
 }
+
+.field-row {
+  display: flex;
+  gap: 1.2rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.field-row .form-field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.form-field.full-width {
+  width: 100%;
+}
+
 
 /* Responsive */
 @media (max-width: 480px) {

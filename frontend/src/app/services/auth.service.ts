@@ -100,13 +100,19 @@ export class AuthService {
     return !!localStorage.getItem('token');
   }
 
-  register(username: string, email: string, password: string) {
-    return this.http.post('http://localhost:3000/auth/signup', {
-      username,
-      email,
-      password
-    });
+  register(userData: {
+    username: string;
+    email: string;
+    password: string;
+    phone?: string;
+    country?: string;
+    city?: string;
+    postal_code?: string;
+    address?: string;
+  }) {
+    return this.http.post('http://localhost:3000/auth/signup', userData);
   }
+
 
 
 }

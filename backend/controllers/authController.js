@@ -5,40 +5,47 @@ const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 
 exports.signup = async (req, res, next) => {
-    const errors = validationResult(req);
+  const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-        return res.status(422).json({
-            message: 'Validación fallida.',
-            errors: errors.array()
-        });
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      message: 'Validación fallida.',
+      errors: errors.array()
+    });
+  }
+
+
+  const username = req.body.username;
+  const email = req.body.email;
+  const password = req.body.password;
+
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const userDetails = {
+      username: req.body.username,
+      email: req.body.email,
+      password: hashedPassword,
+      phone: req.body.phone || '',
+      country: req.body.country || '',
+      city: req.body.city || '',
+      postal_code: req.body.postal_code || '',
+      address: req.body.address || '',
+      role: 'user'
+    };
+
+    await User.save(userDetails);
+
+    res.status(201).json({ message: 'Usuario registrado correctamente' });
+
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
     }
-
-    const username = req.body.username;
-    const email = req.body.email;
-    const password = req.body.password;
-
-
-    try {
-        const hashedPassword = await bcrypt.hash(password, 12);
-
-        const userDetails = {
-            username: username,
-            email: email,
-            password: hashedPassword
-        }
-
-        await User.save(userDetails);
-
-        res.status(201).json({ message: 'Usuario registrado correctamente' });
-
-
-    } catch (err) {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    }
+    next(err);
+  }
 }
 
 

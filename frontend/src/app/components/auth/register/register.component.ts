@@ -10,7 +10,7 @@ import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
-  standalone:true,
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -32,21 +32,40 @@ export class RegisterComponent {
     private router: Router
   ) {
     this.registerForm = this.fb.group({
-    username: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(7)]],
-    confirmPassword: ['', Validators.required]
-  });
+      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(7)]],
+      confirmPassword: ['', Validators.required],
+      phone: [''],
+      country: [''],
+      city: [''],
+      postal_code: [''],
+      address: ['']
+    });
   }
 
   onSubmit() {
     if (this.registerForm.invalid || this.passwordsDontMatch()) return;
     this.registerError = '';
-    const { username, email, password } = this.registerForm.value;
-    this.authService.register(username!, email!, password!).subscribe({
-      next: () => this.router.navigate(['/login'],{ queryParams: { registered: '1' } }),
+
+    const {
+      username, email, password,
+      phone, country, city, postal_code, address
+    } = this.registerForm.value;
+
+    this.authService.register({
+      username,
+      email,
+      password,
+      phone,
+      country,
+      city,
+      postal_code,
+      address
+    }).subscribe({
+      next: () => this.router.navigate(['/login'], { queryParams: { registered: '1' } }),
       error: err => {
-        this.registerError = err.error?.message || 'Error al registrar usuario';
+        this.registerError = err.error?.error || 'Error al registrar usuario';
       }
     });
   }
