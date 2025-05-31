@@ -9,12 +9,15 @@ export interface WaterSource {
   description: string;
   latitude: number;
   longitude: number;
-  type: string;
+  type: 'drinking'|'tap'|'decorative'|'bottle_refill'|'natural_spring'|'other';
   is_accessible: boolean;
-  schedule?: string;
-  status: string;
+  schedule: string;
+  username: string;
   created_at: string;
-  username?: string; // Para moderación
+  country: string;
+  city: string;
+  postal_code: string;
+  address: string;
 }
 
 @Injectable({
@@ -66,4 +69,6 @@ export class WaterSourceService {
       catchError(error => throwError(() => error))
     );
   }
+
+  
 }

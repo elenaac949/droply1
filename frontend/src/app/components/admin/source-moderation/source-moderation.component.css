@@ -144,6 +144,29 @@ button[mat-raised-button].reject-btn:hover {
   background: rgba(231, 76, 60, 0.1) !important;
 }
 
+/* Estilos para la nueva estructura */
+.details-row {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.location-section {
+  background: rgba(204, 238, 255, 0.1);
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.location-section p {
+  margin: 0.25rem 0;
+}
+
+/* Mantén tus estilos existentes para cards y botones */
+.source-card {
+  margin-bottom: 1.5rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   :host {

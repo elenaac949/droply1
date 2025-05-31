@@ -53,4 +53,15 @@ export class SourceModerationComponent implements OnInit {
       }
     });
   }
+  translateType(type: string): string {
+    const types: {[key: string]: string} = {
+      'drinking': 'Agua potable',
+      'tap': 'Grifo',
+      'decorative': 'Decorativa',
+      'bottle_refill': 'Recarga de botellas', 
+      'natural_spring': 'Manantial natural',
+      'other': 'Otro'
+    };
+    return types[type] || type;
+  }
 }

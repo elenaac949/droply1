@@ -24,17 +24,42 @@
       <mat-card-header>
         <mat-card-title>{{ source.name }}</mat-card-title>
         <mat-card-subtitle>
-          Creada por: {{ source.username }} | {{ source.created_at | date }}
+          Creada por: {{ source.username }} | {{ source.created_at | date:'medium' }}
         </mat-card-subtitle>
       </mat-card-header>
+      
       <mat-card-content>
-        <p>{{ source.description }}</p>
-        <p><strong>Tipo:</strong> {{ source.type }}</p>
-        <p><strong>Ubicación:</strong> {{ source.latitude }}, {{ source.longitude }}</p>
+        <!-- Sección de Descripción -->
+        <p *ngIf="source.description"><strong>Descripción:</strong> {{ source.description }}</p>
+        
+        <!-- Sección de Tipo y Accesibilidad -->
+        <div class="details-row">
+          <p><strong>Tipo:</strong> {{ translateType(source.type) }}</p>
+          <p><strong>Accesible:</strong> {{ source.is_accessible ? 'Sí' : 'No' }}</p>
+        </div>
+        
+        <!-- Sección de Horario -->
+        <p *ngIf="source.schedule"><strong>Horario:</strong> {{ source.schedule }}</p>
+        
+        <!-- Sección de Ubicación -->
+        <div class="location-section">
+          <p><strong>Coordenadas:</strong> {{ source.latitude | number:'1.6-6' }}, {{ source.longitude | number:'1.6-6' }}</p>
+          <p *ngIf="source.address"><strong>Dirección:</strong> {{ source.address }}</p>
+          <p *ngIf="source.city || source.country">
+            <strong>Localización:</strong> 
+            {{ source.city }}{{ source.city && source.country ? ', ' : '' }}{{ source.country }}
+            <span *ngIf="source.postal_code">({{ source.postal_code }})</span>
+          </p>
+        </div>
       </mat-card-content>
+      
       <mat-card-actions>
-        <button mat-raised-button class="approve-btn" (click)="moderateSource(source.id, 'approved')">Aceptar</button>
-        <button mat-raised-button class="reject-btn" (click)="moderateSource(source.id, 'rejected')">Rechazar</button>
+        <button mat-raised-button class="approve-btn" (click)="moderateSource(source.id, 'approved')">
+          Aprobar
+        </button>
+        <button mat-raised-button class="reject-btn" (click)="moderateSource(source.id, 'rejected')">
+          Rechazar
+        </button>
       </mat-card-actions>
     </mat-card>
   </div>

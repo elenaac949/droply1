@@ -55,15 +55,29 @@ module.exports = class WaterSource {
     );
   }
 
-  static fetchPending() {
+static fetchPending() {
   return db.execute(`
-    SELECT w.id, w.name, w.description, w.created_at, w.status, u.username
+    SELECT 
+      w.id,
+      w.name,
+      w.description,
+      w.latitude,
+      w.longitude,
+      w.type,
+      w.is_accessible,
+      w.schedule,
+      u.username,
+      w.created_at,
+      w.country,
+      w.city,
+      w.postal_code,
+      w.address
     FROM water_sources w
     INNER JOIN users u ON w.user_id = u.id
     WHERE w.status = 'pending'
     ORDER BY w.created_at DESC
   `);
-}
+  }
 
   static existsAtCoordinates(latitude, longitude) {
     return db.execute(
