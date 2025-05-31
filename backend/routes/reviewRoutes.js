@@ -6,6 +6,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 router.post('/', authMiddleware, reviewController.createReview);
 router.get('/source/:id', reviewController.getReviewsByWaterSource);
 router.get('/', reviewController.getAllReviews);
-router.put('/:id/moderate', authMiddleware, reviewController.moderateReview); 
+router.put('/:id/moderate', authMiddleware, reviewController.moderateReview);
+router.get('/pending', reviewController.getPending); 
 
 module.exports = router;

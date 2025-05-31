@@ -18,28 +18,44 @@ module.exports = class Review {
   }
 
   /* Obtener valoraciones relacioonadas con una fuente de agua */
-  /* static getByWaterSource(water_source_id) {
+
+  static getByWaterSource(water_source_id) {
     return db.execute(
-      `SELECT * FROM reviews WHERE water_source_id = ? AND status = 'approved' ORDER BY created_at DESC`,
-      [water_source_id]
-    );
-  } */
- static getByWaterSource(water_source_id) {
-  return db.execute(
-    `SELECT r.rating, r.comment, r.created_at, u.username
+      `SELECT r.rating, r.comment, r.created_at, u.username
      FROM reviews r
      INNER JOIN users u ON r.user_id = u.id
      WHERE r.water_source_id = ? AND r.status = 'approved'
      ORDER BY r.created_at DESC`,
-    [water_source_id]
-  );
-}
+      [water_source_id]
+    );
+  }
 
 
   /* Obtener todas las valoraciones */
   static getAll() {
     return db.execute(`SELECT * FROM reviews ORDER BY created_at DESC`);
   }
+
+
+  /* Obtener todas las valoraciones pendientes */
+  static getPending() {
+    return db.execute(`
+    SELECT 
+      r.id, 
+      r.rating, 
+      r.comment, 
+      r.status, 
+      r.created_at,
+      u.username AS username,
+      w.name AS source_name
+    FROM reviews r
+    INNER JOIN users u ON r.user_id = u.id
+    INNER JOIN water_sources w ON r.water_source_id = w.id
+    WHERE r.status = 'pending'
+    ORDER BY r.created_at DESC
+  `);
+  }
+
 
   /* moderar */
   static moderate(id, status) {

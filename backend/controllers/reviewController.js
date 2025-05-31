@@ -24,7 +24,7 @@ exports.getReviewsByWaterSource = async (req, res, next) => {
     next(err);
   }
 };
-
+/* Obtener todas las reviews */
 exports.getAllReviews = async (req, res, next) => {
   try {
     const [rows] = await Review.getAll();
@@ -34,7 +34,7 @@ exports.getAllReviews = async (req, res, next) => {
     next(err);
   }
 };
-
+/* Cambiar el estado de la fuenets */
 exports.moderateReview = async (req, res, next) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -46,6 +46,17 @@ exports.moderateReview = async (req, res, next) => {
   try {
     await Review.moderate(id, status);
     res.status(200).json({ message: 'Estado actualizado correctamente' });
+  } catch (err) {
+    err.statusCode = 500;
+    next(err);
+  }
+};
+
+/* Obtener todas las valoraciones pendientes */
+exports.getPending = async (req, res, next) => {
+  try {
+    const [rows] = await Review.getPending();
+    res.status(200).json(rows);
   } catch (err) {
     err.statusCode = 500;
     next(err);
