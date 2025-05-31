@@ -39,6 +39,8 @@
     border-radius: 4px;
     margin: 0 0.5rem;
     transition: all 0.3s ease;
+    
+    
 }
 
 .nav-list a.mat-list-item:hover {
