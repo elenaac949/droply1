@@ -33,6 +33,14 @@ export class ProfileComponent {
   userToEdit: User | null = null;
   originalEmail: string = '';
   emailExistsEdit: boolean = false;
+  cambiarPasswordForm: boolean = false;
+  passwordData = {
+    current: '',
+    new: '',
+    confirm: ''
+  };
+
+  passwordError: string = '';
 
   constructor(
     private userService: UserService,
@@ -115,7 +123,41 @@ export class ProfileComponent {
 
 
   cambiarContrasena() {
-    console.log('Cambiar contraseña'); // Aquí luego puedes abrir un modal o navegar
+    this.cambiarPasswordForm = true;
+    this.passwordData = { current: '', new: '', confirm: '' };
+    this.passwordError = '';
+  }
+
+  guardarNuevaPassword() {
+  if (!this.passwordData.current || !this.passwordData.new || !this.passwordData.confirm) {
+    this.passwordError = 'Todos los campos son obligatorios';
+    return;
+  }
+
+  if (this.passwordData.new.length < 7) {
+    this.passwordError = 'La nueva contraseña debe tener al menos 7 caracteres';
+    return;
+  }
+
+  if (this.passwordData.new !== this.passwordData.confirm) {
+    this.passwordError = 'Las nuevas contraseñas no coinciden';
+    return;
+  }
+
+  // Aquí va tu llamada al servicio para cambiar la contraseña
+  // this.userService.changePassword(...)
+
+  this.snackBar.open('Contraseña actualizada correctamente', 'Cerrar', {
+    duration: 3000,
+    horizontalPosition: 'right',
+    verticalPosition: 'top',
+  });
+
+  this.cerrarCambioPassword();
+}
+
+  cerrarCambioPassword() {
+    this.cambiarPasswordForm = false;
   }
 
 }

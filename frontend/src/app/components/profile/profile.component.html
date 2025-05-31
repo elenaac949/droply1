@@ -89,3 +89,38 @@
         </form>
     </mat-card>
 </div>
+
+
+<!-- Modal de cambio de contraseña -->
+<div class="modal" *ngIf="cambiarPasswordForm">
+  <mat-card class="modal-card">
+    <mat-card-title>Cambiar contraseña</mat-card-title>
+
+    <form (ngSubmit)="guardarNuevaPassword()" #passwordForm="ngForm">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Contraseña actual</mat-label>
+        <input matInput [(ngModel)]="passwordData.current" name="current" type="password" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Nueva contraseña</mat-label>
+        <input matInput [(ngModel)]="passwordData.new" name="new" type="password" required minlength="7" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Repetir nueva contraseña</mat-label>
+        <input matInput [(ngModel)]="passwordData.confirm" name="confirm" type="password" required />
+      </mat-form-field>
+
+      <mat-error *ngIf="passwordError">{{ passwordError }}</mat-error>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit"
+          [disabled]="passwordForm.invalid || passwordData.new !== passwordData.confirm">
+          Guardar
+        </button>
+        <button mat-button type="button" (click)="cerrarCambioPassword()">Cancelar</button>
+      </div>
+    </form>
+  </mat-card>
+</div>
