@@ -8,6 +8,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
+import { AbstractControl, AsyncValidatorFn } from '@angular/forms';
+import { debounceTime, map, switchMap, take, catchError, of } from 'rxjs';
+import { UserService } from '../../../services/user.service';
+import { User } from '../../../models/User';
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -29,11 +34,12 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private userService:UserService
   ) {
     this.registerForm = this.fb.group({
       username: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)],[this.emailExistsValidator()]],
       password: ['', [Validators.required, Validators.minLength(7)]],
       confirmPassword: ['', Validators.required],
       phone: [''],
@@ -73,4 +79,21 @@ export class RegisterComponent {
   passwordsDontMatch(): boolean {
     return this.registerForm.value.password !== this.registerForm.value.confirmPassword;
   }
+
+
+  emailExistsValidator(): AsyncValidatorFn {
+  return (control: AbstractControl) => {
+    return control.valueChanges.pipe(
+      debounceTime(500),
+      take(1),
+      switchMap(value =>
+        this.userService.checkEmailExists(value).pipe(
+          map((res: any) => (res.exists ? { emailTaken: true } : null)),
+          catchError(() => of(null))
+        )
+      )
+    );
+  };
+}
+
 }

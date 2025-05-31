@@ -19,8 +19,11 @@
           <mat-error *ngIf="registerForm.get('email')?.hasError('required')">
             El email es obligatorio
           </mat-error>
-          <mat-error *ngIf="registerForm.get('email')?.hasError('email')">
-            Email inválido
+          <mat-error *ngIf="registerForm.get('email')?.hasError('pattern')">
+            El formato del email no es válido
+          </mat-error>
+          <mat-error *ngIf="registerForm.get('email')?.hasError('emailTaken')">
+            Este email ya está registrado
           </mat-error>
         </mat-form-field>
       </div>
