@@ -9,7 +9,7 @@ module.exports = class User {
         this.password = password;
     }
 
-/* encontrar un usuario en base a un email */
+    /* encontrar un usuario en base a un email */
     static find(email) {
         return db.execute(
             'SELECT * FROM users WHERE email = ?',
@@ -17,7 +17,7 @@ module.exports = class User {
         )
     }
 
-/* Guardar un usuario */
+    /* Guardar un usuario */
     static save(user) {
         return db.execute(
             'INSERT INTO users (username, email, password) VALUES (?,?,?)',
@@ -25,7 +25,7 @@ module.exports = class User {
         )
     }
 
-/* mostrar todos los usuarios */
+    /* mostrar todos los usuarios */
     static findAll() {
         return db.execute('SELECT id, username, role, email FROM users WHERE role= "user"');
     }
@@ -33,6 +33,13 @@ module.exports = class User {
     /* Borrar ususarios por id */
     static deleteById(id) {
         return db.execute('DELETE FROM users WHERE id = ?', [id]);
+    }
+/* Actualizar datoos dde usuario */
+    static update(id, data) {
+        return db.execute(
+            'UPDATE users SET username = ?, email = ? WHERE id = ?',
+            [data.username, data.email, id]
+        );
     }
 
 

@@ -1,9 +1,58 @@
 <h1>Gestión de Usuarios</h1>
-
 <div class="actions">
-  <button (click)="addUser()">Agregar Usuario</button>
+  <button mat-raised-button color="primary" (click)="addUser()">Añadir Usuario</button>
   <input [(ngModel)]="searchTerm" placeholder="Buscar usuario..." />
 </div>
+<div class="modal" *ngIf="addUserForm">
+  <mat-card class="modal-card">
+    <mat-card-title>Nuevo Usuario</mat-card-title>
+    <form (ngSubmit)="submitNewUser()" #userForm="ngForm">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Nombre de usuario</mat-label>
+        <input matInput [(ngModel)]="newUser.username" name="username" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="newUser.email" name="email" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Contraseña</mat-label>
+        <input matInput [(ngModel)]="newUser.password" name="password" type="password" required>
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid">Guardar</button>
+        <button mat-button type="button" (click)="closeAddUser()">Cancelar</button>
+      </div>
+    </form>
+  </mat-card>
+</div>
+
+<!-- modal editar usuario -->
+<div class="modal"  *ngIf="editUserForm && userToEdit">
+  <mat-card class="modal-card">
+    <mat-card-title>Editar Usuario</mat-card-title>
+    <form (ngSubmit)="submitEditUser()" #editForm="ngForm">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Usuario</mat-label>
+        <input matInput [(ngModel)]="userToEdit.username" name="editUsername" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="userToEdit.email" name="editEmail" required>
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="editForm.invalid">Guardar</button>
+        <button mat-button type="button" (click)="editUserForm = false">Cancelar</button>
+      </div>
+    </form>
+  </mat-card>
+</div>
+
 
 <table>
   <thead>
@@ -21,8 +70,8 @@
       <td>{{ user.email }}</td>
       <td>{{ user.role }}</td>
       <td>
-        <button (click)="editUser(user)">Editar</button>
-        <button (click)="deleteUser(user.id)">Eliminar</button>
+       <button mat-button color="accent" (click)="editUser(user)">Editar</button>
+       <button mat-button class="btn-delete" (click)="deleteUser(user.id)">Eliminar</button>
       </td>
     </tr>
   </tbody>

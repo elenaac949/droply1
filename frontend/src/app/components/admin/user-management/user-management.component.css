@@ -1,24 +1,69 @@
+/* Estilo del título */
+h1 {
+  margin-bottom: 1.5rem;
+  font-size: 24px;
+}
 .actions {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+/* Modal overlay */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Tarjeta del formulario modal */
+.modal-card {
+  width: 400px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border-radius: 12px;
+}
+
+/* Campos del formulario */
+.form-field {
+  width: 100%;
   margin-bottom: 1rem;
 }
 
-input {
-  padding: 0.5rem;
-  width: 200px;
+/* Botones dentro del formulario */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
+.btn-delete {
+  color: #d32f2f;
+}
+
+/* Tabla de usuarios */
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 2rem;
 }
 
 th, td {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
 }
 
 th {
   background-color: #cceeff;
+  font-weight: 600;
+}
+
+button {
+  margin-right: 0.5rem;
 }
