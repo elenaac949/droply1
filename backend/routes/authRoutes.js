@@ -6,6 +6,15 @@ const User = require('../models/userModel');
 
 const router = express.Router();
 
+/**
+ * @route POST /signup
+ * @desc Registra un nuevo usuario.
+ * @access Público
+ * @validación:
+ *  - username obligatorio
+ *  - email válido y único
+ *  - password de mínimo 7 caracteres
+ */
 router.post(
   '/signup',
   [
@@ -33,16 +42,28 @@ router.post(
   authController.signup
 );
 
+/**
+ * @route POST /login
+ * @desc Inicia sesión y devuelve un token JWT.
+ * @access Público
+ * @validación:
+ *  - email válido
+ *  - password no vacío
+ */
 router.post(
   '/login',
   [
     body('email')
-      .isEmail().withMessage('Email inválido.')
+      .isEmail()
+      .withMessage('Email inválido.')
       .normalizeEmail(),
+
     body('password')
       .trim()
-      .notEmpty().withMessage('La contraseña es obligatoria.')
+      .notEmpty()
+      .withMessage('La contraseña es obligatoria.')
   ],
   authController.login
 );
+
 module.exports = router;
