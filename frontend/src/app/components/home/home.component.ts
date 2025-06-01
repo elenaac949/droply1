@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MapComponent } from '../map/map.component';
-import { FiltersComponent } from '../filters/filters.component';
+import { FiltersComponent } from './filters/filters.component';
 import { NgIf } from '@angular/common'; 
 @Component({
   selector: 'app-home',
