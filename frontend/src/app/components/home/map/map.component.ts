@@ -171,12 +171,15 @@ export class MapComponent implements AfterViewInit, OnChanges {
         const lon = el.lon;
         const tags = el.tags || {};
 
-        let tooltipText = 'Fuente pública';
-        if (tags.name) tooltipText += `: ${tags.name}`;
-        if (tags.description) tooltipText += `\n${tags.description}`;
-        if (tags.operator) tooltipText += `\nOperador: ${tags.operator}`;
-        if (tags.access) tooltipText += `\nAcceso: ${tags.access}`;
-        if (tags.note) tooltipText += `\nNota: ${tags.note}`;
+        let tooltipText = `
+          <strong>${tags.name || 'Fuente pública'}</strong><br>
+          ${tags.description ? `<strong>Descripción:</strong> ${tags.description}<br>` : ''}
+          ${tags.operator ? `<strong>Operador:</strong> ${tags.operator}<br>` : ''}
+          ${tags.access ? `<strong>Acceso:</strong> ${tags.access}<br>` : ''}
+          ${tags.note ? `<strong>Nota:</strong> ${tags.note}<br>` : ''}
+          <strong>Lat:</strong> ${lat.toFixed(6)}, <strong>Lon:</strong> ${lon.toFixed(6)}
+        `;
+
 
         const marker = L.marker([lat, lon])
           .bindTooltip(tooltipText, {
