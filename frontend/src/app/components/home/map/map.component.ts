@@ -19,13 +19,20 @@ export class MapComponent implements AfterViewInit, OnChanges {
   @Input() useGeolocation = false;
 
   userIcon = L.icon({
-    iconUrl: 'assets/marker-icon-purple.png',
-    shadowUrl: 'assets/marker-shadow.png',
-    iconSize: [25, 41],
+    iconUrl: 'assets/icons/localizacion.png',
+    iconSize: [40, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
     shadowSize: [41, 41]
   });
+
+  dbSourceIcon = L.icon({
+    iconUrl: 'assets/icons/gota.png',
+    iconSize: [40, 41],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+  });
+
 
   map!: L.Map;
   userMarker?: L.Marker;
@@ -138,7 +145,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
           Fecha: ${f.created_at ? new Date(f.created_at).toLocaleDateString() : 'Desconocida'}
         `;
 
-        const marker = L.marker([f.latitude, f.longitude])
+        const marker = L.marker([f.latitude, f.longitude], { icon: this.dbSourceIcon })
           .bindTooltip(tooltipText, {
             direction: 'top',
             offset: [0, -10],
