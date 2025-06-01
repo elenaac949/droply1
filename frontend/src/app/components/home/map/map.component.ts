@@ -1,9 +1,9 @@
 import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import * as L from 'leaflet';
-import { OsmService } from '../../services/osm.service';
+import { OsmService } from '../../../services/osm.service';
 import { HttpClient } from '@angular/common/http';
 import 'leaflet.markercluster';
-import { ReviewsComponent } from '../reviews/reviews.component';
+import { ReviewsComponent } from '../../reviews/reviews.component';
 import { CommonModule } from '@angular/common';
 
 
