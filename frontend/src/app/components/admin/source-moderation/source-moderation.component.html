@@ -82,6 +82,27 @@
           <mat-option value="rejected">Rechazadas</mat-option>
         </mat-select>
       </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Filtrar por tipo</mat-label>
+        <mat-select [(ngModel)]="typeFilter">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="drinking">Agua potable</mat-option>
+          <mat-option value="tap">Grifo</mat-option>
+          <mat-option value="decorative">Decorativa</mat-option>
+          <mat-option value="bottle_refill">Recarga de botellas</mat-option>
+          <mat-option value="natural_spring">Manantial natural</mat-option>
+          <mat-option value="other">Otro</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Accesible</mat-label>
+        <mat-select [(ngModel)]="accessibilityFilter">
+          <mat-option value="">Todas</mat-option>
+          <mat-option value="true">Sí</mat-option>
+          <mat-option value="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
     <table class="table-auto w-full mt-4 border-collapse border border-gray-300 text-sm">
       <thead>
@@ -103,7 +124,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let fuente of allSources | filterByStatus: statusFilter" class="hover:bg-gray-50">
+        <tr *ngFor="let fuente of allSources | filterSources: statusFilter : typeFilter : accessibilityFilter"
+          class="hover:bg-gray-50">
           <td class="border px-2 py-1">{{ fuente.name }}</td>
           <td class="border px-2 py-1">{{ fuente.description }}</td>
           <td class="border px-2 py-1">{{ fuente.latitude }}</td>
@@ -120,6 +142,11 @@
           <td class="border px-2 py-1">
             <button mat-button color="accent" (click)="openSourceEdit(fuente)">Editar</button>
             <button mat-button color="warn" (click)="deleteSource(fuente.id)">Eliminar</button>
+          </td>
+        </tr>
+        <tr *ngIf="(allSources | filterSources: statusFilter : typeFilter : accessibilityFilter).length === 0">
+          <td colspan="14" class="text-center py-4 text-gray-500">
+            No se encontraron fuentes con los filtros seleccionados.
           </td>
         </tr>
       </tbody>

@@ -15,14 +15,18 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Pipe, PipeTransform } from '@angular/core';
+
 @Pipe({
-  name: 'filterByStatus',
+  name: 'filterSources',
   standalone: true
 })
-export class FilterByStatusPipe implements PipeTransform {
-  transform(sources: WaterSource[], status: string): WaterSource[] {
-    if (!status) return sources;
-    return sources.filter(source => source.status === status);
+export class FilterSourcesPipe implements PipeTransform {
+  transform(sources: WaterSource[], status: string, type: string, accessible: string): WaterSource[] {
+    return sources.filter(source =>
+      (!status || source.status === status) &&
+      (!type || source.type === type) &&
+      (!accessible || source.is_accessible === (accessible === 'true'))
+    );
   }
 }
 
@@ -37,7 +41,7 @@ export class FilterByStatusPipe implements PipeTransform {
     MatButtonModule,
     MatSelectModule,
     MatOptionModule,
-    FilterByStatusPipe],
+    FilterSourcesPipe],
   templateUrl: './source-moderation.component.html',
   styleUrls: ['./source-moderation.component.css']
 })
@@ -57,7 +61,8 @@ export class SourceModerationComponent implements OnInit {
   sourceToEdit: WaterSource | null = null;
 
   statusFilter: string = '';
-
+  typeFilter: string = '';
+  accessibilityFilter: string = '';
 
 
   constructor(private waterSourceService: WaterSourceService, private fb: FormBuilder, private snackBar: MatSnackBar) { }
@@ -88,7 +93,11 @@ export class SourceModerationComponent implements OnInit {
     this.isLoadingAll = true;
     this.waterSourceService.getAllSources().subscribe({
       next: (sources) => {
-        this.allSources = sources;
+        // Convertimos is_accessible a booleano
+        this.allSources = sources.map(s => ({
+          ...s,
+          is_accessible: !!s.is_accessible // ← convierte 1 → true, 0 → false
+        }));
         this.isLoadingAll = false;
       },
       error: () => {
@@ -97,6 +106,7 @@ export class SourceModerationComponent implements OnInit {
       }
     });
   }
+
 
   moderateSource(id: string, status: 'approved' | 'rejected'): void {
     this.waterSourceService.moderateSource(id, status).subscribe({
