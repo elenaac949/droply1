@@ -1,18 +1,20 @@
-<h2>Valoraciones pendientes</h2>
+<div class="container">
+  <h2>Valoraciones pendientes</h2>
 
-<div *ngIf="pendingReviews.length === 0">No hay valoraciones pendientes.</div>
+  <div *ngIf="pendingReviews.length === 0">No hay valoraciones pendientes.</div>
 
-<mat-card *ngFor="let review of pendingReviews" class="review-card">
-  <mat-card-title>{{ review.rating }} ★</mat-card-title>
-  <mat-card-subtitle>
-    {{ review.source_name }} — Usuario: {{ review.username }} — {{ review.created_at | date:'short' }}
-  </mat-card-subtitle>
+  <mat-card *ngFor="let review of pendingReviews" class="review-card">
+    <mat-card-title>{{ review.rating }} ★</mat-card-title>
+    <mat-card-subtitle>
+      {{ review.source_name }} — Usuario: {{ review.username }} — {{ review.created_at | date:'short' }}
+    </mat-card-subtitle>
 
-  <mat-card-content>
-    <p>{{ review.comment }}</p>
-  </mat-card-content>
-  <mat-card-actions>
-    <button mat-raised-button class="approve-btn" (click)="moderate(review.id, 'approved')">Aceptar</button>
-    <button mat-raised-button class="reject-btn" (click)="moderate(review.id, 'rejected')">Rechazar</button>
-  </mat-card-actions>
-</mat-card>
+    <mat-card-content>
+      <p>{{ review.comment }}</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button class="approve-btn" (click)="moderate(review.id, 'approved')">Aceptar</button>
+      <button mat-raised-button class="reject-btn" (click)="moderate(review.id, 'rejected')">Rechazar</button>
+    </mat-card-actions>
+  </mat-card>
+</div>
