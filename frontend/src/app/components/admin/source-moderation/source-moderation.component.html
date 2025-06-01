@@ -70,8 +70,19 @@
     {{ deleteMessage }}
   </div>
 
+  <h2>Todas las fuentes de agua</h2>
   <div class="table-wrapper" *ngIf="!isLoadingAll && allSources.length > 0">
-    <h3>Todas las fuentes de agua</h3>
+    <div class="filter-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Filtrar por estado</mat-label>
+        <mat-select [(ngModel)]="statusFilter">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="pending">Pendientes</mat-option>
+          <mat-option value="approved">Aprobadas</mat-option>
+          <mat-option value="rejected">Rechazadas</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
     <table class="table-auto w-full mt-4 border-collapse border border-gray-300 text-sm">
       <thead>
         <tr class="bg-gray-100">
@@ -92,7 +103,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let fuente of allSources" class="hover:bg-gray-50">
+        <tr *ngFor="let fuente of allSources | filterByStatus: statusFilter" class="hover:bg-gray-50">
           <td class="border px-2 py-1">{{ fuente.name }}</td>
           <td class="border px-2 py-1">{{ fuente.description }}</td>
           <td class="border px-2 py-1">{{ fuente.latitude }}</td>

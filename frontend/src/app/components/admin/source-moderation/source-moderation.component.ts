@@ -14,6 +14,17 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { Pipe, PipeTransform } from '@angular/core';
+@Pipe({
+  name: 'filterByStatus',
+  standalone: true
+})
+export class FilterByStatusPipe implements PipeTransform {
+  transform(sources: WaterSource[], status: string): WaterSource[] {
+    if (!status) return sources;
+    return sources.filter(source => source.status === status);
+  }
+}
 
 @Component({
   selector: 'app-source-moderation',
@@ -25,7 +36,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatCheckboxModule,
     MatButtonModule,
     MatSelectModule,
-    MatOptionModule],
+    MatOptionModule,
+    FilterByStatusPipe],
   templateUrl: './source-moderation.component.html',
   styleUrls: ['./source-moderation.component.css']
 })
@@ -43,6 +55,9 @@ export class SourceModerationComponent implements OnInit {
 
   editSourceForm: boolean = false;
   sourceToEdit: WaterSource | null = null;
+
+  statusFilter: string = '';
+
 
 
   constructor(private waterSourceService: WaterSourceService, private fb: FormBuilder, private snackBar: MatSnackBar) { }
@@ -84,28 +99,28 @@ export class SourceModerationComponent implements OnInit {
   }
 
   moderateSource(id: string, status: 'approved' | 'rejected'): void {
-  this.waterSourceService.moderateSource(id, status).subscribe({
-    next: () => {
-      this.loadPendingSources(); // Recargar la lista después de moderar
-      this.loadAllSources();     // Recargar la tabla completa
+    this.waterSourceService.moderateSource(id, status).subscribe({
+      next: () => {
+        this.loadPendingSources(); // Recargar la lista después de moderar
+        this.loadAllSources();     // Recargar la tabla completa
 
-      const action = status === 'approved' ? 'aprobada' : 'rechazada';
-      this.snackBar.open(`Fuente ${action} correctamente.`, 'Cerrar', {
-        duration: 3000,
-        panelClass: ['snackbar-success'],
-        verticalPosition: 'top'
-      });
-    },
-    error: (err) => {
-      console.error('Error moderating source:', err);
-      this.snackBar.open('Error al moderar la fuente.', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['snackbar-error'],
-        verticalPosition: 'top'
-      });
-    }
-  });
-}
+        const action = status === 'approved' ? 'aprobada' : 'rechazada';
+        this.snackBar.open(`Fuente ${action} correctamente.`, 'Cerrar', {
+          duration: 3000,
+          panelClass: ['snackbar-success'],
+          verticalPosition: 'top'
+        });
+      },
+      error: (err) => {
+        console.error('Error moderating source:', err);
+        this.snackBar.open('Error al moderar la fuente.', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['snackbar-error'],
+          verticalPosition: 'top'
+        });
+      }
+    });
+  }
 
 
   translateType(type: string): string {
