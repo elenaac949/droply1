@@ -1,9 +1,19 @@
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
-
 const jwt = require('jsonwebtoken');
 
+/**
+ * Controlador para registrar un nuevo usuario.
+ * 
+ * Valida los datos de entrada, encripta la contraseña y guarda el usuario en la base de datos.
+ * 
+ * @route POST /auth/signup
+ * @param {Request} req - Solicitud HTTP con los datos del usuario (username, email, password, etc.).
+ * @param {Response} res - Respuesta HTTP.
+ * @param {Function} next - Middleware de error.
+ * @returns {JSON} Mensaje de confirmación.
+ */
 exports.signup = async (req, res, next) => {
   const errors = validationResult(req);
 
@@ -14,18 +24,14 @@ exports.signup = async (req, res, next) => {
     });
   }
 
-
-  const username = req.body.username;
-  const email = req.body.email;
-  const password = req.body.password;
-
+  const { username, email, password } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const userDetails = {
-      username: req.body.username,
-      email: req.body.email,
+      username,
+      email,
       password: hashedPassword,
       phone: req.body.phone || '',
       country: req.body.country || '',
@@ -39,18 +45,24 @@ exports.signup = async (req, res, next) => {
 
     res.status(201).json({ message: 'Usuario registrado correctamente' });
 
-
   } catch (err) {
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
+    if (!err.statusCode) err.statusCode = 500;
     next(err);
   }
-}
+};
 
-
+/**
+ * Controlador para iniciar sesión.
+ * 
+ * Verifica las credenciales y devuelve un token JWT con los datos del usuario.
+ * 
+ * @route POST /auth/login
+ * @param {Request} req - Solicitud HTTP con email y contraseña.
+ * @param {Response} res - Respuesta HTTP con el token JWT.
+ * @param {Function} next - Middleware de error.
+ * @returns {JSON} Objeto con token, userId, role y username.
+ */
 exports.login = async (req, res, next) => {
-  // 1) Comprobar errores de validación
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({
@@ -61,17 +73,14 @@ exports.login = async (req, res, next) => {
 
   const { email, password } = req.body;
   try {
-    // Buscar usuario por email
     const [rows] = await User.find(email);
-    if (rows.length === 0) {// Email no encontrado, pero devolvemos mensaje genérico
+    if (rows.length === 0) {
       const error = new Error('Email o contraseña incorrectos.');
       error.statusCode = 401;
       throw error;
     }
 
     const user = rows[0];
-
-    // Verificar contraseña
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
       const error = new Error('Email o contraseña incorrectos');
@@ -79,22 +88,20 @@ exports.login = async (req, res, next) => {
       throw error;
     }
 
-    // 4) Generar JWT
     const token = jwt.sign(
       {
-        userId: user.id,   // O el campo que uses como identificador
+        userId: user.id,
         role: user.role
       },
-      process.env.JWT_PRIVATE_KEY, // Se guarda en una variable de entorno
+      process.env.JWT_PRIVATE_KEY,
       { expiresIn: '6h' }
     );
 
-    // 5) Responder con token y datos
     res.status(200).json({
-      token: token,       // Para autenticación
-      userId: user.id,    // Para referencia rápida
-      role: user.role,    // Para lógica de frontend
-      username: user.username,  // Para mostrar en UI
+      token,
+      userId: user.id,
+      role: user.role,
+      username: user.username,
     });
 
   } catch (err) {

@@ -1,8 +1,13 @@
 const { validationResult } = require('express-validator');
 const WaterSource = require('../models/waterSourceModel');
-const db = require('../util/database');
 
-// Crear una nueva fuente de agua
+/**
+ * Crea una nueva fuente de agua en la base de datos.
+ * 
+ * @route POST /water-sources
+ * @param {Request} req - Datos de la fuente en el body.
+ * @param {Response} res - Mensaje de éxito o error.
+ */
 exports.createWaterSource = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -19,27 +24,15 @@ exports.createWaterSource = async (req, res) => {
 
     const user_id = req.user?.id ?? null;
 
-    // Verificar si ya existe una fuente en esa ubicación exacta
     const [[{ count }]] = await WaterSource.existsAtCoordinates(latitude, longitude);
     if (count > 0) {
       return res.status(400).json({ error: 'Ya existe una fuente en esa ubicación.' });
     }
 
     const fuente = new WaterSource(
-      name,
-      description,
-      latitude,
-      longitude,
-      type,
-      is_accessible,
-      schedule,
-      country,
-      city,
-      postal_code,
-      address,
-      user_id,
-      is_osm,
-      osm_id
+      name, description, latitude, longitude, type,
+      is_accessible, schedule, country, city, postal_code,
+      address, user_id, is_osm, osm_id
     );
 
     await WaterSource.save(fuente);
@@ -51,9 +44,11 @@ exports.createWaterSource = async (req, res) => {
   }
 };
 
-
-
-// Listar todas las fuentes de agua
+/**
+ * Obtiene todas las fuentes de agua (sin filtrar).
+ * 
+ * @route GET /water-sources
+ */
 exports.getAllWaterSources = async (req, res) => {
   try {
     const [rows] = await WaterSource.fetchAll();
@@ -64,7 +59,11 @@ exports.getAllWaterSources = async (req, res) => {
   }
 };
 
-/* Listar solo fuentes de agua aprobadas */
+/**
+ * Obtiene todas las fuentes de agua con estado "approved".
+ * 
+ * @route GET /water-sources/approved
+ */
 exports.getApprovedWaterSources = async (req, res) => {
   try {
     const [rows] = await WaterSource.fetchApproved();
@@ -75,33 +74,30 @@ exports.getApprovedWaterSources = async (req, res) => {
   }
 };
 
-/* Obtener informacion sobre una fuente de agua en base a su id */
+/**
+ * Obtiene los datos de una fuente de agua por su ID, incluyendo reseñas.
+ * 
+ * @route GET /water-sources/:id
+ */
 exports.getById = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    // 1. Obtener datos básicos de la fuente
     const [sourceRows] = await WaterSource.getBasicById(id);
-
     if (sourceRows.length === 0) {
       return res.status(404).json({ message: 'Fuente no encontrada' });
     }
 
     const source = sourceRows[0];
-
-    // 2. Obtener valoraciones aprobadas
     const [reviews] = await WaterSource.getReviews(id);
 
-    // 3. Calcular media y total 
     let average_rating = null;
     let total_reviews = reviews.length;
-
     if (total_reviews > 0) {
       const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
       average_rating = parseFloat((sum / total_reviews).toFixed(2));
     }
 
-    // 4. Responder con los datos combinados
     res.status(200).json({
       ...source,
       reviews,
@@ -113,9 +109,14 @@ exports.getById = async (req, res, next) => {
     err.statusCode = 500;
     next(err);
   }
-}
+};
 
-exports.updateStatus = async (req, res, next) => {
+/**
+ * Actualiza el estado de una fuente ('pending', 'approved', 'rejected').
+ * 
+ * @route PATCH /water-sources/:id/status
+ */
+exports.updateStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
@@ -132,25 +133,26 @@ exports.updateStatus = async (req, res, next) => {
   }
 };
 
-/* obtener las funetes pendientes de aprobar */
+/**
+ * Obtiene todas las fuentes con estado "pending".
+ * 
+ * @route GET /water-sources/pending
+ */
 exports.getPendingSources = async (req, res) => {
-  console.log('Llamada a /pending recibida'); // ← Debug
   try {
     const [rows] = await WaterSource.fetchPending();
-    console.log('Resultados de DB:', rows); // ← Debug
-
-    if (!rows || rows.length === 0) {
-      console.log('No hay fuentes pendientes'); // ← Debug
-      return res.status(200).json([]);
-    }
-
-    res.status(200).json(rows);
+    res.status(200).json(rows || []);
   } catch (err) {
-    console.error('Error en /pending:', err); // ← Debug
+    console.error('Error en /pending:', err);
     res.status(500).json({ error: 'Error al obtener fuentes pendientes' });
   }
 };
 
+/**
+ * Elimina una fuente de agua por su ID.
+ * 
+ * @route DELETE /water-sources/:id
+ */
 exports.deleteWaterSource = async (req, res) => {
   const { id } = req.params;
   try {
@@ -161,7 +163,12 @@ exports.deleteWaterSource = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar fuente' });
   }
 };
-/* actualizar la fuente */
+
+/**
+ * Actualiza todos los datos de una fuente de agua.
+ * 
+ * @route PUT /water-sources/:id
+ */
 exports.updateWaterSource = async (req, res) => {
   const { id } = req.params;
   const {
@@ -193,7 +200,11 @@ exports.updateWaterSource = async (req, res) => {
   }
 };
 
-/* Obtener una funete poor el id del osm */
+/**
+ * Obtiene una fuente de agua por su identificador OSM.
+ * 
+ * @route GET /water-sources/osm/:osmId
+ */
 exports.getByOSMId = async (req, res) => {
   const { osmId } = req.params;
 

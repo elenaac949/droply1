@@ -1,8 +1,13 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 
-
-/* Crear un nuevo usuario */
+/**
+ * Crea un nuevo usuario en la base de datos.
+ * 
+ * @route POST /users
+ * @param {Request} req - Cuerpo con datos del usuario (username, email, password, etc.).
+ * @param {Response} res - Respuesta HTTP con mensaje de éxito o error.
+ */
 exports.createUser = async (req, res) => {
   const {
     username, email, password,
@@ -19,13 +24,11 @@ exports.createUser = async (req, res) => {
   }
 
   try {
-    // Verificar si el email ya existe
     const [existingUser] = await User.find(email);
     if (existingUser.length > 0) {
       return res.status(409).json({ error: 'El email ya está registrado' });
     }
 
-    // Hashear contraseña y guardar
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const userData = {
@@ -50,7 +53,13 @@ exports.createUser = async (req, res) => {
   }
 };
 
-/* editar un usuario */
+/**
+ * Actualiza los datos de un usuario.
+ * 
+ * @route PUT /users/:id
+ * @param {Request} req - Datos actualizados del usuario.
+ * @param {Response} res - Confirmación de actualización.
+ */
 exports.updateUser = async (req, res) => {
   const {
     username, email, role, phone,
@@ -76,7 +85,14 @@ exports.updateUser = async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar el usuario' });
   }
 };
-/* comporbar que el email eciste */
+
+/**
+ * Verifica si un email ya está registrado.
+ * 
+ * @route GET /users/check-email?email=...
+ * @param {Request} req - Query con el email.
+ * @param {Response} res - { exists: boolean }
+ */
 exports.checkEmailExists = async (req, res) => {
   const { email } = req.query;
 
@@ -93,7 +109,13 @@ exports.checkEmailExists = async (req, res) => {
   }
 };
 
-/* Obtener todos los usuarios */
+/**
+ * Obtiene la lista completa de usuarios.
+ * 
+ * @route GET /users
+ * @param {Request} req 
+ * @param {Response} res - Array de usuarios.
+ */
 exports.getAllUsers = async (req, res) => {
   try {
     const [users] = await User.findAll();
@@ -103,7 +125,13 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-/* Borrar usuario */
+/**
+ * Elimina un usuario por su ID.
+ * 
+ * @route DELETE /users/:id
+ * @param {Request} req - ID del usuario.
+ * @param {Response} res - Mensaje de confirmación.
+ */
 exports.deleteUser = async (req, res) => {
   const userId = req.params.id;
   try {
@@ -114,8 +142,13 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-/* Obtener usuario por id */
-
+/**
+ * Obtiene un usuario por su ID.
+ * 
+ * @route GET /users/:id
+ * @param {Request} req - ID del usuario.
+ * @param {Response} res - Objeto del usuario o error 404.
+ */
 exports.getUserById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -130,7 +163,13 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// verificar contraseña actual
+/**
+ * Verifica si la contraseña actual del usuario es correcta.
+ * 
+ * @route POST /users/:userId/verify-password
+ * @param {Request} req - { currentPassword }
+ * @param {Response} res - { valid: boolean }
+ */
 exports.verifyPassword = async (req, res) => {
   const { userId } = req.params;
   const { currentPassword } = req.body;
@@ -153,30 +192,36 @@ exports.verifyPassword = async (req, res) => {
   }
 };
 
-/* actualizar contraseña */
+/**
+ * Actualiza la contraseña de un usuario.
+ * 
+ * @route PATCH /users/:id/password
+ * @param {Request} req - { currentPassword, newPassword }
+ * @param {Response} res - Mensaje de éxito o error.
+ */
 exports.updatePassword = async (req, res) => {
-    const { currentPassword, newPassword } = req.body;
-    const userId = req.params.id;
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.params.id;
 
-    if (!currentPassword || !newPassword) {
-        return res.status(400).json({ message: 'Faltan campos obligatorios' });
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'Faltan campos obligatorios' });
+  }
+
+  try {
+    const [rows] = await User.findById(userId);
+    const user = rows[0];
+
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
     }
 
-    try {
-        const [rows] = await User.findById(userId);
-        const user = rows[0];
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.updatePassword(userId, hashedPassword);
 
-        const passwordMatch = await bcrypt.compare(currentPassword, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
-        }
-
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await User.updatePassword(userId, hashedPassword);
-
-        res.status(200).json({ message: 'Contraseña actualizada correctamente' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Error al cambiar la contraseña' });
-    }
+    res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al cambiar la contraseña' });
+  }
 };
