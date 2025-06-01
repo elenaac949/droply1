@@ -81,5 +81,12 @@ export class WaterSourceService {
     );
   }
 
+  updateSource(id: string, data: Partial<WaterSource>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, data, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
 
 }

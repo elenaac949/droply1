@@ -6,11 +6,24 @@ import { WaterSourceService } from '../../../services/water-source.service';
 import { CommonModule } from '@angular/common';
 import { WaterSource } from '../../../services/water-source.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-source-moderation',
   standalone: true,
-  imports: [NgIf, NgFor, MatCardModule, MatButtonModule, CommonModule, MatProgressSpinnerModule],
+  imports: [NgIf, NgFor, MatCardModule, MatButtonModule, CommonModule, MatProgressSpinnerModule, FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatOptionModule],
   templateUrl: './source-moderation.component.html',
   styleUrls: ['./source-moderation.component.css']
 })
@@ -25,7 +38,12 @@ export class SourceModerationComponent implements OnInit {
 
   deleteMessage: string | null = null;
 
-  constructor(private waterSourceService: WaterSourceService) { }
+
+  editSourceForm: boolean = false;
+  sourceToEdit: WaterSource | null = null;
+
+
+  constructor(private waterSourceService: WaterSourceService, private fb: FormBuilder) { }
 
   ngOnInit(): void {
     this.loadPendingSources();
@@ -88,10 +106,23 @@ export class SourceModerationComponent implements OnInit {
     return types[type] || type;
   }
 
-  editSource(id: string): void {
-    console.log('Editar fuente con ID:', id);
-    // Aquí puedes redirigir a una página de edición o abrir un modal
+  openSourceEdit(source: WaterSource): void {
+    this.sourceToEdit = { ...source };
+    this.editSourceForm = true;
   }
+
+  submitEditSource(): void {
+    if (!this.sourceToEdit) return;
+
+    this.waterSourceService.updateSource(this.sourceToEdit.id, this.sourceToEdit).subscribe(() => {
+      this.loadAllSources();
+      this.editSourceForm = false;
+      this.sourceToEdit = null;
+
+      // Puedes añadir un mensaje con snackbar o deleteMessage si quieres
+    });
+  }
+
 
   deleteSource(id: string): void {
     if (confirm('¿Estás seguro de que quieres eliminar esta fuente?')) {

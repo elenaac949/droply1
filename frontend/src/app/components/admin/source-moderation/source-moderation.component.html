@@ -107,13 +107,112 @@
           <td class="border px-2 py-1">{{ fuente.postal_code }}</td>
           <td class="border px-2 py-1">{{ fuente.status }}</td>
           <td class="border px-2 py-1">
-            <button mat-button color="accent" (click)="editSource(fuente.id)">Editar</button>
+            <button mat-button color="accent" (click)="openSourceEdit(fuente)">Editar</button>
             <button mat-button color="warn" (click)="deleteSource(fuente.id)">Eliminar</button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
+
+  <div class="modal" *ngIf="editSourceForm && sourceToEdit">
+  <mat-card class="modal-card">
+    <mat-card-title>Editar Fuente de Agua</mat-card-title>
+
+    <form (ngSubmit)="submitEditSource()" #sourceForm="ngForm">
+      <!-- Primera fila -->
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Nombre</mat-label>
+          <input matInput [(ngModel)]="sourceToEdit.name" name="name" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Descripción</mat-label>
+          <input matInput [(ngModel)]="sourceToEdit.description" name="description" />
+        </mat-form-field>
+      </div>
+
+      <!-- Segunda fila -->
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Latitud</mat-label>
+          <input matInput type="number" [(ngModel)]="sourceToEdit.latitude" name="latitude" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Longitud</mat-label>
+          <input matInput type="number" [(ngModel)]="sourceToEdit.longitude" name="longitude" required />
+        </mat-form-field>
+      </div>
+
+      <!-- Tercera fila -->
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Tipo</mat-label>
+          <mat-select [(ngModel)]="sourceToEdit.type" name="type" required>
+            <mat-option value="drinking">Agua potable</mat-option>
+            <mat-option value="tap">Grifo</mat-option>
+            <mat-option value="decorative">Decorativa</mat-option>
+            <mat-option value="bottle_refill">Recarga de botellas</mat-option>
+            <mat-option value="natural_spring">Manantial natural</mat-option>
+            <mat-option value="other">Otro</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Accesible</mat-label>
+          <mat-select [(ngModel)]="sourceToEdit.is_accessible" name="is_accessible">
+            <mat-option [value]="true">Sí</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Cuarta fila -->
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Horario</mat-label>
+          <input matInput [(ngModel)]="sourceToEdit.schedule" name="schedule" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>País</mat-label>
+          <input matInput [(ngModel)]="sourceToEdit.country" name="country" />
+        </mat-form-field>
+      </div>
+
+      <!-- Quinta fila -->
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Ciudad</mat-label>
+          <input matInput [(ngModel)]="sourceToEdit.city" name="city" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Código Postal</mat-label>
+          <input matInput [(ngModel)]="sourceToEdit.postal_code" name="postal_code" />
+        </mat-form-field>
+      </div>
+
+      <!-- Sexta fila (solo un campo) -->
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Dirección</mat-label>
+          <input matInput [(ngModel)]="sourceToEdit.address" name="address" />
+        </mat-form-field>
+      </div>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="sourceForm.invalid">
+          Guardar
+        </button>
+        <button mat-button type="button" (click)="editSourceForm = false">Cancelar</button>
+      </div>
+    </form>
+  </mat-card>
+</div>
+
 
 
 </div>
