@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'
 
+/**
+ * Componente que muestra las valoraciones de una fuente de agua,
+ * permite ver las existentes y enviar nuevas.
+ */
 @Component({
   selector: 'app-reviews',
   standalone: true,
@@ -10,27 +14,43 @@ import { FormsModule } from '@angular/forms'
   templateUrl: './reviews.component.html',
   styleUrl: './reviews.component.css'
 })
-
 export class ReviewsComponent implements OnInit {
+
+  /** ID de la fuente de agua de la cual se mostrarán/enviarán valoraciones */
   @Input() waterSourceId!: string;
+
+  /** Función para cerrar el modal desde el componente padre */
   @Input() close!: () => void;
 
+  /** Pestaña activa: lista de valoraciones o formulario de nueva valoración */
   activeTab = signal<'reviews' | 'add'>('reviews');
+
+  /** Datos básicos de la fuente (nombre, usuario, etc.) */
   sourceData: any = {};
+
+  /** Lista reactiva de valoraciones aprobadas */
   reviews = signal<any[]>([]);
 
+  /** Modelo del formulario de envío de valoración */
   form = {
     rating: 5,
     comment: ''
   };
 
+  /** Cliente HTTP para llamadas al backend */
   private http = inject(HttpClient);
 
+  /**
+   * Al iniciar, carga información de la fuente y valoraciones aprobadas.
+   */
   ngOnInit(): void {
-    this.loadSourceInfo();       // Nombre + creador
-    this.loadApprovedReviews();  // Solo valoraciones aprobadas
+    this.loadSourceInfo();
+    this.loadApprovedReviews();
   }
-/* Ceafamos la informacion de la duente */
+
+  /**
+   * Carga los datos básicos de la fuente (nombre, usuario, descripción...).
+   */
   loadSourceInfo(): void {
     this.http.get<any>(`http://localhost:3000/api/water-sources/${this.waterSourceId}`)
       .subscribe(data => {
@@ -39,7 +59,9 @@ export class ReviewsComponent implements OnInit {
       });
   }
 
-  /* Cargamos la valoraciones aprobadas */
+  /**
+   * Carga las valoraciones aprobadas asociadas a la fuente.
+   */
   loadApprovedReviews(): void {
     this.http.get<any[]>(`http://localhost:3000/api/reviews/source/${this.waterSourceId}`)
       .subscribe(data => {
@@ -48,7 +70,9 @@ export class ReviewsComponent implements OnInit {
       });
   }
 
-
+  /**
+   * Envía una nueva valoración al backend. Solo si el usuario está autenticado.
+   */
   submitReview(): void {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -66,7 +90,7 @@ export class ReviewsComponent implements OnInit {
       next: () => {
         this.form = { rating: 5, comment: '' };
         this.activeTab.set('reviews');
-        this.loadApprovedReviews();/* recragra valoraciones cuando se crea una nueva pero da iguall porque no esta aprobada  */
+        this.loadApprovedReviews(); 
       },
       error: err => {
         alert('Error al enviar valoración');
@@ -74,5 +98,4 @@ export class ReviewsComponent implements OnInit {
       }
     });
   }
-
 }

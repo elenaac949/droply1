@@ -7,10 +7,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
+/**
+ * Componente del perfil de usuario. Permite ver, editar y eliminar los datos del usuario,
+ * así como cambiar su contraseña.
+ */
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -27,179 +30,194 @@ import { Router } from '@angular/router';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
+export class ProfileComponent implements OnInit {
 
-
-export class ProfileComponent {
-
+  /** Usuario actual cargado */
   user: User | null = null;
-  editProfileForm: boolean = false;
+
+  /** Controla si se está mostrando el formulario de edición */
+  editProfileForm = false;
+
+  /** Copia editable del usuario actual */
   userToEdit: User | null = null;
-  originalEmail: string = '';
-  emailExistsEdit: boolean = false;
-  changePasswordForm: boolean = false;
+
+  /** Email original para comparación */
+  originalEmail = '';
+
+  /** Flag si el email editado ya existe */
+  emailExistsEdit = false;
+
+  /** Controla si se muestra el formulario para cambiar la contraseña */
+  changePasswordForm = false;
+
+  /** Datos del formulario de cambio de contraseña */
   passwordData = {
     currentPassword: '',
     newPassword: '',
     confirmNewPassword: ''
   };
 
-  passwordError: string = '';
-  isCurrentPasswordValid: boolean = true;
+  /** Error si la contraseña actual no es válida */
+  passwordError = '';
 
+  /** Flag que indica si la contraseña actual es válida */
+  isCurrentPasswordValid = true;
 
   constructor(
     private userService: UserService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private router: Router,
-  ) { }
+    private router: Router
+  ) {}
 
+  /**
+   * Carga los datos del usuario al iniciar el componente.
+   */
   ngOnInit(): void {
-
     const userId = this.authService.getUserId();
-    console.log('ID del usuario actual:', userId);
     if (userId) {
       this.userService.getUserById(userId).subscribe({
-        next: (userData: User | null) => {
-          console.log('Datos recibidos del backend:', userData);
-          this.user = userData;
-        },
-        error: () => {
-          console.error('No se pudo cargar el perfil del usuario.');
-        }
+        next: (userData) => this.user = userData,
+        error: () => console.error('No se pudo cargar el perfil del usuario.')
       });
     }
   }
 
-  editarPerfil() {
+  /**
+   * Abre el formulario para editar el perfil.
+   */
+  editarPerfil(): void {
     this.userToEdit = { ...this.user! };
     this.originalEmail = this.user!.email;
     this.editProfileForm = true;
   }
 
+  /**
+   * Cierra el formulario de edición del perfil.
+   */
+  cerrarEdicion(): void {
+    this.editProfileForm = false;
+    this.userToEdit = null;
+  }
+
+  /**
+   * Verifica si el nuevo email ya existe.
+   */
   validateEmailEdit(email: string): void {
     if (!email || email === this.originalEmail) {
       this.emailExistsEdit = false;
       return;
     }
-
     this.userService.checkEmailExists(email).subscribe({
-      next: (res) => this.emailExistsEdit = res === true,
+      next: res => this.emailExistsEdit = res === true,
       error: () => this.emailExistsEdit = false
     });
   }
-  cerrarEdicion() {
-    this.editProfileForm = false;
-    this.userToEdit = null;
-  }
 
-
-  eliminarCuenta(): void {
-    const confirmed = confirm('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.');
-    if (!confirmed || !this.user?.id) return;
-
-    this.userService.deleteUser(this.user.id).subscribe({
-      next: () => {
-        this.snackBar.open('Cuenta eliminada correctamente', 'Cerrar', {
-          duration: 3000,
-          verticalPosition: 'top',
-          panelClass: ['snackbar-success']
-        });
-
-        this.authService.logout(); // elimina token y datos locales
-        this.router.navigate(['/landing']);
-      },
-      error: () => {
-        this.snackBar.open('Error al eliminar la cuenta', 'Cerrar', {
-          duration: 3000,
-          verticalPosition: 'top',
-          panelClass: ['snackbar-error']
-        });
-      }
-    });
-  }
-
-  guardarCambiosPerfil() {
+  /**
+   * Guarda los cambios del perfil.
+   */
+  guardarCambiosPerfil(): void {
     if (!this.userToEdit) return;
 
     this.userService.updateUser(this.userToEdit).subscribe({
       next: () => {
         this.snackBar.open('Perfil actualizado correctamente ', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
+          duration: 3000, horizontalPosition: 'right', verticalPosition: 'top'
         });
-
-        this.user = { ...(this.userToEdit as User) };
-
+        this.user = { ...this.userToEdit! };
         this.editProfileForm = false;
       },
       error: () => {
-        this.snackBar.open('Error al actualizar el perfil ', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
+        this.snackBar.open('Error al actualizar el perfil', 'Cerrar', {
+          duration: 3000, horizontalPosition: 'right', verticalPosition: 'top'
         });
       }
     });
   }
 
+  /**
+   * Elimina la cuenta del usuario actual.
+   */
+  eliminarCuenta(): void {
+    if (!this.user?.id || !confirm('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.')) return;
 
-  openChangePasswordModal() {
+    this.userService.deleteUser(this.user.id).subscribe({
+      next: () => {
+        this.snackBar.open('Cuenta eliminada correctamente', 'Cerrar', {
+          duration: 3000, verticalPosition: 'top', panelClass: ['snackbar-success']
+        });
+        this.authService.logout();
+        this.router.navigate(['/landing']);
+      },
+      error: () => {
+        this.snackBar.open('Error al eliminar la cuenta', 'Cerrar', {
+          duration: 3000, verticalPosition: 'top', panelClass: ['snackbar-error']
+        });
+      }
+    });
+  }
+
+  /**
+   * Abre el formulario de cambio de contraseña y reinicia los datos.
+   */
+  openChangePasswordModal(): void {
     this.changePasswordForm = true;
-    this.passwordData = {
-      currentPassword: '',
-      newPassword: '',
-      confirmNewPassword: ''
-    };
+    this.passwordData = { currentPassword: '', newPassword: '', confirmNewPassword: '' };
     this.isCurrentPasswordValid = true;
   }
 
-
-  cambiarContrasena() {
+  /**
+   * Alias público para abrir el formulario de cambio de contraseña.
+   */
+  cambiarContrasena(): void {
     this.openChangePasswordModal();
   }
 
-
-  submitPasswordChange() {
+  /**
+   * Envía el formulario de cambio de contraseña si todo es válido.
+   */
+  submitPasswordChange(): void {
     const { currentPassword, newPassword, confirmNewPassword } = this.passwordData;
     if (!currentPassword || !newPassword || newPassword.length < 7) {
       this.snackBar.open('La nueva contraseña debe tener al menos 7 caracteres', 'Cerrar', { duration: 3000 });
       return;
     }
-
     if (newPassword !== confirmNewPassword) {
       this.snackBar.open('Las contraseñas no coinciden', 'Cerrar', { duration: 3000 });
       return;
     }
-
     const userId = this.user?.id;
     if (!userId) return;
 
     this.userService.changePassword(userId, currentPassword, newPassword).subscribe({
       next: () => {
-        this.snackBar.open('Contraseña actualizada correctamente ✅', 'Cerrar', { duration: 3000 });
+        this.snackBar.open('Contraseña actualizada correctamente ', 'Cerrar', { duration: 3000 });
         this.changePasswordForm = false;
       },
-      error: (err: any) => {
+      error: err => {
         const msg = err.error?.message || 'Error al cambiar la contraseña';
         this.snackBar.open(msg, 'Cerrar', { duration: 3000 });
       }
     });
   }
 
+  /**
+   * Verifica si la contraseña actual introducida es válida (antes de cambiarla).
+   */
   checkCurrentPassword(): void {
     const userId = this.user?.id;
     if (!userId || !this.passwordData.currentPassword) return;
 
-    this.userService.verifyCurrentPassword(userId, this.passwordData.currentPassword)
-      .subscribe({
-        next: (isValid) => this.isCurrentPasswordValid = isValid,
-        error: () => this.isCurrentPasswordValid = false
-      });
+    this.userService.verifyCurrentPassword(userId, this.passwordData.currentPassword).subscribe({
+      next: isValid => this.isCurrentPasswordValid = isValid,
+      error: () => this.isCurrentPasswordValid = false
+    });
   }
 
-
+  /**
+   * Comprueba si las nuevas contraseñas introducidas no coinciden.
+   */
   passwordsDoNotMatch(): boolean {
     return (
       this.passwordData.newPassword !== '' &&
@@ -207,8 +225,4 @@ export class ProfileComponent {
       this.passwordData.newPassword !== this.passwordData.confirmNewPassword
     );
   }
-
-
-
-
 }

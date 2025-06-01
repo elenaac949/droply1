@@ -1,36 +1,38 @@
-// admin.guard.ts
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { map, take } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
+/**
+ * Guard que protege rutas exclusivas para administradores.
+ * Verifica el estado reactivo `isAdmin$` del AuthService.
+ */
 @Injectable({ providedIn: 'root' })
 export class AdminGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
 
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  /**
+   * Determina si el usuario puede activar la ruta protegida.
+   * Si no es admin, redirige a `/home`.
+   *
+   * @returns `true` si el usuario es admin, `false` en caso contrario.
+   */
   canActivate(): Observable<boolean> | Promise<boolean> | boolean {
-    // Si usas BehaviorSubject (solución reactiva)
     return this.authService.isAdmin$.pipe(
-      take(1), // Toma el último valor y completa la suscripción
+      take(1), // Tomamos el primer valor disponible y cerramos la suscripción
       map(isAdmin => {
         if (isAdmin) {
-          return true; // Permite el acceso
+          return true;
         } else {
-          this.router.navigate(['/home']); // Redirige si no es admin
+          this.router.navigate(['/home']);
           return false;
         }
       })
     );
-
-    // Alternativa si usas el método síncrono isAdmin()
-    /* 
-    if (this.authService.isAdmin()) {
-      return true;
-    } else {
-      this.router.navigate(['/home']);
-      return false;
-    }
-    */
   }
 }
