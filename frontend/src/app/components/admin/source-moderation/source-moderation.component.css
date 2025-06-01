@@ -46,7 +46,6 @@
 }
 
 /* Tarjetas de fuentes pendientes */
-/* Tarjetas de fuentes pendientes - Versión mejorada para mejor contraste */
 .source-card {
   margin-bottom: 1.5rem;
 }
@@ -55,32 +54,32 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background: #ffffff; /* Fondo blanco sólido para mejor contraste */
-  border: 1px solid #e0f2ff; /* Borde sutil para definición */
+  background: #ffffff; 
+  border: 1px solid #e0f2ff; 
 }
 
 .source-card mat-card-header {
   background-color: #f0f8ff;
   padding: 1rem;
-  border-bottom: 1px solid #d0e9ff; /* Borde más contrastado */
+  border-bottom: 1px solid #d0e9ff; 
 }
 
 .source-card mat-card-title {
-  color: #1a2b3c; /* Azul muy oscuro para máximo contraste */
+  color: #1a2b3c;
   font-size: 1.1rem;
   font-weight: 600;
-  letter-spacing: 0.2px; /* Mejor legibilidad */
+  letter-spacing: 0.2px; 
 }
 
 .source-card mat-card-subtitle {
-  color: #5a6b7c; /* Gris azulado más oscuro (antes #d1d6db) */
+  color: #5a6b7c; 
   font-size: 0.85rem;
-  font-weight: 500; /* Semi-negrita para mejor legibilidad */
+  font-weight: 500; 
 }
 
 .source-card mat-card-content {
   padding: 1rem;
-  background: #ffffff; /* Fondo blanco para el contenido */
+  background: #ffffff; 
 }
 
 .source-card .details-row {
@@ -91,12 +90,12 @@
 
 .source-card p {
   margin: 0.5rem 0;
-  color: #2c3e50; /* Texto oscuro */
-  line-height: 1.5; /* Mejor interlineado */
+  color: #2c3e50; 
+  line-height: 1.5; 
 }
 
 .source-card strong {
-  color: #1a2b3c; /* Texto muy oscuro */
+  color: #1a2b3c; 
   font-weight: 600;
 }
 
@@ -183,6 +182,15 @@
   border: 1px solid #cceeff;
   overflow: hidden;
   animation: fadeInUp 0.3s ease-out;
+}
+::ng-deep .snackbar-success {
+  background-color: #4caf50;
+  color: white;
+}
+
+::ng-deep .snackbar-error {
+  background-color: #e53935;
+  color: white;
 }
 
 /* Animación de entrada */

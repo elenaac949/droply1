@@ -12,6 +12,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-source-moderation',
@@ -43,7 +45,7 @@ export class SourceModerationComponent implements OnInit {
   sourceToEdit: WaterSource | null = null;
 
 
-  constructor(private waterSourceService: WaterSourceService, private fb: FormBuilder) { }
+  constructor(private waterSourceService: WaterSourceService, private fb: FormBuilder, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.loadPendingSources();
@@ -82,17 +84,29 @@ export class SourceModerationComponent implements OnInit {
   }
 
   moderateSource(id: string, status: 'approved' | 'rejected'): void {
-    this.waterSourceService.moderateSource(id, status).subscribe({
-      next: () => {
-        this.loadPendingSources(); // Recargar la lista después de moderar
-        this.loadAllSources();  //recargar la tabla completa
-      },
-      error: (err) => {
-        console.error('Error moderating source:', err);
-        this.errorMessage = 'Error al moderar la fuente';
-      }
-    });
-  }
+  this.waterSourceService.moderateSource(id, status).subscribe({
+    next: () => {
+      this.loadPendingSources(); // Recargar la lista después de moderar
+      this.loadAllSources();     // Recargar la tabla completa
+
+      const action = status === 'approved' ? 'aprobada' : 'rechazada';
+      this.snackBar.open(`Fuente ${action} correctamente.`, 'Cerrar', {
+        duration: 3000,
+        panelClass: ['snackbar-success'],
+        verticalPosition: 'top'
+      });
+    },
+    error: (err) => {
+      console.error('Error moderating source:', err);
+      this.snackBar.open('Error al moderar la fuente.', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['snackbar-error'],
+        verticalPosition: 'top'
+      });
+    }
+  });
+}
+
 
   translateType(type: string): string {
     const types: { [key: string]: string } = {
@@ -111,35 +125,58 @@ export class SourceModerationComponent implements OnInit {
     this.editSourceForm = true;
   }
 
+
   submitEditSource(): void {
     if (!this.sourceToEdit) return;
 
-    this.waterSourceService.updateSource(this.sourceToEdit.id, this.sourceToEdit).subscribe(() => {
-      this.loadAllSources();
-      this.editSourceForm = false;
-      this.sourceToEdit = null;
+    this.waterSourceService.updateSource(this.sourceToEdit.id, this.sourceToEdit).subscribe({
+      next: () => {
+        this.loadAllSources();
+        this.editSourceForm = false;
+        this.sourceToEdit = null;
 
-      // Puedes añadir un mensaje con snackbar o deleteMessage si quieres
+        // ✅ Snackbar
+        this.snackBar.open('Fuente actualizada correctamente.', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['snackbar-success'],
+          verticalPosition: 'top'
+        });
+      },
+      error: () => {
+        this.snackBar.open('Error al actualizar la fuente.', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['snackbar-error'],
+          verticalPosition: 'top'
+        });
+      }
     });
   }
+
 
 
   deleteSource(id: string): void {
     if (confirm('¿Estás seguro de que quieres eliminar esta fuente?')) {
       this.waterSourceService.deleteSource(id).subscribe({
         next: () => {
-          this.deleteMessage = 'Fuente eliminada correctamente.';
-          this.loadAllSources(); // recarga la tabla
-          setTimeout(() => this.deleteMessage = null, 4000); // limpia el mensaje tras 4 seg.
+          this.loadAllSources();
+          this.snackBar.open('Fuente eliminada correctamente.', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['snackbar-success'],
+            verticalPosition: 'top'
+          });
         },
         error: (err) => {
           console.error('Error al eliminar la fuente:', err);
-          this.deleteMessage = 'Error al eliminar la fuente.';
-          setTimeout(() => this.deleteMessage = null, 4000);
+          this.snackBar.open('Error al eliminar la fuente.', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['snackbar-error'],
+            verticalPosition: 'top'
+          });
         }
       });
     }
   }
+
 
 
 }
