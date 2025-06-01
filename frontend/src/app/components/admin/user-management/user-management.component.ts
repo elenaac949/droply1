@@ -1,4 +1,4 @@
-import { Component, NgModule, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { UserService, User } from '../../../services/user.service';
 import { NgIf, NgFor } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,9 +7,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
-
+/**
+ * Componente de gestión de usuarios (admin).
+ * 
+ * Permite visualizar, buscar, crear, editar y eliminar usuarios.
+ * Se conecta con `UserService` y muestra notificaciones con `MatSnackBar`.
+ */
 @Component({
   selector: 'app-user-management',
   standalone: true,
@@ -21,24 +26,38 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    MatIconModule,
-    FormsModule
+    MatIconModule
   ],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
 })
 export class UserManagementComponent implements OnInit {
 
+  /** Lista completa de usuarios */
   users: User[] = [];
+
+  /** Término de búsqueda para filtrar usuarios */
   searchTerm: string = '';
+
+  /** Controla la visibilidad del formulario de creación */
   addUserForm: boolean = false;
+
+  /** Controla la visibilidad del formulario de edición */
   editUserForm: boolean = false;
+
+  /** Usuario en proceso de edición */
   userToEdit: User | null = null;
+
+  /** Flag para validación de email en nuevo usuario */
   emailExists: boolean = false;
+
+  /** Email original del usuario en edición */
   originalEmail: string = '';
+
+  /** Flag para validación de email en usuario editado */
   emailExistsEdit: boolean = false;
 
-
+  /** Datos del nuevo usuario a registrar */
   newUser: Partial<User> = {
     username: '',
     email: '',
@@ -50,19 +69,28 @@ export class UserManagementComponent implements OnInit {
     address: ''
   };
 
-  constructor(private userService: UserService, private snackBar: MatSnackBar) { }
+  constructor(private userService: UserService, private snackBar: MatSnackBar) {}
 
+  /**
+   * Carga los usuarios al inicializar el componente.
+   */
   ngOnInit(): void {
     this.loadUsers();
   }
 
-  loadUsers() {
+  /**
+   * Obtiene todos los usuarios del backend.
+   */
+  loadUsers(): void {
     this.userService.getUsers().subscribe(users => {
       this.users = users;
     });
   }
 
-  get filteredUsers() {
+  /**
+   * Devuelve los usuarios filtrados por el término de búsqueda.
+   */
+  get filteredUsers(): User[] {
     const term = this.searchTerm.toLowerCase();
 
     return this.users.filter(user =>
@@ -77,8 +105,10 @@ export class UserManagementComponent implements OnInit {
     );
   }
 
-
-
+  /**
+   * Elimina un usuario tras confirmación.
+   * @param id ID del usuario
+   */
   deleteUser(id: string): void {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
       this.userService.deleteUser(id).subscribe(() => {
@@ -92,13 +122,20 @@ export class UserManagementComponent implements OnInit {
     }
   }
 
-  editUser(user: User) {
-    this.userToEdit = { ...user }; /* copiamos los datos del usuario */
+  /**
+   * Activa el formulario de edición para el usuario seleccionado.
+   * @param user Usuario a editar
+   */
+  editUser(user: User): void {
+    this.userToEdit = { ...user };
     this.originalEmail = user.email;
     this.editUserForm = true;
   }
 
-  submitEditUser() {
+  /**
+   * Envía la actualización del usuario editado.
+   */
+  submitEditUser(): void {
     if (!this.userToEdit) return;
 
     this.userService.updateUser(this.userToEdit).subscribe(() => {
@@ -114,13 +151,17 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-
-
-  addUser() {
+  /**
+   * Muestra el formulario para añadir un nuevo usuario.
+   */
+  addUser(): void {
     this.addUserForm = true;
   }
 
-  closeAddUser() {
+  /**
+   * Cierra el formulario de creación de usuario y limpia los campos.
+   */
+  closeAddUser(): void {
     this.addUserForm = false;
     this.newUser = {
       username: '',
@@ -129,7 +170,10 @@ export class UserManagementComponent implements OnInit {
     };
   }
 
-  submitNewUser() {
+  /**
+   * Envía los datos para crear un nuevo usuario.
+   */
+  submitNewUser(): void {
     this.userService.createUser(this.newUser).subscribe(() => {
       this.loadUsers();
       this.closeAddUser();
@@ -142,6 +186,10 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
+  /**
+   * Comprueba si el email ingresado ya existe al añadir usuario.
+   * @param email Email a validar
+   */
   validateEmailUniqueness(email: string): void {
     if (!email) {
       this.emailExists = false;
@@ -153,11 +201,15 @@ export class UserManagementComponent implements OnInit {
         this.emailExists = response.exists;
       },
       error: () => {
-        this.emailExists = false; // por si el backend falla
+        this.emailExists = false;
       }
     });
   }
 
+  /**
+   * Comprueba si el nuevo email del usuario editado ya existe.
+   * @param email Email a validar
+   */
   validateEmailEdit(email: string): void {
     if (!email || email === this.originalEmail) {
       this.emailExistsEdit = false;
@@ -173,7 +225,4 @@ export class UserManagementComponent implements OnInit {
       }
     });
   }
-
 }
-
-
