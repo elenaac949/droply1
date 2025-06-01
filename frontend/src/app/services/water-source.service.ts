@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, throwError, Observable } from 'rxjs';
+import { of } from 'rxjs';
 
 export interface WaterSource {
   id: string;
@@ -18,6 +19,8 @@ export interface WaterSource {
   postal_code: string;
   address: string;
   status: 'pending' | 'approved' | 'rejected';
+  is_osm?: boolean;
+  osm_id?: number;
 }
 
 @Injectable({
@@ -26,7 +29,7 @@ export interface WaterSource {
 export class WaterSourceService {
   private apiUrl = 'http://localhost:3000/api/water-sources';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /** Obtener fuentes pendientes de moderación */
   getPendingSources(): Observable<WaterSource[]> {
@@ -69,4 +72,25 @@ export class WaterSourceService {
       catchError(error => throwError(() => error))
     );
   }
+
+
+  /* Gestiondes de las fuentes del OSM */
+  getByOSMId(osmId: number): Observable<WaterSource | null> {
+    return this.http.get<WaterSource>(`${this.apiUrl}/osm/${osmId}`).pipe(
+      catchError(error => {
+        if (error.status === 404) {
+          return of(null);  
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+
+  createSource(data: Partial<WaterSource>): Observable<WaterSource> {
+    return this.http.post<WaterSource>(this.apiUrl, data).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
+
 }

@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import 'leaflet.markercluster';
 import { ReviewsComponent } from '../../reviews/reviews.component';
 import { CommonModule } from '@angular/common';
+import { WaterSource, WaterSourceService } from '../../../services/water-source.service';
 
 
 @Component({
@@ -50,7 +51,10 @@ export class MapComponent implements AfterViewInit, OnChanges {
     this.selectedSourceId = null;
   }
 
-  constructor(private http: HttpClient, private osmService: OsmService) { }
+  constructor(
+    private http: HttpClient,
+    private osmService: OsmService,
+    private waterSourceService: WaterSourceService) { }
 
   ngAfterViewInit(): void {
     this.loadDefaultMap();
@@ -171,25 +175,51 @@ export class MapComponent implements AfterViewInit, OnChanges {
         const lon = el.lon;
         const tags = el.tags || {};
 
-        let tooltipText = `
-          <strong>${tags.name || 'Fuente pública'}</strong><br>
-          ${tags.description ? `<strong>Descripción:</strong> ${tags.description}<br>` : ''}
-          ${tags.operator ? `<strong>Operador:</strong> ${tags.operator}<br>` : ''}
-          ${tags.access ? `<strong>Acceso:</strong> ${tags.access}<br>` : ''}
-          ${tags.note ? `<strong>Nota:</strong> ${tags.note}<br>` : ''}
-          <strong>Lat:</strong> ${lat.toFixed(6)}, <strong>Lon:</strong> ${lon.toFixed(6)}
-        `;
-
+        const tooltipText = `
+        <strong>${tags.name || 'Fuente pública'}</strong><br>
+        ${tags.description ? `<strong>Descripción:</strong> ${tags.description}<br>` : ''}
+        ${tags.operator ? `<strong>Operador:</strong> ${tags.operator}<br>` : ''}
+        ${tags.access ? `<strong>Acceso:</strong> ${tags.access}<br>` : ''}
+        ${tags.note ? `<strong>Nota:</strong> ${tags.note}<br>` : ''}
+        <strong>Lat:</strong> ${lat.toFixed(6)}, <strong>Lon:</strong> ${lon.toFixed(6)}
+      `;
 
         const marker = L.marker([lat, lon])
           .bindTooltip(tooltipText, {
             direction: 'top',
             offset: [0, -10],
             opacity: 0.9
-          });
+          })
+          .on('click', () => this.handleOSMReview(el));
 
         this.osmCluster.addLayer(marker);
       });
     });
   }
+
+  // Al pulsar en una fuente OSM:
+  handleOSMReview(osmSource: any) {
+    const osmId = osmSource.id;
+
+    this.waterSourceService.getByOSMId(osmId).subscribe(existingSource => {
+      if (existingSource) {
+        this.openModal(existingSource.id);
+      } else {
+        const newSource: Partial<WaterSource> = {
+          name: osmSource.tags.name || 'Fuente OSM sin nombre',
+          latitude: osmSource.lat,
+          longitude: osmSource.lon,
+          type: 'other',  // <- ya es válido porque lo tipamos arriba
+          is_osm: true,
+          osm_id: osmId,
+          status: 'approved'
+        };
+
+        this.waterSourceService.createSource(newSource).subscribe(saved => {
+          this.openModal(saved.id);
+        });
+      }
+    });
+  }
+
 }

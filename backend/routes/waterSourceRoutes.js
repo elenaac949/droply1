@@ -37,6 +37,9 @@ router.get('/pending', authMiddleware, waterSourceController.getPendingSources);
 // Ruta para mostrar las fuentes aprobadas (para el mapa)
 router.get('/approved', waterSourceController.getApprovedWaterSources);
 
+/* obtener fuentes del osm */
+router.get('/osm/:osmId', waterSourceController.getByOSMId);
+
 /* actualizar el estado de la fuente */
 router.put('/:id/status', authMiddleware, waterSourceController.updateStatus);
 

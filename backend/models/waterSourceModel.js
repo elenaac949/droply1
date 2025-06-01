@@ -2,42 +2,49 @@
 const db = require('../util/database');
 
 module.exports = class WaterSource {
-  constructor(name, description, latitude, longitude, type, is_accessible, schedule, country, city, postal_code, address, user_id) {
-    this.name = name;
-    this.description = description;
+  constructor(name, description, latitude, longitude, type, is_accessible, schedule, country, city, postal_code, address, user_id, is_osm, osm_id) {
+    this.name = name ?? null;
+    this.description = description ?? null;
     this.latitude = latitude;
     this.longitude = longitude;
     this.type = type;
-    this.is_accessible = is_accessible;
-    this.schedule = schedule;
-    this.country = country;
-    this.city = city;
-    this.postal_code = postal_code;
-    this.address = address;
-    this.user_id = user_id;
+    this.is_accessible = is_accessible ?? null;
+    this.schedule = schedule ?? null;
+    this.country = country ?? null;
+    this.city = city ?? null;
+    this.postal_code = postal_code ?? null;
+    this.address = address ?? null;
+    this.user_id = user_id ?? null;
+    this.is_osm = is_osm ?? false;
+    this.osm_id = osm_id ?? null;
   }
 
   static save(waterSource) {
     return db.execute(
       `INSERT INTO water_sources 
-       (id, name, description, latitude, longitude, type, is_accessible, schedule, country, city, postal_code, address, user_id)
-       VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     (id, name, description, latitude, longitude, type, is_accessible, schedule, 
+      country, city, postal_code, address, user_id, is_osm, osm_id, status)
+     VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         waterSource.name,
         waterSource.description,
         waterSource.latitude,
         waterSource.longitude,
         waterSource.type,
-        waterSource.is_accessible,
+        waterSource.is_accessible ?? false,
         waterSource.schedule,
         waterSource.country,
         waterSource.city,
         waterSource.postal_code,
         waterSource.address,
-        waterSource.user_id
+        waterSource.user_id ?? null,
+        waterSource.is_osm ?? false,
+        waterSource.osm_id ?? null,
+        waterSource.status ?? 'approved'
       ]
     );
   }
+
 
   /* Obtener todas las fuentes de agua con el username de quien lo ha creado */
   static fetchAll() {
@@ -59,12 +66,14 @@ module.exports = class WaterSource {
   }
 
   static fetchApproved() {
-    return db.execute(
-      `SELECT id, name, latitude, longitude, type, is_accessible, description, schedule, status, created_at 
-       FROM water_sources WHERE status = ?`,
-      ['approved']
-    );
-  }
+  return db.execute(
+    `SELECT id, name, latitude, longitude, type, is_accessible, description, schedule, status, created_at 
+     FROM water_sources 
+     WHERE status = ? AND (is_osm IS NULL OR is_osm = 0)`,
+    ['approved']
+  );
+}
+
 
   static fetchPending() {
     return db.execute(`
@@ -130,14 +139,19 @@ module.exports = class WaterSource {
     return db.execute('DELETE FROM water_sources WHERE id = ?', [id]);
   }
 
-/* actualizar la fuente de agia */
+  /* actualizar la fuente de agia */
   static updateFull(id, name, description, latitude, longitude, type, is_accessible, schedule, country, city, postal_code, address) {
-  return db.execute(`
+    return db.execute(`
     UPDATE water_sources 
     SET name = ?, description = ?, latitude = ?, longitude = ?, type = ?, is_accessible = ?, schedule = ?, 
         country = ?, city = ?, postal_code = ?, address = ?
     WHERE id = ?
   `, [name, description, latitude, longitude, type, is_accessible, schedule, country, city, postal_code, address, id]);
-}
+  }
+
+  /* encontrar la fuente si es del osm */
+  static findByOSMId(osmId) {
+    return db.execute('SELECT * FROM water_sources WHERE osm_id = ?', [osmId]);
+  }
 
 };

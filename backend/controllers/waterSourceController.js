@@ -13,18 +13,19 @@ exports.createWaterSource = async (req, res) => {
     const {
       name, description, latitude, longitude,
       type, is_accessible, schedule,
-      country, city, postal_code, address
+      country, city, postal_code, address,
+      is_osm, osm_id
     } = req.body;
 
-    const user_id = req.user.id;
+    const user_id = req.user?.id ?? null;
 
-    // Verificar si ya existe una fuente cercana
+    // Verificar si ya existe una fuente en esa ubicación exacta
     const [[{ count }]] = await WaterSource.existsAtCoordinates(latitude, longitude);
     if (count > 0) {
       return res.status(400).json({ error: 'Ya existe una fuente en esa ubicación.' });
     }
 
-    const waterSource = new WaterSource(
+    const fuente = new WaterSource(
       name,
       description,
       latitude,
@@ -36,17 +37,20 @@ exports.createWaterSource = async (req, res) => {
       city,
       postal_code,
       address,
-      user_id
+      user_id,
+      is_osm,
+      osm_id
     );
 
-    await WaterSource.save(waterSource);
-    res.status(201).json({ message: 'Fuente de agua creada correctamente.' });
+    await WaterSource.save(fuente);
+    res.status(201).json({ message: 'Fuente creada correctamente.', id: fuente.id });
 
   } catch (err) {
-    console.error(err);
+    console.error('Error al crear fuente:', err);
     res.status(500).json({ error: 'Error al crear la fuente de agua' });
   }
 };
+
 
 
 // Listar todas las fuentes de agua
@@ -189,3 +193,18 @@ exports.updateWaterSource = async (req, res) => {
   }
 };
 
+/* Obtener una funete poor el id del osm */
+exports.getByOSMId = async (req, res) => {
+  const { osmId } = req.params;
+
+  try {
+    const [rows] = await WaterSource.findByOSMId(osmId);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Fuente no encontrada' });
+    }
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    console.error('Error al obtener fuente por osm_id:', err);
+    res.status(500).json({ error: 'Error al buscar fuente por OSM ID' });
+  }
+};
