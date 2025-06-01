@@ -66,6 +66,10 @@
   </div>
 
   <!-- Tabla de todas las fuentes -->
+  <div *ngIf="deleteMessage" class="alert bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
+    {{ deleteMessage }}
+  </div>
+
   <div class="table-wrapper" *ngIf="!isLoadingAll && allSources.length > 0">
     <h3>Todas las fuentes de agua</h3>
     <table class="table-auto w-full mt-4 border-collapse border border-gray-300 text-sm">

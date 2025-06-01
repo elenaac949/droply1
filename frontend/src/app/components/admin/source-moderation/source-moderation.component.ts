@@ -23,6 +23,8 @@ export class SourceModerationComponent implements OnInit {
   isLoadingAll: boolean = true;
   errorAll: string | null = null;
 
+  deleteMessage: string | null = null;
+
   constructor(private waterSourceService: WaterSourceService) { }
 
   ngOnInit(): void {
@@ -95,13 +97,18 @@ export class SourceModerationComponent implements OnInit {
     if (confirm('¿Estás seguro de que quieres eliminar esta fuente?')) {
       this.waterSourceService.deleteSource(id).subscribe({
         next: () => {
-          this.loadAllSources(); // refresca la lista
+          this.deleteMessage = 'Fuente eliminada correctamente.';
+          this.loadAllSources(); // recarga la tabla
+          setTimeout(() => this.deleteMessage = null, 4000); // limpia el mensaje tras 4 seg.
         },
-        error: () => {
-          alert('Error al eliminar la fuente.');
+        error: (err) => {
+          console.error('Error al eliminar la fuente:', err);
+          this.deleteMessage = 'Error al eliminar la fuente.';
+          setTimeout(() => this.deleteMessage = null, 4000);
         }
       });
     }
   }
+
 
 }
