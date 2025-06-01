@@ -6,9 +6,7 @@
     ></app-filters>
   </section>
 
-  <section *ngIf="isLoadingGeo" class="loading-message">
-    Un momento...
-  </section>
+  <p *ngIf="isLoadingGeo">Buscando ubicación...</p>
 
   <section class="map-section">
     <app-map [useGeolocation]="useGeolocation"></app-map>

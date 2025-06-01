@@ -18,3 +18,4 @@ export class FiltersComponent {
     console.log('aqui llega');
   }
 }
+

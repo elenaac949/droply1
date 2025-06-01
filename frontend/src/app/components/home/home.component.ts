@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { MapComponent } from '../map/map.component';
+import { MapComponent } from './map/map.component';
 import { FiltersComponent } from './filters/filters.component';
-import { NgIf } from '@angular/common'; 
+import { NgIf } from '@angular/common';
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -10,20 +10,27 @@ import { NgIf } from '@angular/common';
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
+
   useGeolocation = false;
   isLoadingGeo = false;
 
+  ngOnInit(): void {
+    // Leer el estado guardado al iniciar
+    const saved = localStorage.getItem('useGeolocation');
+    this.useGeolocation = saved === 'true';
+  }
 
-  handleToggleGeo() {
+  handleToggleGeo(): void {
     this.isLoadingGeo = true;
-
     this.useGeolocation = !this.useGeolocation;
-    
+
+    // Guardar estado en localStorage
+    localStorage.setItem('useGeolocation', String(this.useGeolocation));
+
     console.log('Geolocalización:', this.useGeolocation);
 
-    // Ocultar el mensaje después de unos segundos (o después de que Map procese)
     setTimeout(() => {
       this.isLoadingGeo = false;
-    }, 1500); 
+    }, 1500);
   }
 }
