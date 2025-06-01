@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
+/**
+ * Interfaz que representa a un usuario dentro de la aplicación.
+ */
 export interface User {
   id: string;
   username: string;
@@ -18,46 +21,79 @@ export interface User {
   updated_at?: string;
 }
 
+/**
+ * Servicio para gestionar usuarios desde el frontend.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
+  /** URL base del endpoint de usuarios */
   private apiUrl = 'http://localhost:3000/api/users';
 
   constructor(private http: HttpClient) {}
 
-  /** Obtener todos los usuarios */
+  /**
+   * Obtiene todos los usuarios con rol 'user'.
+   * @returns Observable con la lista de usuarios
+   */
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl);
   }
 
-  /** Crear un nuevo usuario */
+  /**
+   * Crea un nuevo usuario.
+   * @param user Objeto parcial con los datos del usuario
+   * @returns Observable con la respuesta del backend
+   */
   createUser(user: Partial<User>): Observable<any> {
     return this.http.post(this.apiUrl, user);
   }
 
-  /** Eliminar usuario por ID */
+  /**
+   * Elimina un usuario por su ID.
+   * @param id ID del usuario a eliminar
+   * @returns Observable con la respuesta del backend
+   */
   deleteUser(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  /** Actualizar datos de usuario */
+  /**
+   * Actualiza los datos de un usuario.
+   * @param user Objeto completo del usuario (incluye id)
+   * @returns Observable con la respuesta del backend
+   */
   updateUser(user: User): Observable<any> {
     return this.http.put(`${this.apiUrl}/${user.id}`, user);
   }
 
-  /** Verificar si un email ya existe */
+  /**
+   * Comprueba si un email ya está registrado.
+   * @param email Email a comprobar
+   * @returns Observable con true si existe, false si no
+   */
   checkEmailExists(email: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/exists?email=${encodeURIComponent(email)}`);
   }
 
-  /** Obtener un usuario por su ID */
+  /**
+   * Obtiene un usuario por su ID.
+   * @param id ID del usuario
+   * @returns Observable con los datos del usuario
+   */
   getUserById(id: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
-  /** Cambiar la contraseña del usuario */
+  /**
+   * Cambia la contraseña del usuario.
+   * @param userId ID del usuario
+   * @param currentPassword Contraseña actual
+   * @param newPassword Nueva contraseña
+   * @returns Observable con la respuesta del backend
+   */
   changePassword(userId: string, currentPassword: string, newPassword: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/${userId}/password`, {
       currentPassword,
@@ -65,7 +101,12 @@ export class UserService {
     });
   }
 
-  /** Verificar si la contraseña actual introducida es válida */
+  /**
+   * Verifica si la contraseña actual introducida es válida.
+   * @param userId ID del usuario
+   * @param password Contraseña actual
+   * @returns Observable con true si es válida, false si no
+   */
   verifyCurrentPassword(userId: string, password: string): Observable<boolean> {
     return this.http.post<{ valid: boolean }>(`${this.apiUrl}/verify-password/${userId}`, {
       currentPassword: password
