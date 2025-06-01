@@ -43,6 +43,8 @@ router.get('/:id', waterSourceController.getById);
 /* actualizar el estado de la valoracion */
 router.put('/:id/status', authMiddleware, waterSourceController.updateStatus);
 
+/* borrar fuente de agua */
+router.delete('/:id', authMiddleware, waterSourceController.deleteWaterSource);
 
 
 

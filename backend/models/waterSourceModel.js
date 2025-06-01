@@ -124,4 +124,10 @@ module.exports = class WaterSource {
       [waterSourceId]
     );
   }
+
+/* Borrar fuente concreta */
+  static deleteById(id) {
+  return db.execute('DELETE FROM water_sources WHERE id = ?', [id]);
+}
+
 };

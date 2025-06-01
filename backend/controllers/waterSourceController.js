@@ -146,3 +146,14 @@ exports.getPendingSources = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener fuentes pendientes' });
   }
 };
+
+exports.deleteWaterSource = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await WaterSource.deleteById(id);
+    res.status(200).json({ message: 'Fuente eliminada correctamente' });
+  } catch (err) {
+    console.error('Error al eliminar fuente:', err);
+    res.status(500).json({ error: 'Error al eliminar fuente' });
+  }
+};
