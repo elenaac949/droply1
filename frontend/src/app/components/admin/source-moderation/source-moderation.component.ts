@@ -30,10 +30,38 @@ export class FilterSourcesPipe implements PipeTransform {
   }
 }
 
+@Pipe({
+  name: 'filterSourcesText',
+  standalone: true
+})
+export class FilterSourcesTextPipe implements PipeTransform {
+  transform(sources: WaterSource[], term: string): WaterSource[] {
+    if (!term || term.trim() === '') return sources;
+    const lower = term.toLowerCase();
+    return sources.filter(source =>
+      (source.name || '').toLowerCase().includes(lower) ||
+      (source.username || '').toLowerCase().includes(lower) ||
+      (source.description || '').toLowerCase().includes(lower) ||
+      (String(source.latitude) || '').toLowerCase().includes(lower) ||
+      (String(source.longitude) || '').toLowerCase().includes(lower) ||
+      (source.country || '').toLowerCase().includes(lower) ||
+      (source.city || '').toLowerCase().includes(lower) ||
+      (source.postal_code || '').toLowerCase().includes(lower)
+    );
+  }
+}
+
+
 @Component({
   selector: 'app-source-moderation',
   standalone: true,
-  imports: [NgIf, NgFor, MatCardModule, MatButtonModule, CommonModule, MatProgressSpinnerModule, FormsModule,
+  imports: [
+    NgIf, NgFor, 
+    MatCardModule, 
+    MatButtonModule, 
+    CommonModule, 
+    MatProgressSpinnerModule, 
+    FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -41,7 +69,8 @@ export class FilterSourcesPipe implements PipeTransform {
     MatButtonModule,
     MatSelectModule,
     MatOptionModule,
-    FilterSourcesPipe],
+    FilterSourcesPipe,
+    FilterSourcesTextPipe],
   templateUrl: './source-moderation.component.html',
   styleUrls: ['./source-moderation.component.css']
 })
@@ -63,6 +92,9 @@ export class SourceModerationComponent implements OnInit {
   statusFilter: string = '';
   typeFilter: string = '';
   accessibilityFilter: string = '';
+
+  searchTerm: string = '';
+
 
 
   constructor(private waterSourceService: WaterSourceService, private fb: FormBuilder, private snackBar: MatSnackBar) { }

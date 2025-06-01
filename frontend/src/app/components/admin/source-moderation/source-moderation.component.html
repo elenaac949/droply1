@@ -103,6 +103,12 @@
           <mat-option value="false">No</mat-option>
         </mat-select>
       </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Buscar fuente...</mat-label>
+        <input matInput [(ngModel)]="searchTerm" placeholder="Ej. nombre, ciudad, usuario..." />
+      </mat-form-field>
+
     </div>
     <table class="table-auto w-full mt-4 border-collapse border border-gray-300 text-sm">
       <thead>
@@ -124,8 +130,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let fuente of allSources | filterSources: statusFilter : typeFilter : accessibilityFilter"
-          class="hover:bg-gray-50">
+        <tr *ngFor="let fuente of allSources
+                  | filterSources: statusFilter : typeFilter : accessibilityFilter
+                  | filterSourcesText: searchTerm" class="hover:bg-gray-50">
+
           <td class="border px-2 py-1">{{ fuente.name }}</td>
           <td class="border px-2 py-1">{{ fuente.description }}</td>
           <td class="border px-2 py-1">{{ fuente.latitude }}</td>
@@ -144,11 +152,14 @@
             <button mat-button color="warn" (click)="deleteSource(fuente.id)">Eliminar</button>
           </td>
         </tr>
-        <tr *ngIf="(allSources | filterSources: statusFilter : typeFilter : accessibilityFilter).length === 0">
+        <tr *ngIf="(allSources 
+             | filterSources: statusFilter : typeFilter : accessibilityFilter 
+             | filterSourcesText: searchTerm).length === 0">
           <td colspan="14" class="text-center py-4 text-gray-500">
-            No se encontraron fuentes con los filtros seleccionados.
+            No se encontraron fuentes con los filtros o la búsqueda aplicada.
           </td>
         </tr>
+
       </tbody>
     </table>
   </div>
