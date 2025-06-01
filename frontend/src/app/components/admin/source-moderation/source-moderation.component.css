@@ -149,42 +149,185 @@
 }
 
 /* Modal de edición */
+/* Estilo del contenedor del modal (fondo semitransparente) */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4); /* oscurece el fondo */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1000; /* encima de todo */
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+
+/* El modal en sí */
+.modal-card {
+  max-width: 900px;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border: 1px solid #cceeff;
+  overflow: hidden;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Animación de entrada */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-card {
+  max-width: 900px;
   width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
+  padding: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: 1px solid #cceeff;
+  overflow: hidden;
+}
+
+/* Título del modal */
+.modal-card mat-card-title {
+  color: #2c3e50;
+  text-align: center;
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.8rem;
+  background-color: #cceeff;
   padding: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+/* Contenedor del formulario */
+.modal-card form {
+  padding: 2rem;
+}
+
+/* Filas del formulario */
 .form-row {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.form-field {
-  flex: 1;
+/* Campos de formulario - estilo personalizado para Angular Material */
+.modal-card .mat-form-field {
+  width: 100%;
 }
 
+.modal-card .mat-form-field-appearance-outline .mat-form-field-outline {
+  color: #cceeff;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.modal-card .mat-form-field-appearance-outline .mat-form-field-wrapper {
+  padding-bottom: 0;
+  margin: 0;
+}
+
+.modal-card .mat-form-field-appearance-outline .mat-form-field-infix {
+  padding: 0.75em 0;
+  border-top: 0;
+}
+
+.modal-card .mat-input-element {
+  font-size: 1rem;
+  color: #2c3e50;
+  padding: 0.5rem 0;
+  background-color: transparent;
+}
+
+.modal-card .mat-form-field-label {
+  color: #34495e;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.modal-card .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  color: #3498db;
+}
+
+.modal-card .mat-form-field-appearance-outline.mat-focused .mat-form-field-label {
+  color: #3498db;
+}
+
+/* Selectores */
+.modal-card .mat-select-value {
+  color: #2c3e50;
+}
+
+/* Campo de ancho completo */
+.full-width {
+  grid-column: span 2;
+}
+
+/* Acciones del formulario */
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 1.5rem;
+}
+
+/* Botón Guardar */
+.actions button[type="submit"] {
+  padding: 0.75rem 2rem;
+  background-color: #cceeff;
+  color: #2c3e50;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.actions button[type="submit"]:hover:not(:disabled) {
+  background-color: #aaddff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.actions button[type="submit"]:disabled {
+  background-color: #e0f0ff;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Botón Cancelar */
+.actions button[type="button"] {
+  padding: 0.75rem 2rem;
+  background-color: transparent;
+  color: #7f8c8d;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actions button[type="button"]:hover {
+  background-color: #f5f5f5;
 }
 
 /* Alertas */
@@ -216,6 +359,35 @@
   .source-card mat-card-actions button {
     width: 100%;
   }
+  .modal-card {
+    width: 95%;
+  }
+  
+  .modal-card mat-card-title {
+    font-size: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .modal-card form {
+    padding: 1.5rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .full-width {
+    grid-column: span 1;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .actions button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -231,5 +403,17 @@
   
   .actions {
     flex-direction: column;
+  }
+  .modal {
+    padding: 10px;
+  }
+  
+  .modal-card mat-card-title {
+    font-size: 1.3rem;
+    padding: 0.75rem;
+  }
+  
+  .modal-card form {
+    padding: 1rem;
   }
 }
