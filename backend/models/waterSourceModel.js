@@ -39,9 +39,20 @@ module.exports = class WaterSource {
     );
   }
 
+  /* Obtener todas las fuentes de agua con el username de quien lo ha creado */
   static fetchAll() {
-    return db.execute('SELECT * FROM water_sources');
+    return db.execute(`
+    SELECT 
+      w.id, w.name, w.description, w.latitude, w.longitude,
+      w.type, w.is_accessible, w.schedule, w.status, w.created_at,
+      w.country, w.city, w.postal_code, w.address,
+      u.username
+    FROM water_sources w
+    INNER JOIN users u ON w.user_id = u.id
+    ORDER BY w.created_at DESC
+  `);
   }
+
 
   static findById(id) {
     return db.execute('SELECT * FROM water_sources WHERE id = ?', [id]);
@@ -55,8 +66,8 @@ module.exports = class WaterSource {
     );
   }
 
-static fetchPending() {
-  return db.execute(`
+  static fetchPending() {
+    return db.execute(`
     SELECT 
       w.id,
       w.name,

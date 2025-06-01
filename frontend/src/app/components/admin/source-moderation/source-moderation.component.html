@@ -27,32 +27,33 @@
           Creada por: {{ source.username }} | {{ source.created_at | date:'medium' }}
         </mat-card-subtitle>
       </mat-card-header>
-      
+
       <mat-card-content>
         <!-- Sección de Descripción -->
         <p *ngIf="source.description"><strong>Descripción:</strong> {{ source.description }}</p>
-        
+
         <!-- Sección de Tipo y Accesibilidad -->
         <div class="details-row">
           <p><strong>Tipo:</strong> {{ translateType(source.type) }}</p>
           <p><strong>Accesible:</strong> {{ source.is_accessible ? 'Sí' : 'No' }}</p>
         </div>
-        
+
         <!-- Sección de Horario -->
         <p *ngIf="source.schedule"><strong>Horario:</strong> {{ source.schedule }}</p>
-        
+
         <!-- Sección de Ubicación -->
         <div class="location-section">
-          <p><strong>Coordenadas:</strong> {{ source.latitude | number:'1.6-6' }}, {{ source.longitude | number:'1.6-6' }}</p>
+          <p><strong>Coordenadas:</strong> {{ source.latitude | number:'1.6-6' }}, {{ source.longitude | number:'1.6-6'
+            }}</p>
           <p *ngIf="source.address"><strong>Dirección:</strong> {{ source.address }}</p>
           <p *ngIf="source.city || source.country">
-            <strong>Localización:</strong> 
+            <strong>Localización:</strong>
             {{ source.city }}{{ source.city && source.country ? ', ' : '' }}{{ source.country }}
             <span *ngIf="source.postal_code">({{ source.postal_code }})</span>
           </p>
         </div>
       </mat-card-content>
-      
+
       <mat-card-actions>
         <button mat-raised-button class="approve-btn" (click)="moderateSource(source.id, 'approved')">
           Aprobar
@@ -63,4 +64,52 @@
       </mat-card-actions>
     </mat-card>
   </div>
+
+  <!-- Tabla de todas las fuentes -->
+  <div class="table-wrapper" *ngIf="!isLoadingAll && allSources.length > 0">
+    <h3>Todas las fuentes de agua</h3>
+    <table class="table-auto w-full mt-4 border-collapse border border-gray-300 text-sm">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border px-2 py-1">Nombre</th>
+          <th class="border px-2 py-1">Descripción</th>
+          <th class="border px-2 py-1">Latitud</th>
+          <th class="border px-2 py-1">Longitud</th>
+          <th class="border px-2 py-1">Tipo</th>
+          <th class="border px-2 py-1">Accesible</th>
+          <th class="border px-2 py-1">Horario</th>
+          <th class="border px-2 py-1">Usuario</th>
+          <th class="border px-2 py-1">Creado el</th>
+          <th class="border px-2 py-1">País</th>
+          <th class="border px-2 py-1">Ciudad</th>
+          <th class="border px-2 py-1">Código Postal</th>
+          <th class="border px-2 py-1">Estado</th>
+          <th class="border px-2 py-1">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let fuente of allSources" class="hover:bg-gray-50">
+          <td class="border px-2 py-1">{{ fuente.name }}</td>
+          <td class="border px-2 py-1">{{ fuente.description }}</td>
+          <td class="border px-2 py-1">{{ fuente.latitude }}</td>
+          <td class="border px-2 py-1">{{ fuente.longitude }}</td>
+          <td class="border px-2 py-1">{{ translateType(fuente.type) }}</td>
+          <td class="border px-2 py-1">{{ fuente.is_accessible ? 'Sí' : 'No' }}</td>
+          <td class="border px-2 py-1">{{ fuente.schedule }}</td>
+          <td class="border px-2 py-1">{{ fuente.username }}</td>
+          <td class="border px-2 py-1">{{ fuente.created_at | date:'short' }}</td>
+          <td class="border px-2 py-1">{{ fuente.country }}</td>
+          <td class="border px-2 py-1">{{ fuente.city }}</td>
+          <td class="border px-2 py-1">{{ fuente.postal_code }}</td>
+          <td class="border px-2 py-1">{{ fuente.status }}</td>
+          <td class="border px-2 py-1">
+            <button mat-button color="accent" (click)="editSource(fuente.id)">Editar</button>
+            <button mat-button color="warn" (click)="deleteSource(fuente.id)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
 </div>

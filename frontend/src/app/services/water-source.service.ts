@@ -9,7 +9,7 @@ export interface WaterSource {
   description: string;
   latitude: number;
   longitude: number;
-  type: 'drinking'|'tap'|'decorative'|'bottle_refill'|'natural_spring'|'other';
+  type: 'drinking' | 'tap' | 'decorative' | 'bottle_refill' | 'natural_spring' | 'other';
   is_accessible: boolean;
   schedule: string;
   username: string;
@@ -18,6 +18,7 @@ export interface WaterSource {
   city: string;
   postal_code: string;
   address: string;
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 @Injectable({
@@ -29,7 +30,7 @@ export class WaterSourceService {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
@@ -56,12 +57,13 @@ export class WaterSourceService {
     );
   }
 
-  /* Obtener todas las fuentes (opcional) */
+  /* Obtener todas las fuentes  */
   getAllSources(): Observable<WaterSource[]> {
     return this.http.get<WaterSource[]>(this.apiUrl).pipe(
       catchError(error => throwError(() => error))
     );
   }
+
 
   /* Obtener fuentes aprobadas (para mapa) */
   getApprovedSources(): Observable<WaterSource[]> {
@@ -70,5 +72,14 @@ export class WaterSourceService {
     );
   }
 
-  
+  /* Borraar fuente en concreto */
+  deleteSource(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
+
+
 }
