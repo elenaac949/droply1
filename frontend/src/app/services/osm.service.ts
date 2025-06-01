@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 export class OsmService {
   private overpassUrl = 'https://overpass-api.de/api/interpreter';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getWaterSourcesByBounds(south: number, west: number, north: number, east: number) {
     const query = `

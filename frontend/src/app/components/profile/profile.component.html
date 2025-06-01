@@ -1,93 +1,93 @@
 <div class="profile-container" *ngIf="user">
-    <mat-card class="profile-card">
-        <mat-card-title>Mi perfil</mat-card-title>
+  <mat-card class="profile-card">
+    <mat-card-title>Mi perfil</mat-card-title>
 
-        <div class="profile-info">
-            <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>Teléfono:</strong> {{ user.phone || '-' }}</p>
-            <p><strong>País:</strong> {{ user.country || '-' }}</p>
-            <p><strong>Ciudad:</strong> {{ user.city || '-' }}</p>
-            <p><strong>Código Postal:</strong> {{ user.postal_code || '-' }}</p>
-            <p><strong>Dirección:</strong> {{ user.address || '-' }}</p>
-            <p><strong>Rol:</strong> {{ user.role === 'admin' ? 'Administrador' : 'Usuario' }}</p>
-        </div>
+    <div class="profile-info">
+      <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Teléfono:</strong> {{ user.phone || '-' }}</p>
+      <p><strong>País:</strong> {{ user.country || '-' }}</p>
+      <p><strong>Ciudad:</strong> {{ user.city || '-' }}</p>
+      <p><strong>Código Postal:</strong> {{ user.postal_code || '-' }}</p>
+      <p><strong>Dirección:</strong> {{ user.address || '-' }}</p>
+      <p><strong>Rol:</strong> {{ user.role === 'admin' ? 'Administrador' : 'Usuario' }}</p>
+    </div>
 
-        <div class="profile-actions">
-            <button mat-raised-button color="primary" (click)="editarPerfil()">Editar perfil</button>
-            <button mat-stroked-button color="accent" (click)="cambiarContrasena()">Cambiar contraseña</button>
+    <div class="profile-actions">
+      <button mat-raised-button color="primary" (click)="editarPerfil()">Editar perfil</button>
+      <button mat-stroked-button color="accent" (click)="cambiarContrasena()">Cambiar contraseña</button>
 
-            <button *ngIf="user.role === 'user'" mat-raised-button color="warn" (click)="eliminarCuenta()">
-                Eliminar cuenta
-            </button>
-        </div>
-    </mat-card>
+      <button *ngIf="user.role !== 'admin'" mat-raised-button color="warn" (click)="eliminarCuenta()">
+        Eliminar cuenta
+      </button>
+
+    </div>
+  </mat-card>
 </div>
 
 <!-- Modal de edición -->
 <div class="modal" *ngIf="editProfileForm && userToEdit">
-    <mat-card class="modal-card">
-        <mat-card-title>Editar perfil</mat-card-title>
-        <form (ngSubmit)="guardarCambiosPerfil()" #editForm="ngForm">
-            <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Nombre de usuario</mat-label>
-                <input matInput [(ngModel)]="userToEdit.username" name="editUsername" required>
-            </mat-form-field>
+  <mat-card class="modal-card">
+    <mat-card-title>Editar perfil</mat-card-title>
+    <form (ngSubmit)="guardarCambiosPerfil()" #editForm="ngForm">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Nombre de usuario</mat-label>
+        <input matInput [(ngModel)]="userToEdit.username" name="editUsername" required>
+      </mat-form-field>
 
-            <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Email</mat-label>
-                <input matInput [(ngModel)]="userToEdit.email" name="editEmail" required email
-                    (blur)="validateEmailEdit(userToEdit.email || '')" #editEmailCtrl="ngModel" />
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="userToEdit.email" name="editEmail" required email
+          (blur)="validateEmailEdit(userToEdit.email || '')" #editEmailCtrl="ngModel" />
 
-                <mat-error *ngIf="editEmailCtrl.errors?.['required']">
-                    El email es obligatorio
-                </mat-error>
-                <mat-error *ngIf="editEmailCtrl.errors?.['email']">
-                    Formato de email inválido
-                </mat-error>
-                <mat-error *ngIf="emailExistsEdit">
-                    Este email ya está registrado
-                </mat-error>
-            </mat-form-field>
-
-
-
-            <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Teléfono</mat-label>
-                <input matInput [(ngModel)]="userToEdit.phone" name="editPhone">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-                <mat-label>País</mat-label>
-                <input matInput [(ngModel)]="userToEdit.country" name="editCountry">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Ciudad</mat-label>
-                <input matInput [(ngModel)]="userToEdit.city" name="editCity">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Código Postal</mat-label>
-                <input matInput [(ngModel)]="userToEdit.postal_code" name="editPostalCode">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Dirección</mat-label>
-                <textarea matInput [(ngModel)]="userToEdit.address" name="editAddress"></textarea>
-            </mat-form-field>
-
-            <div class="actions">
-                <button mat-raised-button color="primary" type="submit"
-                    [disabled]="editForm.invalid || emailExistsEdit">
-                    Guardar
-                </button>
+        <mat-error *ngIf="editEmailCtrl.errors?.['required']">
+          El email es obligatorio
+        </mat-error>
+        <mat-error *ngIf="editEmailCtrl.errors?.['email']">
+          Formato de email inválido
+        </mat-error>
+        <mat-error *ngIf="emailExistsEdit">
+          Este email ya está registrado
+        </mat-error>
+      </mat-form-field>
 
 
-                <button mat-button type="button" (click)="cerrarEdicion()">Cancelar</button>
-            </div>
-        </form>
-    </mat-card>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Teléfono</mat-label>
+        <input matInput [(ngModel)]="userToEdit.phone" name="editPhone">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>País</mat-label>
+        <input matInput [(ngModel)]="userToEdit.country" name="editCountry">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Ciudad</mat-label>
+        <input matInput [(ngModel)]="userToEdit.city" name="editCity">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Código Postal</mat-label>
+        <input matInput [(ngModel)]="userToEdit.postal_code" name="editPostalCode">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Dirección</mat-label>
+        <textarea matInput [(ngModel)]="userToEdit.address" name="editAddress"></textarea>
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="editForm.invalid || emailExistsEdit">
+          Guardar
+        </button>
+
+
+        <button mat-button type="button" (click)="cerrarEdicion()">Cancelar</button>
+      </div>
+    </form>
+  </mat-card>
 </div>
 <!-- Modal de cambio de contraseña -->
 <div class="modal" *ngIf="changePasswordForm">
@@ -98,12 +98,8 @@
       <!-- Contraseña actual -->
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Contraseña actual</mat-label>
-        <input matInput [(ngModel)]="passwordData.currentPassword"
-               name="currentPassword"
-               type="password"
-               required minlength="7"
-               (blur)="checkCurrentPassword()"
-               #currentCtrl="ngModel">
+        <input matInput [(ngModel)]="passwordData.currentPassword" name="currentPassword" type="password" required
+          minlength="7" (blur)="checkCurrentPassword()" #currentCtrl="ngModel">
 
         <mat-error *ngIf="currentCtrl.touched">
           <ng-container *ngIf="currentCtrl.errors?.['required']">
@@ -121,11 +117,8 @@
       <!-- Nueva contraseña -->
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Nueva contraseña</mat-label>
-        <input matInput [(ngModel)]="passwordData.newPassword"
-               name="newPassword"
-               type="password"
-               required minlength="7"
-               #newCtrl="ngModel">
+        <input matInput [(ngModel)]="passwordData.newPassword" name="newPassword" type="password" required minlength="7"
+          #newCtrl="ngModel">
         <mat-error *ngIf="newCtrl.invalid && newCtrl.touched">
           La nueva contraseña es obligatoria y debe tener al menos 7 caracteres
         </mat-error>
@@ -134,11 +127,8 @@
       <!-- Confirmar nueva contraseña -->
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Repetir nueva contraseña</mat-label>
-        <input matInput [(ngModel)]="passwordData.confirmNewPassword"
-               name="confirmNewPassword"
-               type="password"
-               required minlength="7"
-               #confirmCtrl="ngModel">
+        <input matInput [(ngModel)]="passwordData.confirmNewPassword" name="confirmNewPassword" type="password" required
+          minlength="7" #confirmCtrl="ngModel">
         <mat-error *ngIf="confirmCtrl.invalid && confirmCtrl.touched">
           Este campo es obligatorio y debe tener al menos 7 caracteres
         </mat-error>
@@ -150,7 +140,7 @@
       <!-- Botones -->
       <div class="actions">
         <button mat-raised-button color="primary" type="submit"
-                [disabled]="!isCurrentPasswordValid || passwordForm.invalid || passwordsDoNotMatch()">
+          [disabled]="!isCurrentPasswordValid || passwordForm.invalid || passwordsDoNotMatch()">
           Cambiar
         </button>
         <button mat-button type="button" (click)="changePasswordForm = false">Cancelar</button>

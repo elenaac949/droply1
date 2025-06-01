@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -49,7 +50,8 @@ export class ProfileComponent {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -92,12 +94,29 @@ export class ProfileComponent {
   }
 
 
-  eliminarCuenta() {
-    if (confirm('¿Estás seguro de que deseas eliminar tu cuenta?')) {
-      this.userService.deleteUser(this.user!.id).subscribe(() => {
-        this.authService.logout();
-      });
-    }
+  eliminarCuenta(): void {
+    const confirmed = confirm('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.');
+    if (!confirmed || !this.user?.id) return;
+
+    this.userService.deleteUser(this.user.id).subscribe({
+      next: () => {
+        this.snackBar.open('Cuenta eliminada correctamente', 'Cerrar', {
+          duration: 3000,
+          verticalPosition: 'top',
+          panelClass: ['snackbar-success']
+        });
+
+        this.authService.logout(); // elimina token y datos locales
+        this.router.navigate(['/landing']);
+      },
+      error: () => {
+        this.snackBar.open('Error al eliminar la cuenta', 'Cerrar', {
+          duration: 3000,
+          verticalPosition: 'top',
+          panelClass: ['snackbar-error']
+        });
+      }
+    });
   }
 
   guardarCambiosPerfil() {
@@ -182,12 +201,12 @@ export class ProfileComponent {
 
 
   passwordsDoNotMatch(): boolean {
-  return (
-    this.passwordData.newPassword !== '' &&
-    this.passwordData.confirmNewPassword !== '' &&
-    this.passwordData.newPassword !== this.passwordData.confirmNewPassword
-  );
-}
+    return (
+      this.passwordData.newPassword !== '' &&
+      this.passwordData.confirmNewPassword !== '' &&
+      this.passwordData.newPassword !== this.passwordData.confirmNewPassword
+    );
+  }
 
 
 

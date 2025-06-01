@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { catchError, throwError, Observable } from 'rxjs';
-import { AuthService } from './auth.service';
 
 export interface WaterSource {
   id: string;
@@ -27,66 +26,47 @@ export interface WaterSource {
 export class WaterSourceService {
   private apiUrl = 'http://localhost:3000/api/water-sources';
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService
-  ) { }
+  constructor(private http: HttpClient) {}
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-  }
-
-  /* Obtener fuentes pendientes de moderación */
+  /** Obtener fuentes pendientes de moderación */
   getPendingSources(): Observable<WaterSource[]> {
-    return this.http.get<WaterSource[]>(`${this.apiUrl}/pending`, {
-      headers: this.getAuthHeaders()
-    }).pipe(
+    return this.http.get<WaterSource[]>(`${this.apiUrl}/pending`).pipe(
       catchError(error => throwError(() => error))
     );
   }
 
-  /* Moderar fuentes */
+  /** Moderar fuente (cambiar estado) */
   moderateSource(id: string, status: 'approved' | 'rejected'): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}/status`, { status }, {
-      headers: this.getAuthHeaders()
-    }).pipe(
+    return this.http.put(`${this.apiUrl}/${id}/status`, { status }).pipe(
       catchError(error => throwError(() => error))
     );
   }
 
-  /* Obtener todas las fuentes  */
+  /** Obtener todas las fuentes */
   getAllSources(): Observable<WaterSource[]> {
     return this.http.get<WaterSource[]>(this.apiUrl).pipe(
       catchError(error => throwError(() => error))
     );
   }
 
-
-  /* Obtener fuentes aprobadas (para mapa) */
+  /** Obtener solo fuentes aprobadas (por ejemplo, para el mapa) */
   getApprovedSources(): Observable<WaterSource[]> {
     return this.http.get<WaterSource[]>(`${this.apiUrl}/approved`).pipe(
       catchError(error => throwError(() => error))
     );
   }
 
-  /* Borraar fuente en concreto */
+  /** Eliminar una fuente concreta */
   deleteSource(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, {
-      headers: this.getAuthHeaders()
-    }).pipe(
+    return this.http.delete(`${this.apiUrl}/${id}`).pipe(
       catchError(error => throwError(() => error))
     );
   }
 
+  /** Actualizar una fuente existente */
   updateSource(id: string, data: Partial<WaterSource>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, data, {
-      headers: this.getAuthHeaders()
-    }).pipe(
+    return this.http.put(`${this.apiUrl}/${id}`, data).pipe(
       catchError(error => throwError(() => error))
     );
   }
-
 }

@@ -22,17 +22,17 @@ export class ReviewService {
 
   constructor(private http: HttpClient) {}
 
-  /* Obtener las valoraciones pendientes */
+  /** Obtener valoraciones pendientes */
   getPendingReviews(): Observable<Review[]> {
-  return this.http.get<Review[]>(`${this.apiUrl}/pending`).pipe(
-    catchError(error => throwError(() => error))
-  );
-}
+    return this.http.get<Review[]>(`${this.apiUrl}/pending`).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
 
-  /* Moderar las valoraciones pendientes */
+  /** Moderar una valoración (aprobar o rechazar) */
   moderateReview(id: string, status: 'approved' | 'rejected'): Observable<any> {
-  return this.http.put(`${this.apiUrl}/${id}/moderate`, { status }).pipe(
-    catchError(error => throwError(() => error))
-  );
-}
+    return this.http.put(`${this.apiUrl}/${id}/moderate`, { status }).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
 }
