@@ -46,6 +46,7 @@
 }
 
 /* Tarjetas de fuentes pendientes */
+/* Tarjetas de fuentes pendientes - Versión mejorada para mejor contraste */
 .source-card {
   margin-bottom: 1.5rem;
 }
@@ -54,27 +55,32 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #ffffff; /* Fondo blanco sólido para mejor contraste */
+  border: 1px solid #e0f2ff; /* Borde sutil para definición */
 }
 
 .source-card mat-card-header {
   background-color: #f0f8ff;
   padding: 1rem;
-  border-bottom: 1px solid #e0f2ff;
+  border-bottom: 1px solid #d0e9ff; /* Borde más contrastado */
 }
 
 .source-card mat-card-title {
-  color: #1a2b3c;
+  color: #1a2b3c; /* Azul muy oscuro para máximo contraste */
   font-size: 1.1rem;
   font-weight: 600;
+  letter-spacing: 0.2px; /* Mejor legibilidad */
 }
 
 .source-card mat-card-subtitle {
-  color: #5a6b7c;
+  color: #5a6b7c; /* Gris azulado más oscuro (antes #d1d6db) */
   font-size: 0.85rem;
+  font-weight: 500; /* Semi-negrita para mejor legibilidad */
 }
 
 .source-card mat-card-content {
   padding: 1rem;
+  background: #ffffff; /* Fondo blanco para el contenido */
 }
 
 .source-card .details-row {
@@ -85,11 +91,12 @@
 
 .source-card p {
   margin: 0.5rem 0;
-  color: #2c3e50;
+  color: #2c3e50; /* Texto oscuro */
+  line-height: 1.5; /* Mejor interlineado */
 }
 
 .source-card strong {
-  color: #1a2b3c;
+  color: #1a2b3c; /* Texto muy oscuro */
   font-weight: 600;
 }
 
@@ -99,6 +106,7 @@
   gap: 1rem;
   padding: 1rem;
   border-top: 1px solid #e0f2ff;
+  background-color: #f8fafc; /* Fondo ligeramente gris para la sección de acciones */
 }
 
 /* Botones */
@@ -156,11 +164,11 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4); /* oscurece el fondo */
+  background-color: rgba(0, 0, 0, 0.4); 
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* encima de todo */
+  z-index: 1000; 
   padding: 1rem;
   backdrop-filter: blur(2px);
 }
