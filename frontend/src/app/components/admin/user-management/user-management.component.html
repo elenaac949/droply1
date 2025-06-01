@@ -154,5 +154,9 @@
         <button mat-button class="btn-delete" (click)="deleteUser(user.id)">Eliminar</button>
       </td>
     </tr>
+    <tr *ngIf="filteredUsers.length === 0">
+      <td colspan="9">No se encontraron usuarios con ese criterio.</td>
+    </tr>
+
   </tbody>
 </table>

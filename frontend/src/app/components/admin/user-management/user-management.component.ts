@@ -63,11 +63,21 @@ export class UserManagementComponent implements OnInit {
   }
 
   get filteredUsers() {
+    const term = this.searchTerm.toLowerCase();
+
     return this.users.filter(user =>
-      user.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(this.searchTerm.toLowerCase())
+      user.username.toLowerCase().includes(term) ||
+      user.email.toLowerCase().includes(term) ||
+      (user.phone || '').toLowerCase().includes(term) ||
+      (user.country || '').toLowerCase().includes(term) ||
+      (user.city || '').toLowerCase().includes(term) ||
+      (user.postal_code || '').toLowerCase().includes(term) ||
+      (user.address || '').toLowerCase().includes(term) ||
+      (user.role || '').toLowerCase().includes(term)
     );
   }
+
+
 
   deleteUser(id: string): void {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
@@ -149,20 +159,20 @@ export class UserManagementComponent implements OnInit {
   }
 
   validateEmailEdit(email: string): void {
-  if (!email || email === this.originalEmail) {
-    this.emailExistsEdit = false;
-    return;
-  }
-
-  this.userService.checkEmailExists(email).subscribe({
-    next: (response: any) => {
-      this.emailExistsEdit = response.exists;
-    },
-    error: () => {
+    if (!email || email === this.originalEmail) {
       this.emailExistsEdit = false;
+      return;
     }
-  });
-}
+
+    this.userService.checkEmailExists(email).subscribe({
+      next: (response: any) => {
+        this.emailExistsEdit = response.exists;
+      },
+      error: () => {
+        this.emailExistsEdit = false;
+      }
+    });
+  }
 
 }
 
