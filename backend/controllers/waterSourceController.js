@@ -157,3 +157,35 @@ exports.deleteWaterSource = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar fuente' });
   }
 };
+/* actualizar la fuente */
+exports.updateWaterSource = async (req, res) => {
+  const { id } = req.params;
+  const {
+    name, description, latitude, longitude,
+    type, is_accessible, schedule,
+    country, city, postal_code, address
+  } = req.body;
+
+  try {
+    await WaterSource.updateFull(
+      id,
+      name,
+      description,
+      latitude,
+      longitude,
+      type,
+      is_accessible,
+      schedule,
+      country,
+      city,
+      postal_code,
+      address
+    );
+
+    res.status(200).json({ message: 'Fuente actualizada correctamente.' });
+  } catch (err) {
+    console.error('Error al actualizar la fuente:', err);
+    res.status(500).json({ message: 'Error al actualizar la fuente de agua' });
+  }
+};
+

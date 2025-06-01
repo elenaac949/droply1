@@ -37,14 +37,17 @@ router.get('/pending', authMiddleware, waterSourceController.getPendingSources);
 // Ruta para mostrar las fuentes aprobadas (para el mapa)
 router.get('/approved', waterSourceController.getApprovedWaterSources);
 
-/* obtener una fuente de agua por su id*/
-router.get('/:id', waterSourceController.getById);
-
-/* actualizar el estado de la valoracion */
+/* actualizar el estado de la fuente */
 router.put('/:id/status', authMiddleware, waterSourceController.updateStatus);
+
+/* actualizar la fuente de agua */
+router.put('/:id', authMiddleware, waterSourceController.updateWaterSource);
+
 
 /* borrar fuente de agua */
 router.delete('/:id', authMiddleware, waterSourceController.deleteWaterSource);
+/* obtener una fuente de agua por su id*/
+router.get('/:id', waterSourceController.getById);
 
 
 

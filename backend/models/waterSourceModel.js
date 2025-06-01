@@ -130,5 +130,14 @@ module.exports = class WaterSource {
     return db.execute('DELETE FROM water_sources WHERE id = ?', [id]);
   }
 
+/* actualizar la fuente de agia */
+  static updateFull(id, name, description, latitude, longitude, type, is_accessible, schedule, country, city, postal_code, address) {
+  return db.execute(`
+    UPDATE water_sources 
+    SET name = ?, description = ?, latitude = ?, longitude = ?, type = ?, is_accessible = ?, schedule = ?, 
+        country = ?, city = ?, postal_code = ?, address = ?
+    WHERE id = ?
+  `, [name, description, latitude, longitude, type, is_accessible, schedule, country, city, postal_code, address, id]);
+}
 
 };
