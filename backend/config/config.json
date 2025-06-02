@@ -1,7 +1,6 @@
 {
-    "host": "localhost",
-    "user": "root",
-    "database": "droply",
-    "password": ""
+  "host": "localhost",
+  "user": "root",
+  "database": "droply",
+  "password": ""
 }
-

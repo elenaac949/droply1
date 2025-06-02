@@ -1,0 +1,7 @@
+{
+  "host": "mysql", 
+  "user": "devuser",
+  "database": "droply",
+  "password": "devpass"
+}
+
