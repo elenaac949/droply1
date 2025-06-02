@@ -1,20 +1,22 @@
-# Usa una imagen oficial de Node (slim y recomendada)
-FROM node:20-slim
+# backend/Dockerfile.dev
+FROM node:20-alpine
 
-# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia solo los archivos de dependencias primero
+# Instalar nodemon globalmente (para hot-reloading en desarrollo)
+RUN npm install -g nodemon
+
+# Copiar archivos de dependencias primero para aprovechar caché de Docker
 COPY package*.json ./
 
-# Instala las dependencias
+# Instalar dependencias del proyecto
 RUN npm install
 
-# Copia el resto del código fuente
+# Copiar el resto de los archivos del backend
 COPY . .
 
-# Expón el puerto que usará el backend
-EXPOSE 3000
+# Exponer puertos (app + debug)
+EXPOSE 3000 9229
 
-# Comando por defecto (modo desarrollo)
+# Comando para desarrollo (usa nodemon)
 CMD ["npm", "run", "dev"]

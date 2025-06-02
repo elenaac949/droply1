@@ -4,10 +4,16 @@
   "description": "Backend API for Droply project using Node.js, Express and MySQL",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",         
-    "dev": "nodemon index.js"         
+    "start": "node index.js",
+    "dev": "nodemon --inspect=0.0.0.0 index.js",
+    "debug": "nodemon --inspect-brk=0.0.0.0 index.js"
   },
-  "keywords": ["node", "express", "mysql", "droply"],
+  "keywords": [
+    "node",
+    "express",
+    "mysql",
+    "droply"
+  ],
   "author": "Elena Alexandra Ciobanu",
   "license": "ISC",
   "dependencies": {
