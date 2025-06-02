@@ -10,18 +10,16 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    depends_on:
-      - backend
     environment:
-      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_USEPOLLING=true # Necesario para file watching en Docker
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
-      - "9229:9229" # Puerto para debugger
+      - "3000:3000" # API
+      - "9229:9229" # Debugger
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -31,9 +29,7 @@ services:
       - DB_PASSWORD=devpass
       - DB_NAME=devdb
       - NODE_ENV=development
-      - DEBUG=express:*
-    depends_on:
-      - mysql
+      - DEBUG=express:* # Logs detallados de Express
     command: npm run dev
 
   mysql:
@@ -44,10 +40,10 @@ services:
       - MYSQL_USER=devuser
       - MYSQL_PASSWORD=devpass
     ports:
-      - "3306:3306"
+      - "3306:3306" # Opcional, solo si necesitas acceso directo
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql # SQL inicial (opcional)
 
 volumes:
   mysql_data:

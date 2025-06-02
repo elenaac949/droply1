@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Instalar nodemon como dependencia de desarrollo (mejor práctica que global)
+RUN npm install --save-dev nodemon
+
+COPY package*.json ./
+RUN npm install # Instala solo dependencias de producción (usa npm ci en producción)
+COPY . .
+
+EXPOSE 3000 9229
+
+# Usa npx para ejecutar nodemon sin instalación global
+CMD ["npx", "nodemon", "--inspect=0.0.0.0", "index.js"]
