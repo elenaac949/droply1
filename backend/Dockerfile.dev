@@ -6,7 +6,7 @@ WORKDIR /app
 RUN npm install --save-dev nodemon
 
 COPY package*.json ./
-RUN npm install # Instala solo dependencias de producción (usa npm ci en producción)
+RUN npm install -g nodemon && npm install --include=dev # Instala solo dependencias de producción (usa npm ci en producción)
 COPY . .
 
 EXPOSE 3000 9229

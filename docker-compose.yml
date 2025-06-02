@@ -22,7 +22,6 @@ services:
       - "9229:9229"
     volumes:
       - ./backend:/app
-      - /app/node_modules
     environment:
       - DB_HOST=mysql
       - DB_USER=devuser
