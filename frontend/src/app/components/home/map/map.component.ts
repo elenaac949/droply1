@@ -41,8 +41,8 @@ export class MapComponent implements AfterViewInit, OnChanges {
   });
 
   defaultIcon = L.icon({
-    iconUrl: 'assets/leaflet/marker-icon.png',
-    shadowUrl: 'assets/leaflet/marker-shadow.png',
+    iconUrl: 'assets/icons/marker-icon.png',
+    shadowUrl: 'assets/icons/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
