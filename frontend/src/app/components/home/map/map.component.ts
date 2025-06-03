@@ -19,7 +19,7 @@ import { WaterSource, WaterSourceService } from '../../../services/water-source.
   styleUrl: './map.component.css'
 })
 export class MapComponent implements AfterViewInit, OnChanges {
-  
+
   /** Determina si se debe centrar el mapa en la ubicación del usuario */
   @Input() useGeolocation = false;
 
@@ -40,6 +40,16 @@ export class MapComponent implements AfterViewInit, OnChanges {
     popupAnchor: [0, -32]
   });
 
+  defaultIcon = L.icon({
+    iconUrl: 'assets/leaflet/marker-icon.png',
+    shadowUrl: 'assets/leaflet/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
+  
   /** Mapa Leaflet */
   map!: L.Map;
 
@@ -59,7 +69,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
     private http: HttpClient,
     private osmService: OsmService,
     private waterSourceService: WaterSourceService
-  ) {}
+  ) { }
 
   /** Hook que se ejecuta después de montar la vista: inicializa el mapa */
   ngAfterViewInit(): void {
@@ -96,7 +106,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
   /** Inicializa el mapa Leaflet con capas base y clústeres de marcadores */
   loadDefaultMap(): void {
     this.map = L.map('map').setView([40.5, -3.7], 11);
-
+    L.Marker.prototype.options.icon = this.defaultIcon;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
