@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, throwError, Observable, of } from 'rxjs';
-
+import { environment } from '../environments/environments';
 /**
  * Interfaz que representa una fuente de agua.
  */
@@ -32,7 +32,9 @@ export interface WaterSource {
   providedIn: 'root'
 })
 export class WaterSourceService {
-  private apiUrl = 'http://localhost:3000/api/water-sources';
+  
+  private apiUrl = `${environment.apiUrl}/water-sources`;
+  
 
   constructor(private http: HttpClient) {}
 
