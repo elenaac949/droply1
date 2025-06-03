@@ -69,9 +69,14 @@ export class WaterFormComponent {
           this.router.navigate(['/']);
         },
         error: (err) => {
-          console.error('Error al añadir la fuente:', err);
-          alert('Error al añadir la fuente. Por favor, inténtalo de nuevo.');
+          if (err.status === 400 && err.error?.error === 'Ya existe una fuente en esa ubicación.') {
+            alert('Ya existe una fuente en esa ubicación. Intenta en otra localización.');
+          } else {
+            console.error('Error al añadir la fuente:', err);
+            alert('Error al añadir la fuente. Por favor, inténtalo de nuevo.');
+          }
         }
+
       });
     }
   }
