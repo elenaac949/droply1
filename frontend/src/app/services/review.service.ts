@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { throwError, Observable } from 'rxjs';
-
+import { environment } from '../environments/environment';
 /**
  * Interfaz que representa una valoración (review) asociada a una fuente de agua.
  */
@@ -25,7 +25,7 @@ export interface Review {
 export class ReviewService {
 
   /** URL base del endpoint de valoraciones */
-  private apiUrl = 'http://localhost:3000/api/reviews';
+  private apiUrl = `${environment.apiUrl}/api/reviews`;
 
   constructor(private http: HttpClient) {}
 

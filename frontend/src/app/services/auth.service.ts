@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-
+import { environment } from '../environments/environment';
 /**
  * Servicio de autenticación para gestionar login, logout,
  * y acceso a información del usuario autenticado.
@@ -46,7 +46,7 @@ export class AuthService {
    * @returns Observable con la respuesta del backend
    */
   login(email: string, password: string): Observable<any> {
-    return this.http.post<any>('http://localhost:3000/auth/login', { email, password }).pipe(
+    return this.http.post<any>(`${environment.apiUrl}/auth/login`, { email, password }).pipe(
       tap(response => {
         this.token = response.token;
         this.userId = response.userId;
@@ -157,6 +157,6 @@ export class AuthService {
     postal_code?: string;
     address?: string;
   }) {
-    return this.http.post('http://localhost:3000/auth/signup', userData);
+    return this.http.post(`${environment.apiUrl}/auth/signup`, userData);
   }
 }

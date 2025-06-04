@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, tap, throwError } from 'rxjs';
+import { environment } from '../environments/environment';
 
 /**
  * Interfaz que representa a un usuario dentro de la aplicación.
@@ -31,7 +32,7 @@ export interface User {
 export class UserService {
 
   /** URL base del endpoint de usuarios */
-  private apiUrl = 'http://localhost:3000/api/users';
+  private apiUrl = `${environment.apiUrl}/api/users`;
 
   constructor(private http: HttpClient) { }
 

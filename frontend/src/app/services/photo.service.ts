@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 export interface Photo {
   id?: string; // generado automáticamente
@@ -16,7 +17,7 @@ export interface Photo {
 })
 export class PhotoService {
 
-  private apiUrl = 'http://localhost:3000/api/photos';
+  private apiUrl =  `${environment.apiUrl}/api/photos`;
 
   constructor(private http: HttpClient) { }
 
