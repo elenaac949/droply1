@@ -1,5 +1,13 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 /**
  * Crea un nuevo usuario en la base de datos.
@@ -223,5 +231,61 @@ exports.updatePassword = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error al cambiar la contraseña' });
+  }
+
+
+
+
+
+};
+
+  /**
+ * Sube una imagen de perfil a Cloudinary y guarda la URL en la base de datos.
+ * 
+ * @route PUT /users/:id/profile-picture
+ * @param {Request} req - Imagen en el cuerpo.
+ * @param {Response} res - URL subida o error.
+ */
+exports.uploadProfilePicture = async (req, res) => {
+  const { id } = req.params;
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'No image provided' });
+  }
+
+  // Validate user exists first
+  try {
+    const [user] = await User.findById(id);
+    if (!user || user.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+  } catch (err) {
+    return res.status(500).json({ error: 'Error validating user' });
+  }
+
+  // Upload to Cloudinary with better error handling
+  try {
+    const result = await cloudinary.uploader.upload(
+      `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
+      {
+        folder: 'profile_pics',
+        resource_type: 'auto',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'gif']
+      }
+    );
+
+    await User.update(id, { profile_picture: result.secure_url });
+    
+    return res.json({ 
+      success: true,
+      imageUrl: result.secure_url 
+    });
+
+  } catch (err) {
+    console.error('Cloudinary upload error:', err);
+    return res.status(500).json({ 
+      error: 'Image upload failed',
+      details: err.message 
+    });
   }
 };

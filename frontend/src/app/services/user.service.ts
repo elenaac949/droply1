@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, map, tap, throwError } from 'rxjs';
 
 /**
  * Interfaz que representa a un usuario dentro de la aplicación.
@@ -115,15 +115,31 @@ export class UserService {
   }
 
 
-  // En user.service.ts
-  uploadProfileImage(userId: string, imageFile: File): Observable<{ imageUrl: string }> {
+  uploadProfileImage(userId: string, imageFile: File): Observable<any> {
     const formData = new FormData();
-    formData.append('profileImage', imageFile);
+    formData.append('profileImage', imageFile); // Match backend's expected field name
 
-    return this.http.post<{ imageUrl: string }>(
-      `${this.apiUrl}/${userId}/profile-image`,
-      formData
+    // Add debug logging
+    console.log('Uploading file:', {
+      name: imageFile.name,
+      size: imageFile.size,
+      type: imageFile.type
+    });
+
+    return this.http.put(`${this.apiUrl}/${userId}/profile-picture`, formData, {
+      headers: {
+        // 'Content-Type' is set automatically by FormData
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    }).pipe(
+      tap(response => console.log('Upload success:', response)),
+      catchError(error => {
+        console.error('Upload error:', error);
+        return throwError(error);
+      })
     );
   }
+
+
 }
 

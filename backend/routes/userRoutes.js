@@ -1,7 +1,30 @@
 const express = require('express');
-const router = express.Router();
-
+const multer = require('multer');
 const userController = require('../controllers/userController');
+const router = express.Router();
+const authMiddleware = require('../middlewares/authMiddleware');
+
+// Configuración de multer para archivos en memoria
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB máximo
+    files: 1
+  },
+  fileFilter: (req, file, cb) => {
+    // Validar que sea una imagen
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten archivos de imagen'), false);
+    }
+  }
+});
+
+
+router.put('/:id/profile-picture', authMiddleware, upload.single('image'), userController.uploadProfilePicture);
+
 
 /**
  * @route GET /users/
@@ -23,6 +46,7 @@ router.get('/exists', userController.checkEmailExists);
  * @access Público (usado en registro externo o testing)
  */
 router.post('/', userController.createUser);
+
 
 /**
  * @route POST /users/verify-password/:userId
@@ -58,5 +82,8 @@ router.get('/:id', userController.getUserById);
  * @access Admin (recomendado)
  */
 router.delete('/:id', userController.deleteUser);
+
+
+
 
 module.exports = router;

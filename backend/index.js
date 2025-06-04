@@ -1,88 +1,193 @@
 require('dotenv').config(); // Carga las variables de entorno desde .env
 
 const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet'); // Para seguridad adicional
+const rateLimit = require('express-rate-limit'); // Para limitar peticiones
+
 const errorController = require('./controllers/errorController');
 
 const authRoutes = require('./routes/authRoutes');
 const waterSourceRoutes = require('./routes/waterSourceRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const userRoutes = require('./routes/userRoutes');
-const photoRoutes = require('./routes/photoRoutes'); // ← AGREGADO
+const photoRoutes = require('./routes/photoRoutes');
 
 const app = express();
-const ports = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
 // --------------------------------------------
-// 🧩 Middlewares
+// 🔒 Configuración de seguridad
 // --------------------------------------------
 
 /**
- * Middleware para parsear cuerpos JSON en las peticiones.
+ * Configuración de orígenes permitidos para CORS
  */
-app.use(express.json());
+const allowedOrigins = [
+  'http://localhost:4200', // Angular dev
+  'http://localhost:3000', // React dev
+  'https://droply.es', // Producción
+  'https://www.droply.es' // Producción con www
+].filter(Boolean); // Filtra valores undefined/null
+
+// En producción, obtener de variables de entorno
+if (process.env.NODE_ENV === 'production') {
+  const prodOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+  allowedOrigins.push(...prodOrigins);
+}
+
+/**
+ * Configuración segura de CORS
+ */
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Permitir peticiones sin origin (apps móviles, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`🚫 CORS blocked origin: ${origin}`);
+      callback(new Error('No permitido por política CORS'));
+    }
+  },
+  credentials: true, // Permitir cookies y headers de autenticación
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ],
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count'], // Headers que el cliente puede leer
+  maxAge: 86400, // Cachear preflight por 24 horas
+  preflightContinue: false,
+  optionsSuccessStatus: 204 // Para compatibilidad con navegadores legacy
+};
+
+/**
+ * Rate limiting para prevenir ataques de fuerza bruta
+ */
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // máximo 100 peticiones por IP por ventana
+  message: {
+    error: 'Demasiadas peticiones desde esta IP, intenta más tarde.',
+    retryAfter: '15 minutos'
+  },
+  standardHeaders: true, // Incluir headers de rate limit
+  legacyHeaders: false,
+});
+
+/**
+ * Rate limiting más estricto para rutas de autenticación
+ */
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // máximo 5 intentos de login por IP
+  message: {
+    error: 'Demasiados intentos de autenticación, intenta más tarde.',
+    retryAfter: '15 minutos'
+  },
+  skipSuccessfulRequests: true, // No contar peticiones exitosas
+});
+
+// --------------------------------------------
+// 🧩 Middlewares de seguridad
+// --------------------------------------------
+
+/**
+ * Helmet para configurar headers de seguridad
+ */
+app.use(helmet({
+  crossOriginEmbedderPolicy: false, // Puede interferir con CORS
+  contentSecurityPolicy: false, // Configurar según necesidades
+}));
+
+/**
+ * Rate limiting general
+ */
+app.use(limiter);
+
+/**
+ * CORS seguro
+ */
+app.use(cors(corsOptions));
+
+/**
+ * Middleware para parsear cuerpos JSON con límite de tamaño
+ */
+app.use(express.json({ 
+  limit: '10mb', // Límite de 10MB para uploads
+  type: ['application/json', 'text/plain']
+}));
 
 /**
  * Middleware para parsear datos de formularios URL-encoded
  */
-app.use(express.urlencoded({ extended: true })); // ← AGREGADO para mejor compatibilidad
-
-/**
- * Middleware para habilitar CORS (permite peticiones desde otros orígenes).
- */
-
-const cors = require('cors');
-
-app.use(cors({
-  origin: 'http://localhost:4200',
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+app.use(express.urlencoded({ 
+  extended: true,
+  limit: '10mb'
 }));
 
-/* app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Permitir todos los orígenes
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE'); // ← AGREGADO PATCH
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Cabeceras permitidas
+/**
+ * Middleware de logging básico
+ */
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`${timestamp} - ${req.method} ${req.path} - IP: ${req.ip}`);
+  next();
+});
+
+app.use((req, res, next) => {
+  console.log(`🔍 ${req.method} ${req.path}`);
+  console.log('Headers:', req.headers);
   
-  // Manejar preflight requests para CORS
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    console.log('✅ Handling preflight request');
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400');
+    return res.status(204).end();
   }
   
   next();
 });
- */
+
 // --------------------------------------------
 // 📦 Rutas principales
 // --------------------------------------------
 
 /**
- * Rutas de autenticación: /auth/signup, /auth/login
+ * Rutas de autenticación con rate limiting estricto
  */
-app.use('/auth', authRoutes);
+app.use('/auth', authLimiter, authRoutes);
 
 /**
- * Rutas relacionadas con fuentes de agua: CRUD, estado, filtrado
+ * Rutas relacionadas con fuentes de agua
  */
 app.use('/api/water-sources', waterSourceRoutes);
 
 /**
- * Rutas de valoraciones: crear, moderar, listar
+ * Rutas de valoraciones
  */
 app.use('/api/reviews', reviewRoutes);
 
 /**
- * Rutas de usuarios: perfil, email, contraseña
+ * Rutas de usuarios
  */
 app.use('/api/users', userRoutes);
 
 /**
- * Rutas de fotos: crear, moderar, listar por fuente/reseña
+ * Rutas de fotos
  */
-app.use('/api/photos', photoRoutes); // ← AGREGADO
+app.use('/api/photos', photoRoutes);
 
 // --------------------------------------------
-// 🏠 Ruta de salud del servidor (opcional pero recomendada)
+// 🏠 Ruta de salud del servidor
 // --------------------------------------------
 
 /**
@@ -92,21 +197,39 @@ app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Servidor funcionando correctamente',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    cors: {
+      allowedOrigins: process.env.NODE_ENV === 'development' ? allowedOrigins : '***'
+    }
   });
 });
 
 // --------------------------------------------
-//  Manejo de errores
+// 🔧 Manejo de errores CORS
 // --------------------------------------------
 
 /**
- * Middleware para manejar rutas no encontradas (404).
+ * Middleware específico para errores de CORS
+ */
+app.use((err, req, res, next) => {
+  if (err.message === 'No permitido por política CORS') {
+    return res.status(403).json({
+      success: false,
+      error: 'Acceso denegado por política CORS',
+      message: 'Tu origen no está autorizado para acceder a este recurso'
+    });
+  }
+  next(err);
+});
+
+/**
+ * Middleware para manejar rutas no encontradas (404)
  */
 app.use(errorController.notFoundHandler);
 
 /**
- * Middleware general para manejar errores de aplicación.
+ * Middleware general para manejar errores de aplicación
  */
 app.use(errorController.errorHandler);
 
@@ -114,8 +237,27 @@ app.use(errorController.errorHandler);
 // 🚀 Arranque del servidor
 // --------------------------------------------
 
-app.listen(ports, () => {
-  console.log(` Servidor escuchando en puerto ${ports}`);
-  console.log(` Health check: http://localhost:${ports}/health`);
-  console.log(` Photos API: http://localhost:${ports}/api/photos`);
+const server = app.listen(port, () => {
+  console.log(`🚀 Servidor escuchando en puerto ${port}`);
+  console.log(`🏥 Health check: http://localhost:${port}/health`);
+  console.log(`📸 Photos API: http://localhost:${port}/api/photos`);
+  console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔒 CORS configurado para: ${allowedOrigins.join(', ')}`);
+});
+
+// Manejo graceful de cierre del servidor
+process.on('SIGTERM', () => {
+  console.log('🛑 Recibida señal SIGTERM, cerrando servidor...');
+  server.close(() => {
+    console.log('✅ Servidor cerrado correctamente');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 Recibida señal SIGINT, cerrando servidor...');
+  server.close(() => {
+    console.log('✅ Servidor cerrado correctamente');
+    process.exit(0);
+  });
 });

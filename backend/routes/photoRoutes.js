@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, param, query } = require('express-validator');
 const PhotoController = require('../controllers/photoController');
-const authMiddleware = require('../middleware/auth'); // Middleware de autenticación
+const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -101,8 +101,7 @@ router.delete('/:id', authMiddleware, idValidation, PhotoController.deletePhoto)
 
 // Obtener fotos pendientes de moderación (solo admin)
 router.get('/admin/pending', 
-  authMiddleware, 
-  adminMiddleware, 
+  authMiddleware,
   PhotoController.getPendingPhotos
 );
 

@@ -1,5 +1,4 @@
-const db = require('../config/database');
-const { v4: uuidv4 } = require('uuid');
+const db = require('../util/database');
 
 class Photo {
   constructor(data) {
