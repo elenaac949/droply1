@@ -3,7 +3,8 @@
     <div class="profile-image-container">
       <div class="profile-image-wrapper">
         <img
-          [src]="user?.profile_picture ? 'http://localhost:3000' + user.profile_picture : 'assets/profile/default-profile.png'"
+          [src]="user.profile_picture ? 'http://localhost:3000' + user.profile_picture : 'assets/profile/default-profile.png'"
+
           alt="Foto de perfil" class="profile-image">
         <div class="image-options">
           <mat-icon (click)="triggerFileInput()">edit</mat-icon>
