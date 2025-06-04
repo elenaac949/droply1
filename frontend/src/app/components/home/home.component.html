@@ -4,10 +4,9 @@
       [useGeolocation]="useGeolocation"
       (toggleGeo)="handleToggleGeo()"
     ></app-filters>
+    <p *ngIf="isLoadingGeo">Buscando ubicación...</p>
   </section>
-
-  <p *ngIf="isLoadingGeo">Buscando ubicación...</p>
-
+  
   <section class="map-section">
     <app-map [useGeolocation]="useGeolocation"></app-map>
   </section>
