@@ -127,6 +127,16 @@ module.exports = class User {
 
 
   /**
+ * Elimina la foto de perfil de un usuario.
+ * @param {string} id - ID del usuario.
+ */
+  static deleteProfilePicture(id) {
+    return db.execute('UPDATE users SET profile_picture = NULL WHERE id = ?', [id]);
+  }
+
+
+
+  /**
    * Busca un usuario por su ID.
    * @param {string} id - ID del usuario.
    * @returns {Promise} Usuario encontrado.

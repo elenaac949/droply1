@@ -37,7 +37,7 @@ const upload = multer({
 
 
 router.put('/:id/profile-picture', authMiddleware, upload.single('image'), userController.uploadProfilePicture);
-
+router.delete('/:id/profile-picture', authMiddleware, userController.deleteProfilePicture);
 
 /**
  * @route GET /users/

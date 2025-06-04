@@ -117,7 +117,7 @@ export class UserService {
 
   uploadProfileImage(userId: string, imageFile: File): Observable<any> {
     const formData = new FormData();
-    formData.append('image', imageFile); 
+    formData.append('image', imageFile);
 
     // Add debug logging
     console.log('Uploading file:', {
@@ -139,6 +139,15 @@ export class UserService {
       })
     );
   }
+
+  deleteProfilePicture(userId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${userId}/profile-picture`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  }
+
 
 
 }

@@ -276,3 +276,31 @@ exports.uploadProfilePicture = async (req, res) => {
     });
   }
 };
+
+/* borrar la foto de perfil */
+exports.deleteProfilePicture = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [rows] = await User.findById(id);
+    if (!rows.length) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const user = rows[0];
+
+    // Borrar la imagen del disco si existe
+    if (user.profile_picture) {
+      const filePath = path.join(__dirname, '..', user.profile_picture);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    // Establecer profile_picture como NULL en BD
+    await User.deleteProfilePicture(id);
+
+    res.json({ success: true, message: 'Foto de perfil eliminada' });
+  } catch (err) {
+    console.error('Error al eliminar la foto de perfil:', err);
+    res.status(500).json({ error: 'Error al eliminar la imagen' });
+  }
+};

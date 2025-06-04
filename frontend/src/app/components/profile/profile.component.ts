@@ -298,6 +298,21 @@ export class ProfileComponent implements OnInit {
   });
 }
 
+removeProfilePicture(): void {
+  if (!this.user) return;
+
+  this.userService.deleteProfilePicture(this.user.id).subscribe({
+    next: () => {
+      this.user!.profile_picture = '';
+      this.snackBar.open('Foto de perfil eliminada', 'Cerrar', { duration: 3000 });
+    },
+    error: () => {
+      this.snackBar.open('Error al eliminar la foto de perfil', 'Cerrar', { duration: 3000 });
+    }
+  });
+}
+
+
 
 
 }
