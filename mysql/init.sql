@@ -80,7 +80,7 @@ CREATE TABLE photos (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     water_source_id CHAR(36),
     review_id CHAR(36),
-    user_id CHAR(36) NOT NULL,
+    public_id VARCHAR(255) NOT NULL,
     url VARCHAR(255) NOT NULL,
     status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
