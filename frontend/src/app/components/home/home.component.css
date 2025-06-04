@@ -7,15 +7,22 @@
 
 .filters-section {
   width: 20%;
-  flex-shrink: 0; /* Evita que se encoja más allá del 30% */
+  flex-shrink: 0;
   padding: 20px;
   overflow-y: auto;
 }
 
 .map-section {
-  flex-grow: 1; /* Ocupa el espacio restante */
+  flex-grow: 1;
 }
 
 @media (max-width: 768px) {
-  /* Tus estilos responsive aquí */
+  .home-container {
+    flex-direction: column;
+  }
+
+  .map-section {
+    flex: 1;
+    height: 50vh;
+  }
 }
