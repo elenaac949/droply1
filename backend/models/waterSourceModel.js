@@ -206,4 +206,26 @@ module.exports = class WaterSource {
   static findByOSMId(osmId) {
     return db.execute('SELECT * FROM water_sources WHERE osm_id = ?', [osmId]);
   }
+
+  /* obtener la ultima fuente de agua teniendo en cuenta el usuairo y las coordendas */
+
+  static async findLastByUser(user_id) {
+  const query = `
+    SELECT * FROM water_sources
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+
+  try {
+    const [rows] = await db.execute(query, [user_id]);
+    return rows.length > 0 ? rows[0] : null;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+
+
 };

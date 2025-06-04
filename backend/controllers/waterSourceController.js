@@ -36,13 +36,38 @@ exports.createWaterSource = async (req, res) => {
     );
 
     await WaterSource.save(fuente);
-    res.status(201).json({ message: 'Fuente creada correctamente.', id: fuente.id });
+
+    res.status(201).json({
+      success: true,
+      message: 'Fuente creada correctamente.',
+    });
 
   } catch (err) {
     console.error('Error al crear fuente:', err);
     res.status(500).json({ error: 'Error al crear la fuente de agua' });
   }
 };
+
+
+/* encontrar fuente por usuario y coordenaas */
+
+exports.getLastByUser = async (req, res) => {
+  const user_id = req.user.id;
+
+  try {
+    const fuente = await WaterSource.findLastByUser(user_id);
+
+    if (!fuente) {
+      return res.status(404).json({ message: 'No se encontró ninguna fuente para este usuario.' });
+    }
+
+    res.json({ data: fuente });
+  } catch (error) {
+    console.error('Error al obtener la última fuente por usuario:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
 
 /**
  * Obtiene todas las fuentes de agua (sin filtrar).

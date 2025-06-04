@@ -14,6 +14,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PhotoService, Photo } from '../../services/photo.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { WaterSourceService } from '../../services/water-source.service';
 
 /**
  * Componente de formulario para añadir una nueva fuente de agua.
@@ -53,6 +54,8 @@ export class WaterFormComponent {
   /** Servicio de fotos para subir a Cloudinary */
   private photoService = inject(PhotoService);
 
+  private waterSourceService=inject(WaterSourceService);
+
   photos: string[] = [];
   photoFiles: File[] = [];
   isSubmitting = false;
@@ -83,6 +86,7 @@ export class WaterFormComponent {
     postal_code: ['', Validators.maxLength(20)],
     address: ['', Validators.maxLength(255)]
   });
+  
 
   onFileSelected(event: any): void {
     const files = event.target.files;
@@ -205,53 +209,53 @@ export class WaterFormComponent {
 
 
   getCurrentLocation(): void {
-  this.isGeolocating = true;
-  this.geolocationError = '';
+    this.isGeolocating = true;
+    this.geolocationError = '';
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const lat = position.coords.latitude.toFixed(6);
-        const lng = position.coords.longitude.toFixed(6);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lng = position.coords.longitude.toFixed(6);
 
-        this.form.patchValue({
-          latitude: lat,
-          longitude: lng
-        });
+          this.form.patchValue({
+            latitude: lat,
+            longitude: lng
+          });
 
-        // Marca como no tocado para evitar errores visuales
-        this.form.get('latitude')?.markAsUntouched();
-        this.form.get('longitude')?.markAsUntouched();
+          // Marca como no tocado para evitar errores visuales
+          this.form.get('latitude')?.markAsUntouched();
+          this.form.get('longitude')?.markAsUntouched();
 
-        this.isGeolocating = false;
+          this.isGeolocating = false;
 
-        this.showSuccessSnackBar('Ubicación detectada correctamente');
-      },
-      error => {
-        this.geolocationError = 'No se pudo obtener la ubicación. Asegúrate de tener el GPS activado.';
-        this.isGeolocating = false;
+          this.showSuccessSnackBar('Ubicación detectada correctamente');
+        },
+        error => {
+          this.geolocationError = 'No se pudo obtener la ubicación. Asegúrate de tener el GPS activado.';
+          this.isGeolocating = false;
 
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            this.showErrorSnackBar('Permiso denegado para acceder a la ubicación.');
-            break;
-          case error.POSITION_UNAVAILABLE:
-            this.showErrorSnackBar('La información de ubicación no está disponible.');
-            break;
-          case error.TIMEOUT:
-            this.showErrorSnackBar('Tiempo de espera excedido al obtener la ubicación.');
-            break;
-          default:
-            this.showErrorSnackBar('Error al obtener la ubicación.');
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              this.showErrorSnackBar('Permiso denegado para acceder a la ubicación.');
+              break;
+            case error.POSITION_UNAVAILABLE:
+              this.showErrorSnackBar('La información de ubicación no está disponible.');
+              break;
+            case error.TIMEOUT:
+              this.showErrorSnackBar('Tiempo de espera excedido al obtener la ubicación.');
+              break;
+            default:
+              this.showErrorSnackBar('Error al obtener la ubicación.');
+          }
         }
-      }
-    );
-  } else {
-    this.geolocationError = 'Tu navegador no soporta geolocalización.';
-    this.isGeolocating = false;
-    this.showErrorSnackBar(this.geolocationError);
+      );
+    } else {
+      this.geolocationError = 'Tu navegador no soporta geolocalización.';
+      this.isGeolocating = false;
+      this.showErrorSnackBar(this.geolocationError);
+    }
   }
-}
 
 
 
@@ -260,6 +264,8 @@ export class WaterFormComponent {
    * Envia los datos del formulario al backend.
    * El usuario debe estar autenticado (se incluye token JWT).
    */
+
+
   onSubmit(): void {
   if (this.form.valid) {
     const token = localStorage.getItem('token');
@@ -270,25 +276,39 @@ export class WaterFormComponent {
 
     this.isSubmitting = true;
 
-    this.http.post('http://localhost:3000/api/water-sources', this.form.value, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+    const raw = this.form.value;
+
+    const payload = {
+      name: raw.name ?? '',
+      description: raw.description ?? '',
+      latitude: parseFloat(raw.latitude ?? '0'),
+      longitude: parseFloat(raw.longitude ?? '0'),
+      type: raw.type ?? 'other',
+      is_accessible: !!raw.is_accessible,
+      schedule: raw.schedule ?? '',
+      country: raw.country ?? '',
+      city: raw.city ?? '',
+      postal_code: raw.postal_code ?? '',
+      address: raw.address ?? '',
+      is_osm: false,
+      osm_id: null
+    };
+
+    this.http.post<any>('http://localhost:3000/api/water-sources', payload, {
+      headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: () => {
-        this.showSuccessSnackBar('Fuente de agua añadida con éxito');
+        this.showSuccessSnackBar('Fuente creada correctamente.');
         this.router.navigate(['/']);
+        this.isSubmitting = false;
       },
       error: (err) => {
         this.isSubmitting = false;
-
         if (err.status === 400 && err.error?.error === 'Ya existe una fuente en esa ubicación.') {
-          this.showErrorSnackBar('Ya existe una fuente en esa ubicación. Intenta en otra localización.');
-        } else if (err.status === 401) {
-          this.showErrorSnackBar('No autorizado. Inicia sesión para continuar.');
+          this.showErrorSnackBar('Ya existe una fuente en esa ubicación.');
         } else {
-          console.error('Error al añadir la fuente:', err);
-          this.showErrorSnackBar('Error inesperado al añadir la fuente. Intenta de nuevo más tarde.');
+          this.showErrorSnackBar('Error al crear la fuente.');
+          console.error(err);
         }
       }
     });
@@ -297,6 +317,12 @@ export class WaterFormComponent {
     errores.forEach(msg => this.showErrorSnackBar(msg));
   }
 }
+
+
+
+
+
+
 
 
 }

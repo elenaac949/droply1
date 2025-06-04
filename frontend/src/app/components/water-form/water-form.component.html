@@ -106,7 +106,7 @@
         <!-- Preview de imágenes -->
         <mat-card class="photo-preview-card" *ngFor="let photo of photos; let i = index">
           <img [src]="photo" alt="Preview foto {{i+1}}">
-          <button mat-icon-button class="remove-photo-btn" (click)="removePhoto(i)" matTooltip="Eliminar foto">
+          <button mat-icon-button type="button" class="remove-photo-btn" (click)="removePhoto(i)" matTooltip="Eliminar foto">
             <mat-icon>close</mat-icon>
           </button>
         </mat-card>
@@ -116,7 +116,7 @@
           <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" multiple
             style="display: none;">
 
-          <button mat-raised-button color="primary" (click)="fileInput.click()" class="upload-btn">
+          <button mat-raised-button type="button" color="primary" (click)="fileInput.click()" class="upload-btn">
             <mat-icon>add_photo_alternate</mat-icon>
             Añadir fotos
           </button>

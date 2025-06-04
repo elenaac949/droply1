@@ -37,13 +37,6 @@ router.post(
 );
 
 /**
- * @route GET /water-sources/
- * @desc Devuelve todas las fuentes con información de usuario.
- * @access Público
- */
-router.get('/', waterSourceController.getAllWaterSources);
-
-/**
  * @route GET /water-sources/pending
  * @desc Obtiene todas las fuentes con estado "pending".
  * @access Privado (requiere autenticación)
@@ -63,6 +56,25 @@ router.get('/approved', waterSourceController.getApprovedWaterSources);
  * @access Público
  */
 router.get('/osm/:osmId', waterSourceController.getByOSMId);
+
+/**
+ * @route GET /water-sources/latest/by-coordinates
+ * @desc Obtener la última fuente por usuario y coordenada
+ * @access Privado (requiere autenticación)
+ */
+router.get(
+  '/latest/by-user',
+  authMiddleware,
+  waterSourceController.getLastByUser
+);
+
+
+/**
+ * @route GET /water-sources/
+ * @desc Devuelve todas las fuentes con información de usuario.
+ * @access Público
+ */
+router.get('/', waterSourceController.getAllWaterSources);
 
 /**
  * @route PUT /water-sources/:id/status

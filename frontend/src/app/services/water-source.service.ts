@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { catchError, throwError, Observable, of } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { catchError, throwError, Observable, of, map } from 'rxjs';
 
 /**
  * Interfaz que representa una fuente de agua.
@@ -34,7 +34,7 @@ export interface WaterSource {
 export class WaterSourceService {
   private apiUrl = 'http://localhost:3000/api/water-sources';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Obtiene todas las fuentes en estado 'pending' (pendientes de aprobación).
@@ -89,7 +89,7 @@ export class WaterSourceService {
     );
   }
 
-  
+
   /**
    * Actualiza los datos de una fuente existente.
    * @param id ID de la fuente
@@ -128,4 +128,25 @@ export class WaterSourceService {
       catchError(error => throwError(() => error))
     );
   }
+
+
+/* no funciona */
+  getLastSourceByUser(token: string): Observable<WaterSource | null> {
+  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+  return this.http
+    .get<{ data: WaterSource }>('http://localhost:3000/api/water-sources/latest/by-user', {
+      headers
+    })
+    .pipe(
+      map(response => response.data),
+      catchError(error => {
+        console.error('Error al obtener la última fuente por usuario:', error);
+        return of(null);
+      })
+    );
+}
+
+
+
 }

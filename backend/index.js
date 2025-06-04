@@ -29,7 +29,17 @@ app.use(express.urlencoded({ extended: true })); // ← AGREGADO para mejor comp
 /**
  * Middleware para habilitar CORS (permite peticiones desde otros orígenes).
  */
-app.use((req, res, next) => {
+
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'http://localhost:4200',
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+}));
+
+/* app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // Permitir todos los orígenes
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE'); // ← AGREGADO PATCH
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Cabeceras permitidas
@@ -41,7 +51,7 @@ app.use((req, res, next) => {
   
   next();
 });
-
+ */
 // --------------------------------------------
 // 📦 Rutas principales
 // --------------------------------------------
