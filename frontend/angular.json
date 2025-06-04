@@ -32,6 +32,10 @@
             ],
             "scripts": [
               "node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "leaflet",
+              "leaflet.markercluster"
             ]
           },
           "configurations": {
@@ -72,7 +76,7 @@
           "options": {
             "host": "0.0.0.0",
             "port": 4200,
-            "publicHost": "localhost", 
+            "publicHost": "localhost",
             "hmr": true,
             "poll": 2000,
             "disableHostCheck": true
