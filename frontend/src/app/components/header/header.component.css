@@ -63,8 +63,8 @@ button[mat-stroked-button]:hover {
 }
 
 .welcome-message {
-  font-size: 1.1rem !important; 
-  margin-right: 1.5rem;
+  font-size: 0.8rem !important; 
+  margin-right: 1.7rem;
   font-weight: 500; 
   white-space: nowrap;
 }

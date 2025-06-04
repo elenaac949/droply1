@@ -1,6 +1,10 @@
 <mat-toolbar color="primary" class="header-toolbar">
   <span class="logo" routerLink="">Droply</span>
+  <span class="welcome-message">
+      Bienvenid&#64; de nuevo,  {{ authService.getUsername() }}
+    </span>
   <span class="spacer"></span>
+
 
   <ng-container *ngIf="!(authService.isLoggedIn$ | async)">
     <button mat-button routerLink="/login">Iniciar sesión</button>
@@ -8,9 +12,7 @@
   </ng-container>
 
   <ng-container *ngIf="authService.isLoggedIn$ | async">
-    <span class="welcome-message">
-      Bienvenid&#64; de nuevo,  {{ authService.getUsername() }}
-    </span>
+    <button mat-button routerLink="">Mapa</button>
     <button mat-button routerLink="/water-form">Añadir fuente</button>
     <button mat-button [matMenuTriggerFor]="menu">Menú</button>
     <mat-menu #menu="matMenu">
