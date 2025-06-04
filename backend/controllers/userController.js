@@ -1,7 +1,6 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
-
 const path = require('path');
 const fs = require('fs');
 
@@ -262,11 +261,12 @@ exports.uploadProfilePicture = async (req, res) => {
   try {
     // Guardar la ruta relativa en la base de datos
     const relativePath = `/uploads/${req.file.filename}`;
-    await User.update(id, { profile_picture: relativePath });
+    await User.updateProfilePicture(id, relativePath);
 
     return res.status(200).json({
       success: true,
-      imageUrl: relativePath
+      message: 'Imagen de perfil actualizada',
+      profile_picture: relativePath  
     });
   } catch (err) {
     console.error('Error al guardar la imagen:', err);

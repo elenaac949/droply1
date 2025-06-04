@@ -282,24 +282,22 @@ export class ProfileComponent implements OnInit {
 
   // Método para subir la imagen al servidor
 
-  uploadImage(file: any): void {
-    if (!this.user || !this.userToEdit) return;
+  uploadImage(file: File): void {
+  if (!this.user) return;
 
-    this.userService.uploadProfileImage(this.user.id, file).subscribe({
-      next: (response) => {
-        // Update the profile picture URL
-        this.userToEdit!.profile_picture = response.profile_picture;
-        this.guardarCambiosPerfil();
-      },
-      error: (err) => {
-        this.snackBar.open('Error al subir la imagen', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top'
-        });
+  this.userService.uploadProfileImage(this.user.id, file).subscribe({
+    next: (response) => {
+      if (this.user) {
+        this.user.profile_picture = response.profile_picture;
       }
-    });
-  }
+      this.snackBar.open('Imagen de perfil actualizada', 'Cerrar', { duration: 3000 });
+    },
+    error: () => {
+      this.snackBar.open('Error al subir la imagen', 'Cerrar', { duration: 3000 });
+    }
+  });
+}
+
 
 
 }

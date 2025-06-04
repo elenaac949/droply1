@@ -107,11 +107,24 @@ module.exports = class User {
         data.city || '',
         data.postal_code || '',
         data.address || '',
-        data.profile_picture || '',
         id
       ]
     );
   }
+
+  /**
+ * Actualiza solo la foto de perfil del usuario.
+ * @param {string} id - ID del usuario.
+ * @param {string} profilePicturePath - Ruta relativa de la imagen.
+ * @returns {Promise} Resultado de la actualización.
+ */
+  static updateProfilePicture(id, profilePicturePath) {
+    return db.execute(
+      'UPDATE users SET profile_picture = ? WHERE id = ?',
+      [profilePicturePath, id]
+    );
+  }
+
 
   /**
    * Busca un usuario por su ID.
