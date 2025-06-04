@@ -11,6 +11,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { PhotoService, Photo } from '../../services/photo.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+
 /**
  * Componente de formulario para añadir una nueva fuente de agua.
  * Incluye validaciones, envío autenticado al backend y redirección al finalizar.
@@ -33,6 +37,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   templateUrl: './water-form.component.html',
   styleUrl: './water-form.component.css'
 })
+
+
 export class WaterFormComponent {
 
   /** FormBuilder inyectado para construir el formulario */
@@ -47,7 +53,12 @@ export class WaterFormComponent {
   /** SnackBar para mostrar notificaciones */
   private snackBar = inject(MatSnackBar);
 
+   /** Servicio de fotos para subir a Cloudinary */
+  private photoService = inject(PhotoService);
+
   photos: string[] = [];
+  photoFiles: File[] = []; // Guardamos los archivos originales
+  isSubmitting = false; // Para mostrar estado de carga
 
   /** Opciones de tipo de fuente disponibles */
   waterSourceTypes = [
@@ -256,6 +267,98 @@ export class WaterFormComponent {
     });
   }
 
+  /**
+   * Sube las fotos a Cloudinary después de guardar la fuente
+   */
+  private uploadPhotos(waterSourceId: number): void {
+    if (this.photoFiles.length === 0) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.snackBar.open('No se encontró token de autenticación', 'Cerrar', {
+        duration: 4000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    this.snackBar.open('Subiendo fotos...', '', {
+      duration: 0, // No se cierra automáticamente
+      panelClass: ['info-snackbar']
+    });
+
+    // Crear observables para cada upload
+    const uploadObservables = this.photoFiles.map(file => 
+      this.photoService.uploadPhoto(file, waterSourceId.toString(), token).pipe(
+        catchError((error: any) => {
+          console.error('Error uploading photo:', error);
+          return of(null); // Retorna null en caso de error
+        })
+      )
+    );
+
+    forkJoin(uploadObservables).subscribe({
+      next: (results) => {
+        // Filtrar resultados nulos (errores)
+        const validUrls = results.filter(url => url !== null) as string[];
+        
+        if (validUrls.length > 0) {
+          // Asociar las fotos con la fuente de agua
+          this.associatePhotosWithWaterSource(waterSourceId, validUrls);
+        }
+        
+        if (validUrls.length < this.photoFiles.length) {
+          this.snackBar.open('Algunas fotos no se pudieron subir', 'Cerrar', {
+            duration: 4000,
+            panelClass: ['warning-snackbar']
+          });
+        } else if (validUrls.length > 0) {
+          this.snackBar.open('Fotos subidas correctamente', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+        }
+      },
+      error: (error: any) => {
+        console.error('Error uploading photos:', error);
+        this.snackBar.open('Error al subir las fotos', 'Cerrar', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  
+  }
+
+
+   /**
+   * Asocia las URLs de las fotos con la fuente de agua en el backend
+   */
+  private associatePhotosWithWaterSource(waterSourceId: number, photoUrls: string[]): void {
+    const token = localStorage.getItem('token');
+    
+    this.http.post(`http://localhost:3000/api/water-sources/${waterSourceId}/photos`, 
+      { photos: photoUrls }, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    ).subscribe({
+      next: () => {
+        console.log('Photos associated with water source successfully');
+      },
+      error: (err) => {
+        console.error('Error associating photos with water source:', err);
+        this.snackBar.open('Error al asociar las fotos con la fuente', 'Cerrar', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
 
 
 
@@ -263,17 +366,29 @@ export class WaterFormComponent {
  * Envia los datos del formulario al backend.
  * El usuario debe estar autenticado (se incluye token JWT).
  */
+   /**
+   * Envia los datos del formulario al backend.
+   * El usuario debe estar autenticado (se incluye token JWT).
+   */
   onSubmit(): void {
     if (this.form.valid) {
+      this.isSubmitting = true;
       const token = localStorage.getItem('token');
 
-      this.http.post('http://localhost:3000/api/water-sources', this.form.value, {
+      // Primero guardar la fuente de agua (sin fotos)
+      this.http.post<any>('http://localhost:3000/api/water-sources', this.form.value, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       }).subscribe({
-        next: () => {
+        next: (response) => {
           this.showSuccessSnackBar('¡Fuente de agua añadida con éxito!');
+          
+          // Si hay fotos, subirlas después de guardar la fuente
+          if (this.photoFiles.length > 0 && response.id) {
+            this.uploadPhotos(response.id);
+          }
+          
           // Esperar un poco antes de redirigir para que se vea el mensaje
           setTimeout(() => {
             this.router.navigate(['/']);
@@ -290,6 +405,9 @@ export class WaterFormComponent {
             console.error('Error al añadir la fuente:', err);
             this.showErrorSnackBar('Error al añadir la fuente. Por favor, inténtalo de nuevo.');
           }
+        },
+        complete: () => {
+          this.isSubmitting = false;
         }
       });
     } else {
