@@ -19,9 +19,14 @@
         <textarea matInput formControlName="description" rows="3" placeholder="Descripción de la fuente"></textarea>
       </mat-form-field>
 
-      <!-- Coordenadas -->
+      <button mat-stroked-button color="primary" type="button" (click)="getCurrentLocation()" class="geolocation-btn">
+        <mat-icon>my_location</mat-icon>
+        Usar mi ubicación
+      </button>
+
       <!-- Coordenadas -->
       <div class="form-row">
+
         <mat-form-field appearance="outline">
           <mat-label>Latitud *</mat-label>
           <input matInput formControlName="latitude" placeholder="Ej: 40.416775" type="number" step="any">
@@ -34,10 +39,7 @@
           <mat-icon matSuffix>place</mat-icon>
         </mat-form-field>
 
-        <button mat-stroked-button color="primary" (click)="getCurrentLocation()" class="geolocation-btn">
-          <mat-icon>my_location</mat-icon>
-          Usar mi ubicación
-        </button>
+
       </div>
       <div class="form-row">
         <!-- Tipo de fuente -->
