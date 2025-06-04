@@ -225,13 +225,57 @@
   font-size: 0.75rem;
 }
 
+
+/* Geolocation Button Styles */
+.geolocation-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  /* Match input fields height */
+  align-self: flex-end;
+  margin-bottom: 1.25rem;
+}
+
+.geolocation-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Loading state */
+.geolocating {
+  position: relative;
+  pointer-events: none;
+}
+
+.geolocating::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 1;
+}
+
+/* Error message */
+.geolocation-error {
+  color: #f44336;
+  font-size: 0.75rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+  grid-column: span 3;
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .photo-preview-card {
     width: 100px;
     height: 100px;
   }
-  
+
   .photos-preview-container {
     justify-content: center;
   }
@@ -327,21 +371,21 @@
     margin: 1rem auto;
     padding: 1rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .submit-btn {
     width: 100%;
     min-width: auto;
   }
-  
+
   ::ng-deep .mat-mdc-card-header .mat-mdc-card-title {
     font-size: 1.25rem !important;
   }
-  
+
   ::ng-deep .mat-mdc-card {
     padding: 1rem !important;
   }
@@ -359,8 +403,15 @@
 
 /* Animation for better UX */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 ::ng-deep .mat-mdc-select-panel {

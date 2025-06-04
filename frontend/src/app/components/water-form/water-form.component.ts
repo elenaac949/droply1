@@ -177,6 +177,88 @@ export class WaterFormComponent {
     });
   }
 
+  // Añade esta propiedad a la clase
+  isGeolocating = false;
+  geolocationError = '';
+
+  // Método para obtener la ubicación actual
+  async getCurrentLocation(): Promise<void> {
+    this.isGeolocating = true;
+    this.geolocationError = '';
+
+    try {
+      const position = await this.getPosition();
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      // Actualizar el formulario con 6 decimales de precisión
+      this.form.patchValue({
+        latitude: lat.toFixed(6),
+        longitude: lng.toFixed(6)
+      });
+
+      // Mostrar mensaje de éxito
+      this.snackBar.open('Ubicación obtenida correctamente', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['success-snackbar']
+      });
+    } catch (error) {
+      console.error('Error getting location:', error);
+      this.handleGeolocationError(error);
+    } finally {
+      this.isGeolocating = false;
+    }
+  }
+
+  // Helper function para promisify geolocation API
+  private getPosition(): Promise<GeolocationPosition> {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocalización no soportada por el navegador'));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        position => resolve(position),
+        error => reject(error),
+        {
+          enableHighAccuracy: true,
+          timeout: 10000, // 10 segundos
+          maximumAge: 0 // No usar caché
+        }
+      );
+    });
+  }
+
+  // Manejo de errores de geolocalización
+  private handleGeolocationError(error: any): void {
+    let errorMessage = 'Error al obtener la ubicación';
+
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        errorMessage = 'Permiso denegado. Por favor, habilita la geolocalización en tu navegador.';
+        break;
+      case error.POSITION_UNAVAILABLE:
+        errorMessage = 'La información de ubicación no está disponible.';
+        break;
+      case error.TIMEOUT:
+        errorMessage = 'Tiempo de espera agotado al intentar obtener la ubicación.';
+        break;
+      case error.UNKNOWN_ERROR:
+        errorMessage = 'Error desconocido al obtener la ubicación.';
+        break;
+    }
+
+    this.geolocationError = errorMessage;
+    this.snackBar.open(errorMessage, 'Cerrar', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
+  }
+
+
+
+
   /**
  * Envia los datos del formulario al backend.
  * El usuario debe estar autenticado (se incluye token JWT).

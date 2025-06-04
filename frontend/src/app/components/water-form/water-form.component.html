@@ -20,6 +20,7 @@
       </mat-form-field>
 
       <!-- Coordenadas -->
+      <!-- Coordenadas -->
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Latitud *</mat-label>
@@ -32,6 +33,11 @@
           <input matInput formControlName="longitude" placeholder="Ej: -3.703790" type="number" step="any">
           <mat-icon matSuffix>place</mat-icon>
         </mat-form-field>
+
+        <button mat-stroked-button color="primary" (click)="getCurrentLocation()" class="geolocation-btn">
+          <mat-icon>my_location</mat-icon>
+          Usar mi ubicación
+        </button>
       </div>
       <div class="form-row">
         <!-- Tipo de fuente -->
