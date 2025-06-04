@@ -4,18 +4,17 @@
   width: 100%;
   align-items: center;
 }
-
-/* Botón de geolocalización */
+/* Botón de geolocalización - Versión accesible */
 .btn-geo-on,
 .btn-geo-off {
   padding: 12px 24px;
-  border: 2px solid #1890ff;
+  border: 2px solid #0056b3; /* Azul más oscuro para mejor contraste */
   border-radius: 6px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600; /* Más peso para mejor legibilidad */
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  min-height: 44px; /* Accesibilidad: mínimo tamaño táctil */
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -24,32 +23,35 @@
   outline: none;
 }
 
+/* Estado ACTIVO (geolocalización activada) */
 .btn-geo-on {
-  background-color: #1890ff;
-  color: white;
+  background-color: #0056b3; /* Azul más oscuro */
+  color: #ffffff; /* Blanco puro */
 }
 
 .btn-geo-on:hover {
-  background-color: #096dd9;
+  background-color: #003d82;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* Estado INACTIVO */
 .btn-geo-off {
-  background-color: #e6f7ff;
-  color: #1890ff;
+  background-color: #f0f9ff; /* Fondo más claro para contraste */
+  color: #0056b3; /* Mismo azul que el borde */
 }
 
 .btn-geo-off:hover {
-  background-color: #bae7ff;
-  border-color: #096dd9;
+  background-color: #d0e8ff;
+  border-color: #003d82;
 }
 
-/* Estados de focus para accesibilidad */
-.btn-geo-on:focus,
-.btn-geo-off:focus {
-  outline: 3px solid #91d5ff;
-  outline-offset: 2px;
+/* Focus mejorado para accesibilidad */
+.btn-geo-on:focus-visible,
+.btn-geo-off:focus-visible {
+  outline: 3px solid #003d82;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.3);
 }
 
 /* Estados activos */
@@ -58,6 +60,18 @@
   transform: translateY(0);
 }
 
+/* Mejora para alto contraste (opcional) */
+@media (forced-colors: active) {
+  .btn-geo-on,
+  .btn-geo-off {
+    forced-color-adjust: none;
+    border-color: ButtonText;
+  }
+  .btn-geo-on {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
 /* Formulario de filtros */
 .filter-row {
   display: grid;

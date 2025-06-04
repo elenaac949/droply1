@@ -16,13 +16,38 @@
   flex-grow: 1;
 }
 
+/* Tablet (768px-1024px) */
+@media (max-width: 1024px) {
+  .filters-section {
+    padding: 15px; /* Menos padding */
+    font-size: 0.9em; /* Texto 10% más pequeño */
+  }
+}
+
+/* Móvil (≤ 768px) */
 @media (max-width: 768px) {
   .home-container {
     flex-direction: column;
+    height: auto;
+    gap: 10px; /* Menor separación */
+  }
+
+  .filters-section {
+    width: 95%;
+    padding: 10px; 
+    font-size: 0.85em; 
   }
 
   .map-section {
-    flex: 1;
-    height: 50vh;
+    width: 100%;
+    height: 60vh; /* Más espacio para el mapa */
+  }
+}
+
+/* Móviles pequeños (≤ 480px) */
+@media (max-width: 480px) {
+  .filters-section {
+    padding: 10px;
+    font-size: 0.8em; 
   }
 }
