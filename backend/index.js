@@ -34,7 +34,8 @@ const allowedOrigins = [
   'http://localhost:4200', // Angular dev
   'http://localhost:3000', // React dev
   'https://droply.es', // Producción
-  'https://www.droply.es' // Producción con www
+  'https://www.droply.es',
+  'https://droply1.vercel.app/' 
 ].filter(Boolean); // Filtra valores undefined/null
 
 // En producción, obtener de variables de entorno
