@@ -9,6 +9,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
+import { ViewChild, ElementRef } from '@angular/core';
 
 /**
  * Componente del perfil de usuario. Permite ver, editar y eliminar los datos del usuario,
@@ -25,7 +27,8 @@ import { Router } from '@angular/router';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatIcon
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
@@ -63,12 +66,20 @@ export class ProfileComponent implements OnInit {
   /** Flag que indica si la contraseña actual es válida */
   isCurrentPasswordValid = true;
 
+
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  // Variables para el manejo de imágenes
+  imageChangedEvent: any = '';
+  croppedImage: any = '';
+  showImageCropper = false;
+
+
   constructor(
     private userService: UserService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
     private router: Router
-  ) {}
+  ) { }
 
   /**
    * Carga los datos del usuario al iniciar el componente.
@@ -225,4 +236,57 @@ export class ProfileComponent implements OnInit {
       this.passwordData.newPassword !== this.passwordData.confirmNewPassword
     );
   }
+
+  // Método para abrir el selector de archivos
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+
+  onFileSelected(event: any): void {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+
+      // Verificar el tamaño del archivo (ejemplo: máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.snackBar.open('La imagen es demasiado grande. Máximo 5MB.', 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      // Verificar el tipo de archivo
+      if (!file.type.match('image.*')) {
+        this.snackBar.open('Solo se permiten imágenes.', 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      // Opción 1: Subir directamente sin recortar
+      this.uploadImage(file);
+
+      // Opción 2: Mostrar recortador de imagen (requiere ngx-image-cropper)
+      // this.imageChangedEvent = event;
+      // this.showImageCropper = true;
+    }
+  }
+
+  // Método para subir la imagen al servidor
+  uploadImage(file: File): void {
+    if (!this.user) return;
+
+    this.userService.uploadProfileImage(this.user.id, file).subscribe({
+      next: (response) => {
+        if (this.user) {
+          this.user.profileImage = response.imageUrl;
+          this.snackBar.open('Imagen de perfil actualizada', 'Cerrar', { duration: 3000 });
+        }
+      },
+      error: (err) => {
+        this.snackBar.open('Error al subir la imagen', 'Cerrar', { duration: 3000 });
+        console.error(err);
+      }
+    });
+  }
+
+  
 }
+
+

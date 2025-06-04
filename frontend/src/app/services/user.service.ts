@@ -19,6 +19,7 @@ export interface User {
   profile_picture?: string;
   created_at?: string;
   updated_at?: string;
+  profileImage?: string;
 }
 
 /**
@@ -32,7 +33,7 @@ export class UserService {
   /** URL base del endpoint de usuarios */
   private apiUrl = 'http://localhost:3000/api/users';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Obtiene todos los usuarios con rol 'user'.
@@ -112,4 +113,17 @@ export class UserService {
       currentPassword: password
     }).pipe(map(res => res.valid));
   }
+
+
+  // En user.service.ts
+  uploadProfileImage(userId: string, imageFile: File): Observable<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append('profileImage', imageFile);
+
+    return this.http.post<{ imageUrl: string }>(
+      `${this.apiUrl}/${userId}/profile-image`,
+      formData
+    );
+  }
 }
+
