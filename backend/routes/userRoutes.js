@@ -1,19 +1,32 @@
 const express = require('express');
 const multer = require('multer');
+const path = require('path');
 const userController = require('../controllers/userController');
-const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
 
-// Configuración de multer para archivos en memoria
-const storage = multer.memoryStorage();
+
+const router = express.Router();
+
+
+// 📁 Configurar almacenamiento en disco (local)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../uploads')); // guarda en /backend/uploads
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const uniqueName = `profile_${Date.now()}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB máximo
+    fileSize: 5 * 1024 * 1024, // 5MB
     files: 1
   },
   fileFilter: (req, file, cb) => {
-    // Validar que sea una imagen
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {

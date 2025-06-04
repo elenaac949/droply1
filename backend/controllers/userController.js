@@ -1,13 +1,9 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
-const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+const path = require('path');
+const fs = require('fs');
 
 /**
  * Crea un nuevo usuario en la base de datos.
@@ -250,42 +246,33 @@ exports.uploadProfilePicture = async (req, res) => {
   const { id } = req.params;
 
   if (!req.file) {
-    return res.status(400).json({ error: 'No image provided' });
+    return res.status(400).json({ error: 'No se ha proporcionado ninguna imagen' });
   }
 
-  // Validate user exists first
+  // Verificar si el usuario existe
   try {
     const [user] = await User.findById(id);
     if (!user || user.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'Usuario no encontrado' });
     }
   } catch (err) {
-    return res.status(500).json({ error: 'Error validating user' });
+    return res.status(500).json({ error: 'Error al verificar el usuario' });
   }
 
-  // Upload to Cloudinary with better error handling
   try {
-    const result = await cloudinary.uploader.upload(
-      `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
-      {
-        folder: 'profile_pics',
-        resource_type: 'auto',
-        allowed_formats: ['jpg', 'png', 'jpeg', 'gif']
-      }
-    );
+    // Guardar la ruta relativa en la base de datos
+    const relativePath = `/uploads/${req.file.filename}`;
+    await User.update(id, { profile_picture: relativePath });
 
-    await User.update(id, { profile_picture: result.secure_url });
-    
-    return res.json({ 
+    return res.status(200).json({
       success: true,
-      imageUrl: result.secure_url 
+      imageUrl: relativePath
     });
-
   } catch (err) {
-    console.error('Cloudinary upload error:', err);
-    return res.status(500).json({ 
-      error: 'Image upload failed',
-      details: err.message 
+    console.error('Error al guardar la imagen:', err);
+    return res.status(500).json({
+      error: 'Fallo al guardar la imagen',
+      details: err.message
     });
   }
 };

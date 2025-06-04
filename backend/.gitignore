@@ -3,3 +3,10 @@ node_modules/
 
 # Environment variables
 .env
+
+#imagenes
+backend/uploads/
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db

@@ -117,7 +117,7 @@ export class UserService {
 
   uploadProfileImage(userId: string, imageFile: File): Observable<any> {
     const formData = new FormData();
-    formData.append('profileImage', imageFile); // Match backend's expected field name
+    formData.append('image', imageFile); 
 
     // Add debug logging
     console.log('Uploading file:', {

@@ -98,8 +98,16 @@ export class ProfileComponent implements OnInit {
    * Abre el formulario para editar el perfil.
    */
   editarPerfil(): void {
-    this.userToEdit = { ...this.user! };
-    this.originalEmail = this.user!.email;
+    if (!this.user) return;
+
+    this.userToEdit = {
+      ...this.user,
+      id: this.user.id,
+      username: this.user.username,
+      email: this.user.email,
+      role: this.user.role
+    };
+    this.originalEmail = this.user.email;
     this.editProfileForm = true;
   }
 
@@ -128,24 +136,32 @@ export class ProfileComponent implements OnInit {
   /**
    * Guarda los cambios del perfil.
    */
+
   guardarCambiosPerfil(): void {
     if (!this.userToEdit) return;
 
     this.userService.updateUser(this.userToEdit).subscribe({
       next: () => {
-        this.snackBar.open('Perfil actualizado correctamente ', 'Cerrar', {
-          duration: 3000, horizontalPosition: 'right', verticalPosition: 'top'
+        this.snackBar.open('Perfil actualizado correctamente', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
         });
-        this.user = { ...this.userToEdit! };
+
+        // Use type assertion here since we know userToEdit has all required fields
+        this.user = this.userToEdit as User;
         this.editProfileForm = false;
       },
       error: () => {
         this.snackBar.open('Error al actualizar el perfil', 'Cerrar', {
-          duration: 3000, horizontalPosition: 'right', verticalPosition: 'top'
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
         });
       }
     });
   }
+
 
   /**
    * Elimina la cuenta del usuario actual.
@@ -258,35 +274,34 @@ export class ProfileComponent implements OnInit {
         this.snackBar.open('Solo se permiten imágenes.', 'Cerrar', { duration: 3000 });
         return;
       }
-
-      // Opción 1: Subir directamente sin recortar
       this.uploadImage(file);
 
-      // Opción 2: Mostrar recortador de imagen (requiere ngx-image-cropper)
-      // this.imageChangedEvent = event;
-      // this.showImageCropper = true;
+
     }
   }
 
   // Método para subir la imagen al servidor
-  uploadImage(file: File): void {
-    if (!this.user) return;
+
+  uploadImage(file: any): void {
+    if (!this.user || !this.userToEdit) return;
 
     this.userService.uploadProfileImage(this.user.id, file).subscribe({
       next: (response) => {
-        if (this.user) {
-          this.user.profileImage = response.imageUrl;
-          this.snackBar.open('Imagen de perfil actualizada', 'Cerrar', { duration: 3000 });
-        }
+        // Update the profile picture URL
+        this.userToEdit!.profile_picture = response.profile_picture;
+        this.guardarCambiosPerfil();
       },
       error: (err) => {
-        this.snackBar.open('Error al subir la imagen', 'Cerrar', { duration: 3000 });
-        console.error(err);
+        this.snackBar.open('Error al subir la imagen', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
+        });
       }
     });
   }
 
-  
+
 }
 
 

@@ -17,6 +17,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // --------------------------------------------
+// 📁 Servir archivos estáticos (imágenes locales)
+// --------------------------------------------
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+// --------------------------------------------
 // 🔒 Configuración de seguridad
 // --------------------------------------------
 
