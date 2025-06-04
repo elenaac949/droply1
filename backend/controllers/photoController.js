@@ -1,8 +1,10 @@
 const Photo = require('../models/photoModel');
 const { validationResult } = require('express-validator');
+const cloudinary = require('../config/cloudinary'); // Asegúrate de tener este archivo
+const fs = require('fs').promises; // Para eliminar archivos temporales
 
 class PhotoController {
-  // Crear una nueva foto
+  // Crear una nueva foto con upload a Cloudinary
   static async createPhoto(req, res) {
     try {
       // Validar errores de entrada
@@ -15,8 +17,16 @@ class PhotoController {
         });
       }
 
-      const { water_source_id, review_id, url } = req.body;
-      const user_id = req.user.id; // Asumiendo que tienes middleware de autenticación
+      // Verificar que se haya subido un archivo
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No se ha proporcionado ninguna imagen'
+        });
+      }
+
+      const { water_source_id, review_id } = req.body;
+      const user_id = req.user.id;
 
       // Validar que solo tenga uno de los dos IDs
       if ((water_source_id && review_id) || (!water_source_id && !review_id)) {
@@ -26,22 +36,52 @@ class PhotoController {
         });
       }
 
+      // Subir imagen a Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'water-photos', // carpeta en Cloudinary
+        public_id: `photo_${user_id}_${Date.now()}`, // nombre único
+        resource_type: 'auto',
+        transformation: [
+          { width: 1200, height: 1200, crop: 'limit' }, // Limitar tamaño máximo
+          { quality: 'auto' } // Optimización automática de calidad
+        ]
+      });
+
+      // Eliminar archivo temporal del servidor
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.warn('No se pudo eliminar el archivo temporal:', unlinkError.message);
+      }
+
       const photoData = {
         water_source_id: water_source_id || null,
         review_id: review_id || null,
         user_id,
-        url
+        url: result.secure_url,
+        cloudinary_id: result.public_id, // Guardamos el ID para poder eliminar después
+        status: 'pending' // Por defecto pendiente de moderación
       };
 
       const photo = await Photo.create(photoData);
       
       res.status(201).json({
         success: true,
-        message: 'Foto creada exitosamente',
+        message: 'Foto subida exitosamente',
         data: photo
       });
     } catch (error) {
       console.error('Error al crear foto:', error);
+      
+      // Si hay error, intentar eliminar archivo temporal si existe
+      if (req.file && req.file.path) {
+        try {
+          await fs.unlink(req.file.path);
+        } catch (unlinkError) {
+          console.warn('No se pudo eliminar el archivo temporal tras error:', unlinkError.message);
+        }
+      }
+
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor',
@@ -238,6 +278,17 @@ class PhotoController {
         });
       }
 
+      // Eliminar de Cloudinary si tiene cloudinary_id
+      if (photo.cloudinary_id) {
+        try {
+          await cloudinary.uploader.destroy(photo.cloudinary_id);
+        } catch (cloudinaryError) {
+          console.warn('Error al eliminar imagen de Cloudinary:', cloudinaryError.message);
+          // Continuamos con la eliminación de la base de datos aunque falle Cloudinary
+        }
+      }
+
+      // Eliminar de la base de datos
       const deleted = await Photo.delete(id);
 
       if (deleted) {
@@ -301,6 +352,94 @@ class PhotoController {
       });
     } catch (error) {
       console.error('Error al obtener estadísticas de fotos:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        error: error.message
+      });
+    }
+  }
+
+  // Método adicional: Reemplazar foto existente
+  static async replacePhoto(req, res) {
+    try {
+      const { id } = req.params;
+      const user_id = req.user.id;
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No se ha proporcionado ninguna imagen'
+        });
+      }
+
+      // Verificar que la foto existe y pertenece al usuario
+      const photo = await Photo.findById(id);
+      if (!photo) {
+        return res.status(404).json({
+          success: false,
+          message: 'Foto no encontrada'
+        });
+      }
+
+      if (photo.user_id !== user_id && req.user.role !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          message: 'No tienes permisos para modificar esta foto'
+        });
+      }
+
+      // Subir nueva imagen a Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'water-photos',
+        public_id: `photo_${user_id}_${Date.now()}`,
+        resource_type: 'auto',
+        transformation: [
+          { width: 1200, height: 1200, crop: 'limit' },
+          { quality: 'auto' }
+        ]
+      });
+
+      // Eliminar imagen anterior de Cloudinary
+      if (photo.cloudinary_id) {
+        try {
+          await cloudinary.uploader.destroy(photo.cloudinary_id);
+        } catch (cloudinaryError) {
+          console.warn('Error al eliminar imagen anterior de Cloudinary:', cloudinaryError.message);
+        }
+      }
+
+      // Eliminar archivo temporal
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.warn('No se pudo eliminar el archivo temporal:', unlinkError.message);
+      }
+
+      // Actualizar en base de datos
+      const updatedPhoto = await Photo.update(id, {
+        url: result.secure_url,
+        cloudinary_id: result.public_id,
+        status: 'pending' // Volver a moderación tras cambio
+      });
+
+      res.json({
+        success: true,
+        message: 'Foto reemplazada exitosamente',
+        data: updatedPhoto
+      });
+    } catch (error) {
+      console.error('Error al reemplazar foto:', error);
+      
+      // Limpiar archivo temporal en caso de error
+      if (req.file && req.file.path) {
+        try {
+          await fs.unlink(req.file.path);
+        } catch (unlinkError) {
+          console.warn('No se pudo eliminar el archivo temporal tras error:', unlinkError.message);
+        }
+      }
+
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor',
