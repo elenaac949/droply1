@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const waterSourceRoutes = require('./routes/waterSourceRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const userRoutes = require('./routes/userRoutes');
+const photoRoutes = require('./routes/photoRoutes'); // ← AGREGADO
 
 const app = express();
 const ports = process.env.PORT || 3000;
@@ -21,12 +22,23 @@ const ports = process.env.PORT || 3000;
 app.use(express.json());
 
 /**
+ * Middleware para parsear datos de formularios URL-encoded
+ */
+app.use(express.urlencoded({ extended: true })); // ← AGREGADO para mejor compatibilidad
+
+/**
  * Middleware para habilitar CORS (permite peticiones desde otros orígenes).
  */
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // Permitir todos los orígenes
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE'); // Métodos permitidos
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE'); // ← AGREGADO PATCH
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Cabeceras permitidas
+  
+  // Manejar preflight requests para CORS
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
   next();
 });
 
@@ -54,8 +66,28 @@ app.use('/api/reviews', reviewRoutes);
  */
 app.use('/api/users', userRoutes);
 
+/**
+ * Rutas de fotos: crear, moderar, listar por fuente/reseña
+ */
+app.use('/api/photos', photoRoutes); // ← AGREGADO
+
 // --------------------------------------------
-// ❗ Manejo de errores
+// 🏠 Ruta de salud del servidor (opcional pero recomendada)
+// --------------------------------------------
+
+/**
+ * Endpoint para verificar que el servidor está funcionando
+ */
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Servidor funcionando correctamente',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// --------------------------------------------
+//  Manejo de errores
 // --------------------------------------------
 
 /**
@@ -69,9 +101,11 @@ app.use(errorController.notFoundHandler);
 app.use(errorController.errorHandler);
 
 // --------------------------------------------
-//  Arranque del servidor
+// 🚀 Arranque del servidor
 // --------------------------------------------
 
 app.listen(ports, () => {
-  console.log(`Escuchando el puerto ${ports}`);
+  console.log(` Servidor escuchando en puerto ${ports}`);
+  console.log(` Health check: http://localhost:${ports}/health`);
+  console.log(` Photos API: http://localhost:${ports}/api/photos`);
 });
