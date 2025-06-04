@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   frontend:
     build:
@@ -5,13 +7,20 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - "4200:4200"
+      - "49153:49153"  # Puerto para HMR
     volumes:
       - ./frontend:/app
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=development
+    command: sh -c "ng serve --host 0.0.0.0 --port 4200 --public-host localhost --disable-host-check --poll 2000"
+    user: "node"  # Ejecutar como usuario no-root
     depends_on:
-      - backend
+      backend:
+        condition: service_started
+    networks:
+      - app-network
 
   backend:
     build:
@@ -19,35 +28,50 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
-      - "9229:9229"
+      - "9229:9229"  # Puerto para debugging
     volumes:
       - ./backend:/app
+      - /app/node_modules
     environment:
       - DB_HOST=mysql
       - DB_USER=devuser
       - DB_PASSWORD=devpass
-      - DB_NAME=droply  # Cambiado a droply
+      - DB_NAME=droply
       - NODE_ENV=development
       - DEBUG=express:*
     depends_on:
-      - mysql
-    command: npm run dev
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
 
   mysql:
     image: mysql:8.0
     environment:
       - MYSQL_ROOT_PASSWORD=rootpass
-      - MYSQL_DATABASE=droply  # Cambiado a droply
+      - MYSQL_DATABASE=droply
       - MYSQL_USER=devuser
       - MYSQL_PASSWORD=devpass
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql  #  dump SQL aquí
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"  # Para acceso externo si necesitas
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app-network
+    restart: unless-stopped
 
 volumes:
   mysql_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,6 +1,5 @@
 const Photo = require('../models/photoModel');
 const { validationResult } = require('express-validator');
-const cloudinary = require('../config/cloudinary'); // Asegúrate de tener este archivo
 const fs = require('fs').promises; // Para eliminar archivos temporales
 
 class PhotoController {

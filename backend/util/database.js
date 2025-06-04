@@ -1,24 +1,21 @@
 const mysql = require('mysql2');
-const config = require('../config/config.json');
 
-/**
- * Crea un pool de conexiones MySQL reutilizable.
- * 
- * Este pool gestiona múltiples conexiones a la base de datos y permite 
- * realizar consultas asincrónicas usando promesas (con `.promise()`).
- * 
- * La configuración se obtiene del archivo config/config.json:
- *  - host: servidor de base de datos (ej. 'localhost')
- *  - user: usuario de acceso (ej. 'root')
- *  - database: nombre de la base de datos (ej. 'droply')
- *  - password: contraseña de acceso (vacía en desarrollo)
- */
-const pool = mysql.createPool({
-  host: config.host,
-  user: config.user,
-  database: config.database,
-  password: config.password
-});
+// Usar variables de entorno con fallback a config.json
+const config = {
+  host: process.env.DB_HOST || require('../config/config.json').host,
+  user: process.env.DB_USER || require('../config/config.json').user,
+  database: process.env.DB_NAME || require('../config/config.json').database,
+  password: process.env.DB_PASSWORD || require('../config/config.json').password,
+  port: process.env.DB_PORT || 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  connectTimeout: 60000, // Reemplaza a timeout
+  idleTimeout: 60000,   // Tiempo máximo de inactividad para una conexión
+  enableKeepAlive: true, // Reemplaza parcialmente a reconnect
+  keepAliveInitialDelay: 10000
+};
 
-// Exporta el pool con soporte para promesas (async/await)
+const pool = mysql.createPool(config);
+
 module.exports = pool.promise();

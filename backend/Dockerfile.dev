@@ -1,15 +1,31 @@
 FROM node:20-alpine
 
+# Instalar dumb-init para manejo adecuado de señales
+RUN apk add --no-cache dumb-init
+
+# Crear usuario no-root para seguridad
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodeuser -u 1001
+
 WORKDIR /app
 
-# Instalar nodemon como dependencia de desarrollo (mejor práctica que global)
-RUN npm install --save-dev nodemon
-
+# Copiar archivos de dependencias
 COPY package*.json ./
-RUN npm install -g nodemon && npm install --include=dev # Instala solo dependencias de producción (usa npm ci en producción)
+
+# Instalar dependencias (incluyendo dev dependencies para desarrollo)
+RUN npm ci --include=dev && \
+    npm cache clean --force
+
+# Copiar código fuente
 COPY . .
 
+# Cambiar permisos del directorio
+RUN chown -R nodeuser:nodejs /app
+USER nodeuser
+
+# Exponer puertos
 EXPOSE 3000 9229
 
-# Usa npx para ejecutar nodemon sin instalación global
-CMD ["npx", "nodemon", "--inspect=0.0.0.0", "index.js"]
+# Comando con dumb-init para manejo correcto de señales
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["npx", "nodemon", "--inspect=0.0.0.0:9229", "index.js"]

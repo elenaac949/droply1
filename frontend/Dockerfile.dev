@@ -1,7 +1,39 @@
 FROM node:20-alpine
 
+# Instalar dependencias necesarias
+RUN apk add --no-cache dumb-init
+
+# Configurar usuario no-root
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S angular -u 1001
+
 WORKDIR /app
+
+# Copiar archivos de configuración primero (para mejor caching de capas)
 COPY package*.json ./
-RUN npm install -g @angular/cli && npm install # Instala CLI y dependencias
+COPY angular.json .
+COPY tsconfig*.json ./
+
+# Instalar dependencias como root temporalmente
+RUN npm install -g @angular/cli@latest && \
+    npm ci --only=production=false && \
+    npm cache clean --force
+
+# Copiar el resto de archivos y cambiar permisos
+COPY --chown=angular:nodejs . .
+
+# Crear y asignar permisos al directorio de caché
+RUN mkdir -p /app/.angular/cache && \
+    chown -R angular:nodejs /app/.angular
+
+USER angular
+
+# Variables de entorno para configuración
+ENV NODE_ENV=development \
+    CHOKIDAR_USEPOLLING=true
+
 EXPOSE 4200
-CMD ng serve --host 0.0.0.0 --poll 1000 # Polling para detectar cambios
+
+# Comando optimizado para desarrollo
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "4200", "--poll", "2000"]
