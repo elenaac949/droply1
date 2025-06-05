@@ -283,77 +283,80 @@ export class WaterFormComponent {
    * Envia los datos del formulario al backend usando el servicio.
    * El usuario debe estar autenticado (se incluye token JWT).
    */
+  // Solo la parte del método onSubmit() que necesita cambios:
+
   onSubmit(): void {
-  if (this.form.invalid) {
-    const errores = this.getFormErrors();
-    errores.forEach(msg => this.showErrorSnackBar(msg));
-    return;
-  }
-
-  this.isSubmitting = true;
-
-  const raw = this.form.value;
-  const token = localStorage.getItem('token');
-
-  if (!token) {
-    this.showErrorSnackBar('No estás autenticado. Inicia sesión.');
-    this.isSubmitting = false;
-    return;
-  }
-
-  const payload: CreateWaterSourceRequest = {
-    name: raw.name ?? '',
-    description: raw.description ?? '',
-    latitude: parseFloat(raw.latitude ?? '0'),
-    longitude: parseFloat(raw.longitude ?? '0'),
-    type: raw.type ?? 'other',
-    is_accessible: !!raw.is_accessible,
-    schedule: raw.schedule ?? '',
-    country: raw.country ?? '',
-    city: raw.city ?? '',
-    postal_code: raw.postal_code ?? '',
-    address: raw.address ?? '',
-    is_osm: false,
-    osm_id: null
-  };
-
-  // Paso 1: Crear la fuente
-  this.waterSourceService.createWaterSource(payload).subscribe({
-    next: (res) => {
-      const sourceId = res.id;
-
-      if (this.photoFiles.length > 0) {
-        // Paso 2: Subir fotos con water_source_id
-        this.photoService.uploadPhotos(this.photoFiles, token, sourceId).subscribe({
-          next: () => {
-            this.showSuccessSnackBar('Fuente y fotos subidas correctamente.');
-            this.router.navigate(['/']);
-          },
-          error: (err) => {
-            console.error('Error al subir las fotos:', err);
-            this.showErrorSnackBar('Fuente creada, pero ocurrió un error al subir las fotos.');
-            this.router.navigate(['/']);
-          }
-        });
-      } else {
-        this.showSuccessSnackBar('Fuente creada correctamente.');
-        this.router.navigate(['/']);
-      }
-
-      this.isSubmitting = false;
-    },
-    error: (err) => {
-      this.isSubmitting = false;
-      if (err.message === 'Token de autenticación requerido') {
-        this.showErrorSnackBar('No estás autenticado. Inicia sesión para añadir fuentes.');
-      } else if (err.status === 400 && err.error?.error === 'Ya existe una fuente en esa ubicación.') {
-        this.showErrorSnackBar('Ya existe una fuente en esa ubicación.');
-      } else {
-        this.showErrorSnackBar('Error al crear la fuente.');
-        console.error(err);
-      }
+    if (this.form.invalid) {
+      const errores = this.getFormErrors();
+      errores.forEach(msg => this.showErrorSnackBar(msg));
+      return;
     }
-  });
-}
+
+    this.isSubmitting = true;
+
+    const raw = this.form.value;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      this.showErrorSnackBar('No estás autenticado. Inicia sesión.');
+      this.isSubmitting = false;
+      return;
+    }
+
+    const payload: CreateWaterSourceRequest = {
+      name: raw.name ?? '',
+      description: raw.description ?? '',
+      latitude: parseFloat(raw.latitude ?? '0'),
+      longitude: parseFloat(raw.longitude ?? '0'),
+      type: raw.type ?? 'other',
+      is_accessible: !!raw.is_accessible,
+      schedule: raw.schedule ?? '',
+      country: raw.country ?? '',
+      city: raw.city ?? '',
+      postal_code: raw.postal_code ?? '',
+      address: raw.address ?? '',
+      is_osm: false,
+      osm_id: null
+    };
+
+    // Paso 1: Crear la fuente
+    this.waterSourceService.createWaterSource(payload).subscribe({
+      next: (res) => {
+        const sourceId = res.id;
+        console.log(res.id);
+        if (this.photoFiles.length > 0) {
+          // Paso 2: Subir fotos con water_source_id (CORREGIDO: pasar sourceId como number)
+          this.photoService.uploadPhotos(this.photoFiles, token, sourceId).subscribe({
+            next: (photoUrls) => {
+              console.log('Photos uploaded successfully:', photoUrls);
+              this.showSuccessSnackBar('Fuente y fotos subidas correctamente.');
+              this.router.navigate(['/']);
+            },
+            error: (err) => {
+              console.error('Error al subir las fotos:', err);
+              this.showErrorSnackBar('Fuente creada, pero ocurrió un error al subir las fotos.');
+              this.router.navigate(['/']);
+            }
+          });
+        } else {
+          this.showSuccessSnackBar('Fuente creada correctamente.');
+          this.router.navigate(['/']);
+        }
+
+        this.isSubmitting = false;
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        if (err.message === 'Token de autenticación requerido') {
+          this.showErrorSnackBar('No estás autenticado. Inicia sesión para añadir fuentes.');
+        } else if (err.status === 400 && err.error?.error === 'Ya existe una fuente en esa ubicación.') {
+          this.showErrorSnackBar('Ya existe una fuente en esa ubicación.');
+        } else {
+          this.showErrorSnackBar('Error al crear la fuente.');
+          console.error(err);
+        }
+      }
+    });
+  }
 
 }

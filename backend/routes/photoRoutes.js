@@ -1,35 +1,21 @@
+// routes/photoRoutes.js
 const express = require('express');
 const router = express.Router();
-
 const PhotoController = require('../controllers/photoController');
-const isAuth = require('../middlewares/authMiddleware');
-const upload = require('../middlewares/multer'); // debes tener multer configurado
+const upload = require('../middlewares/multer');
+const auth = require('../middlewares/authMiddleware'); 
 
-// Subir una nueva foto (requiere autenticación y archivo)
-router.post('/', isAuth, upload.single('file'), PhotoController.uploadPhoto);
+// Ruta para subir foto
+router.post('/upload', auth, upload.single('photo'), PhotoController.uploadPhoto);
 
-// Obtener todas las fotos (con filtros opcionales)
-router.get('/', PhotoController.getAllPhotos);
-
-// Obtener una foto por su ID
-router.get('/:id', PhotoController.getPhotoById);
-
-// Obtener fotos por fuente de agua
+// Otras rutas
+router.get('/', auth, PhotoController.getAllPhotos);
+router.get('/my-photos', auth, PhotoController.getMyPhotos);
+router.get('/pending', auth, PhotoController.getPendingPhotos); // Solo admin
 router.get('/water-source/:waterSourceId', PhotoController.getPhotosByWaterSource);
-
-// Obtener fotos por reseña
 router.get('/review/:reviewId', PhotoController.getPhotosByReview);
-
-// Obtener fotos del usuario autenticado
-router.get('/mine', isAuth, PhotoController.getMyPhotos);
-
-// Actualizar el estado de una foto (requiere autenticación, normalmente admin)
-router.patch('/:id/status', isAuth, PhotoController.updatePhotoStatus);
-
-// Eliminar una foto (requiere autenticación y permisos del usuario o admin)
-router.delete('/:id', isAuth, PhotoController.deletePhoto);
-
-// Obtener fotos pendientes de moderación (requiere autenticación, normalmente admin)
-router.get('/moderation/pending', isAuth, PhotoController.getPendingPhotos);
+router.get('/:id', PhotoController.getPhotoById);
+router.patch('/:id/status', auth, PhotoController.updatePhotoStatus); // Solo admin
+router.delete('/:id', auth, PhotoController.deletePhoto);
 
 module.exports = router;

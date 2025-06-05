@@ -41,15 +41,15 @@ module.exports = class WaterSource {
   /**
    * Guarda una nueva fuente de agua en la base de datos.
    * @param {WaterSource} waterSource - Objeto fuente a guardar.
-   * @returns {Promise}
+   * @returns {Promise<string>} - ID de la fuente creada
    */
   static async save(waterSource) {
     const query = `
-    INSERT INTO water_sources 
-     (id, name, description, latitude, longitude, type, is_accessible, schedule, 
-      country, city, postal_code, address, user_id, is_osm, osm_id, status)
-     VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+      INSERT INTO water_sources 
+        (name, description, latitude, longitude, type, is_accessible, schedule,
+         country, city, postal_code, address, user_id, is_osm, osm_id, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
     const values = [
       waterSource.name ?? null,
@@ -69,9 +69,45 @@ module.exports = class WaterSource {
       waterSource.status ?? 'pending'
     ];
 
-    console.log('VALORES A GUARDAR:', values);
-    console.log('Valores que se van a insertar:', values);
-    return db.execute(query, values);
+    // Ejecutar la consulta
+    const [result] = await db.execute(query, values);
+    
+    // Opción 2: Si usas UUID generado por la DB, obtener el último insertado
+    // Más confiable usar una transacción o LAST_INSERT_ID()
+    const [rows] = await db.execute(`
+      SELECT id FROM water_sources 
+      WHERE latitude = ? AND longitude = ? AND user_id = ?
+      ORDER BY created_at DESC LIMIT 1
+    `, [
+      parseFloat(waterSource.latitude ?? 0), 
+      parseFloat(waterSource.longitude ?? 0),
+      waterSource.user_id
+    ]);
+
+    if (rows.length === 0) {
+      throw new Error('No se pudo recuperar el ID de la fuente creada');
+    }
+
+    return rows[0].id;
+  }
+
+  /**
+   * Verifica si existe una fuente en las coordenadas especificadas.
+   * @param {number} latitude - Latitud
+   * @param {number} longitude - Longitud
+   * @returns {Promise<Array>} - Resultado de la consulta
+   */
+  static async existsAtCoordinates(latitude, longitude) {
+    const query = `
+      SELECT COUNT(*) as count 
+      FROM water_sources 
+      WHERE ABS(latitude - ?) < 0.0001 AND ABS(longitude - ?) < 0.0001
+    `;
+    
+    return await db.execute(query, [
+      parseFloat(latitude), 
+      parseFloat(longitude)
+    ]);
   }
 
 

@@ -1,10 +1,9 @@
 const Photo = require('../models/photoModel');
 const { validationResult } = require('express-validator');
 const fs = require('fs').promises; // Para eliminar archivos temporales
+const path = require('path');
 
 class PhotoController {
-  
-
   static async uploadPhoto(req, res) {
     try {
       const user_id = req.user.id;
@@ -239,15 +238,6 @@ class PhotoController {
         });
       }
 
-      // Eliminar de Cloudinary si tiene cloudinary_id
-      if (photo.cloudinary_id) {
-        try {
-          await cloudinary.uploader.destroy(photo.cloudinary_id);
-        } catch (cloudinaryError) {
-          console.warn('Error al eliminar imagen de Cloudinary:', cloudinaryError.message);
-          // Continuamos con la eliminación de la base de datos aunque falle Cloudinary
-        }
-      }
 
       // Eliminar de la base de datos
       const deleted = await Photo.delete(id);
