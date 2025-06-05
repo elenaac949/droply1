@@ -12,29 +12,31 @@ class Photo {
   }
 
   // Crear una nueva foto
-  static async create(photoData) {
-    const { water_source_id, review_id, user_id, url } = photoData;
-    const id = uuidv4();
-    
-    const query = `
-      INSERT INTO photos (id, water_source_id, review_id, user_id, url, status)
-      VALUES (?, ?, ?, ?, ?, 'pending')
-    `;
-    
-    try {
-      const [result] = await db.execute(query, [
-        id, 
-        water_source_id || null, 
-        review_id || null, 
-        user_id, 
-        url
-      ]);
-      
-      return await this.findById(id);
-    } catch (error) {
-      throw error;
-    }
+  static async save(data) {
+  const query = `
+    INSERT INTO photos (
+      id, water_source_id, review_id, user_id,
+      url, status, created_at
+    )
+    VALUES (UUID(), ?, ?, ?, ?, ?, NOW())
+  `;
+
+  const values = [
+    data.water_source_id || null,
+    data.review_id || null,
+    data.user_id,
+    data.url,
+    data.status || 'pending'
+  ];
+
+  try {
+    await db.execute(query, values);
+    return true;
+  } catch (error) {
+    throw error;
   }
+}
+
 
   // Encontrar foto por ID
   static async findById(id) {

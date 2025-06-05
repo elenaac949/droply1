@@ -131,7 +131,7 @@
       <!-- Modal de vista previa de imagen -->
       <div class="image-modal" [class.active]="selectedPhoto" (click)="closePreview()">
         <div class="image-modal-content" (click)="$event.stopPropagation()">
-          <img [src]="selectedPhoto" alt="Vista previa" />
+          <img [src]="selectedPhoto" alt="Vista previa de una imagen ampliada" />
           <button mat-icon-button class="close-btn" (click)="closePreview()">
             <mat-icon>close</mat-icon>
           </button>

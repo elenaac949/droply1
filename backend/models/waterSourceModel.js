@@ -50,6 +50,7 @@ module.exports = class WaterSource {
         country, city, postal_code, address, user_id, is_osm, osm_id, status)
        VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
+        waterSource.id,
         waterSource.name,
         waterSource.description,
         waterSource.latitude,

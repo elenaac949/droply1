@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
 const WaterSource = require('../models/waterSourceModel');
 
@@ -28,8 +29,9 @@ exports.createWaterSource = async (req, res) => {
     if (count > 0) {
       return res.status(400).json({ error: 'Ya existe una fuente en esa ubicación.' });
     }
-
-    const fuente = new WaterSource(
+/* generamos el id diectamente aqui en vez de en la base de datos */
+    const id = uuidv4();
+    const fuente = new WaterSource(id,
       name, description, latitude, longitude, type,
       is_accessible, schedule, country, city, postal_code,
       address, user_id, is_osm, osm_id
@@ -40,6 +42,7 @@ exports.createWaterSource = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Fuente creada correctamente.',
+      id
     });
 
   } catch (err) {
