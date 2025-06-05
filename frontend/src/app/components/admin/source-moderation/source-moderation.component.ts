@@ -1,6 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { WaterSource } from '../../../services/water-source.service';
-
 /**
  * Pipe para filtrar fuentes por estado, tipo y accesibilidad.
  */
@@ -57,6 +56,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 
 import { WaterSourceService } from '../../../services/water-source.service';
+import { PhotoService, Photo } from '../../../services/photo.service';
+import { environment } from '../../../environments/environment';
+
 
 /**
  * Componente para la moderación de fuentes de agua.
@@ -109,8 +111,9 @@ export class SourceModerationComponent implements OnInit {
   constructor(
     private waterSourceService: WaterSourceService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
-  ) {}
+    private snackBar: MatSnackBar,
+    private photoService: PhotoService
+  ) { }
 
   /**
    * Inicializa la carga de datos al montar el componente.
@@ -124,21 +127,26 @@ export class SourceModerationComponent implements OnInit {
    * Carga fuentes pendientes de moderación.
    */
   loadPendingSources(): void {
-    this.isLoading = true;
-    this.errorMessage = null;
+  this.isLoading = true;
+  this.errorMessage = null;
 
-    this.waterSourceService.getPendingSources().subscribe({
-      next: (sources) => {
-        this.pendingSources = sources;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading sources:', err);
-        this.errorMessage = 'Error al cargar fuentes pendientes';
-        this.isLoading = false;
-      }
-    });
-  }
+  this.waterSourceService.getPendingSources().subscribe({
+    next: (sources) => {
+      this.pendingSources = sources.map(source => ({
+        ...source,
+        photos: []
+      }));
+      this.isLoading = false;
+      this.loadPhotos(); /* cargar las fotos asociadas  */
+    },
+    error: (err) => {
+      console.error('Error loading sources:', err);
+      this.errorMessage = 'Error al cargar fuentes pendientes';
+      this.isLoading = false;
+    }
+  });
+}
+
 
   /**
    * Carga todas las fuentes existentes.
@@ -269,4 +277,37 @@ export class SourceModerationComponent implements OnInit {
       });
     }
   }
+
+  selectedPhotoUrl: string | null = null;
+  baseUrl = environment.apiUrl;
+  openPhotoModal(url: string): void {
+    this.selectedPhotoUrl = url;
+  }
+
+  closePhotoModal(): void {
+    this.selectedPhotoUrl = null;
+  }
+
+
+  loadPhotos(): void {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    this.pendingSources.forEach(source => {
+      this.photoService.getPhotosByWaterSource(source.id, token).subscribe({
+        next: photos => {
+          source.photos = photos.map(photo => ({
+            ...photo,
+            url: `${this.baseUrl}${photo.url}`
+          }));
+        },
+        error: err => {
+          console.error(`Error al cargar fotos de la fuente ${source.id}:`, err);
+        }
+      });
+    });
+  }
+
+
+
 }

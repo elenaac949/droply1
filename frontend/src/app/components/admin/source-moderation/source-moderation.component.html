@@ -52,6 +52,26 @@
             <span *ngIf="source.postal_code">({{ source.postal_code }})</span>
           </p>
         </div>
+
+        <!-- Galería de fotos si hay -->
+        <div class="photo-gallery" *ngIf="source.photos?.length > 0">
+          <h4>Fotos asociadas</h4>
+          <div class="photo-list">
+            <img *ngFor="let photo of source.photos" [src]="photo.url" alt="Foto" class="thumb"
+              (click)="openPhotoModal(photo.url)" />
+          </div>
+        </div>
+
+
+        <!-- Modal de imagen -->
+        <div class="image-modal" *ngIf="selectedPhotoUrl" (click)="closePhotoModal()">
+          <div class="image-modal-content" (click)="$event.stopPropagation()">
+            <img [src]="selectedPhotoUrl" alt="Vista previa de imagen" />
+            <button mat-icon-button class="close-btn" (click)="closePhotoModal()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
       </mat-card-content>
 
       <mat-card-actions>
