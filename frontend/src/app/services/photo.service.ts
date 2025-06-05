@@ -142,18 +142,7 @@ export class PhotoService {
       .pipe(map(res => res.data));
   }
 
-  /**
-   * Actualiza el estado de una foto (para moderación)
-   * @param id ID de la foto
-   * @param status Nuevo estado
-   * @param token Token de autenticación
-   * @returns Observable con la foto actualizada
-   */
-  updatePhotoStatus(id: string, status: 'pending' | 'approved' | 'rejected', token: string): Observable<Photo> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.patch<{ success: boolean, data: Photo }>(`${this.apiUrl}/${id}/status`, { status }, { headers })
-      .pipe(map(res => res.data));
-  }
+
 
   /**
    * Elimina una foto
@@ -166,14 +155,5 @@ export class PhotoService {
     return this.http.delete<{ success: boolean, message: string }>(`${this.apiUrl}/${id}`, { headers });
   }
 
-  /**
-   * Obtiene fotos pendientes de moderación (solo admin)
-   * @param token Token de autenticación
-   * @returns Observable con array de fotos pendientes
-   */
-  getPendingPhotos(token: string): Observable<Photo[]> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<{ success: boolean, data: Photo[], count: number }>(`${this.apiUrl}/pending`, { headers })
-      .pipe(map(res => res.data));
-  }
+
 }

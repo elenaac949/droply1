@@ -127,8 +127,15 @@ export class ReviewsComponent implements OnInit {
 
     this.photoService.getPhotosByWaterSource(this.waterSourceId, token)
       .subscribe({
-        next: data => this.photos.set(data.filter(p => p.status === 'approved')),
-        error: err => console.error('Error al cargar fotos:', err)
+        next: data => {
+          console.log(this.waterSourceId);
+          console.log('✅ Fotos cargadas:', data);
+          console.log(this.baseUrl);
+          this.photos.set(data);
+        },
+        error: err => console.error('❌ Error al cargar fotos:', err)
       });
   }
+
+
 }
