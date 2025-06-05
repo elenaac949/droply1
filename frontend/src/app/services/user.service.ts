@@ -116,30 +116,42 @@ export class UserService {
   }
 
 
-  uploadProfileImage(userId: string, imageFile: File): Observable<any> {
-    const formData = new FormData();
-    formData.append('image', imageFile);
+uploadProfileImage(userId: string, imageFile: File): Observable<{ imageUrl: string }> {
+  const formData = new FormData();
+  formData.append('photo', imageFile);
 
-    // Add debug logging
-    console.log('Uploading file:', {
-      name: imageFile.name,
-      size: imageFile.size,
-      type: imageFile.type
-    });
+  console.log('Uploading file:', {
+    name: imageFile.name,
+    size: imageFile.size,
+    type: imageFile.type
+  });
 
-    return this.http.put(`${this.apiUrl}/${userId}/profile-picture`, formData, {
+  return this.http.put<{ imageUrl: string }>(
+    `${this.apiUrl}/${userId}/profile-picture`, 
+    formData, 
+    {
       headers: {
-        // 'Content-Type' is set automatically by FormData
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-    }).pipe(
-      tap(response => console.log('Upload success:', response)),
-      catchError(error => {
-        console.error('Upload error:', error);
-        return throwError(error);
-      })
-    );
-  }
+    }
+  ).pipe(
+    tap(response => {
+      console.log('Upload success:', response);
+      // Forzar actualización de caché
+      if (response.imageUrl) {
+        response.imageUrl = `${response.imageUrl}?t=${Date.now()}`;
+      }
+    }),
+    catchError(error => {
+      console.error('Upload error:', error);
+      return throwError(() => new Error(
+        error.error?.message || 
+        'Error al subir la imagen. Por favor, inténtalo de nuevo.'
+      ));
+    })
+  );
+}
+
 
   deleteProfilePicture(userId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${userId}/profile-picture`, {

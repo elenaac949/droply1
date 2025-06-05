@@ -234,45 +234,67 @@ exports.updatePassword = async (req, res) => {
 
 };
 
-  /**
- * Sube una imagen de perfil a Cloudinary y guarda la URL en la base de datos.
- * 
- * @route PUT /users/:id/profile-picture
- * @param {Request} req - Imagen en el cuerpo.
- * @param {Response} res - URL subida o error.
- */
+/**
+* Sube una imagen de perfil 
+* 
+* @route PUT /users/:id/profile-picture
+* @param {Request} req - Imagen en el cuerpo.
+* @param {Response} res - URL subida o error.
+*/
+
 exports.uploadProfilePicture = async (req, res) => {
   const { id } = req.params;
 
+  // Debug: Verificar archivo recibido
+  console.log('Archivo recibido:', req.file);
+  
   if (!req.file) {
-    return res.status(400).json({ error: 'No se ha proporcionado ninguna imagen' });
+    return res.status(400).json({ 
+      success: false,
+      error: 'No se ha subido ningún archivo' 
+    });
   }
 
-  // Verificar si el usuario existe
   try {
+    // 1. Verificar que el usuario existe
     const [user] = await User.findById(id);
-    if (!user || user.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!user) {
+      // Eliminar archivo subido si el usuario no existe
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ 
+        success: false,
+        error: 'Usuario no encontrado' 
+      });
     }
-  } catch (err) {
-    return res.status(500).json({ error: 'Error al verificar el usuario' });
-  }
 
-  try {
-    // Guardar la ruta relativa en la base de datos
+    // 2. Construir ruta relativa (sin /public)
     const relativePath = `/uploads/profile-pictures/${req.file.filename}`;
+    
+    // 3. Actualizar en base de datos
     await User.updateProfilePicture(id, relativePath);
 
+    // Devuelve la URL COMPLETA 
+    const fullUrl = `${req.protocol}://${req.get('host')}${relativePath}`;
+
+    // 4. Responder con éxito
     return res.status(200).json({
       success: true,
       message: 'Imagen de perfil actualizada',
-      profile_picture: relativePath  
+      imageUrl: fullUrl
     });
-  } catch (err) {
-    console.error('Error al guardar la imagen:', err);
+
+  } catch (error) {
+    console.error('Error detallado:', error);
+    
+    // Eliminar archivo si hubo error
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
     return res.status(500).json({
-      error: 'Fallo al guardar la imagen',
-      details: err.message
+      success: false,
+      error: 'Error al procesar la imagen',
+      details: process.env.NODE_ENV === 'development' ? error.message : null
     });
   }
 };

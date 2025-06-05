@@ -45,4 +45,4 @@ const uploadProfilePicture = multer({
   }
 });
 
-module.exports = uploadProfilePicture;
+module.exports = uploadProfilePicture.single('photo'); 

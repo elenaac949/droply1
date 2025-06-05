@@ -1,6 +1,5 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const uploadProfilePicture = require('../middlewares/profileMulter');
@@ -9,8 +8,7 @@ const router = express.Router();
 
 
 
-router.put('/:id/profile-picture', authMiddleware, uploadProfilePicture.single('photo'), userController.uploadProfilePicture);
-
+router.put('/:id/profile-picture', authMiddleware, uploadProfilePicture, userController.uploadProfilePicture);
 router.delete('/:id/profile-picture', authMiddleware, userController.deleteProfilePicture);
 
 /**

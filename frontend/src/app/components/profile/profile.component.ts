@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { UserService, User } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule, NgIf } from '@angular/common';
@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { ViewChild, ElementRef } from '@angular/core';
@@ -28,7 +29,8 @@ import { ViewChild, ElementRef } from '@angular/core';
     MatFormFieldModule,
     MatInputModule,
     MatSnackBarModule,
-    MatIcon
+    MatIcon,
+    MatProgressSpinnerModule
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
@@ -71,6 +73,12 @@ export class ProfileComponent implements OnInit {
   /** Evento del input de imagen */
   imageChangedEvent: any = '';
 
+  /** Timestamp para cache busting de imágenes */
+  imageTimestamp = Date.now();
+
+  /** Flag para mostrar estado de carga de imagen */
+  isUploading = false;
+
   /** Imagen recortada lista para subir */
   croppedImage: any = '';
 
@@ -81,8 +89,9 @@ export class ProfileComponent implements OnInit {
     private userService: UserService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private router: Router
-  ) {}
+    private router: Router,
+    private changeDetector: ChangeDetectorRef
+  ) { }
 
   /**
    * Inicializa el componente cargando los datos del usuario actual.
@@ -265,6 +274,25 @@ export class ProfileComponent implements OnInit {
     this.fileInput.nativeElement.click();
   }
 
+
+  // Método para manejar carga exitosa de imagen
+  onImageLoad() {
+    console.log('Imagen cargada correctamente');
+  }
+
+  /**
+ * Método para manejar errores de carga
+ * @returns void
+ */
+  onImageError(): void {
+    console.error('Error al cargar la imagen');
+    if (this.user) {
+      this.user.profile_picture = '';
+      this.imageTimestamp = Date.now();
+    }
+  }
+
+
   /**
    * Procesa el archivo seleccionado para subir como imagen de perfil.
    * @param event - Evento de selección de archivo
@@ -288,22 +316,39 @@ export class ProfileComponent implements OnInit {
   }
 
   /**
-   * Sube la imagen de perfil al servidor.
-   * @param file - Archivo seleccionado
-   * @returns void
-   */
-  uploadImage(file: File): void {
+ * Sube la imagen de perfil al servidor.
+ * @param file - Archivo seleccionado
+ */
+   uploadImage(file: File): void {
     if (!this.user) return;
+
+    this.isUploading = true;
 
     this.userService.uploadProfileImage(this.user.id, file).subscribe({
       next: (response) => {
-        if (this.user) {
-          this.user.profile_picture = response.profile_picture;
+        if (this.user && response.imageUrl) {
+          // Actualiza la URL con cache busting
+          this.user.profile_picture = response.imageUrl;
+          this.imageTimestamp = Date.now();
+          
+          // Forzar detección de cambios
+          this.changeDetector.detectChanges();
         }
-        this.snackBar.open('Imagen de perfil actualizada', 'Cerrar', { duration: 3000 });
+        
+        this.snackBar.open('Imagen actualizada correctamente', 'Cerrar', { 
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
       },
-      error: () => {
-        this.snackBar.open('Error al subir la imagen', 'Cerrar', { duration: 3000 });
+      error: (error) => {
+        console.error('Error:', error);
+        this.snackBar.open(error.message || 'Error al subir la imagen', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      },
+      complete: () => {
+        this.isUploading = false;
       }
     });
   }
@@ -313,16 +358,19 @@ export class ProfileComponent implements OnInit {
    * @returns void
    */
   removeProfilePicture(): void {
-    if (!this.user) return;
+    if (!this.user || !this.user.profile_picture) return;
 
-    this.userService.deleteProfilePicture(this.user.id).subscribe({
-      next: () => {
-        this.user!.profile_picture = '';
-        this.snackBar.open('Foto de perfil eliminada', 'Cerrar', { duration: 3000 });
-      },
-      error: () => {
-        this.snackBar.open('Error al eliminar la foto de perfil', 'Cerrar', { duration: 3000 });
-      }
-    });
+    if (confirm('¿Estás seguro de que quieres eliminar tu foto de perfil?')) {
+      this.userService.deleteProfilePicture(this.user.id).subscribe({
+        next: () => {
+          this.user!.profile_picture = '';
+          this.imageTimestamp = Date.now();
+          this.snackBar.open('Foto eliminada', 'Cerrar', { duration: 3000 });
+        },
+        error: () => {
+          this.snackBar.open('Error al eliminar la foto', 'Cerrar', { duration: 3000 });
+        }
+      });
+    }
   }
 }
