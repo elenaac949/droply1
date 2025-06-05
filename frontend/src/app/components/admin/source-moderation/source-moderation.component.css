@@ -318,10 +318,11 @@
 
 .close-icon {
   font-size: 24px;
+  font-weight: 600;
   width: 24px;
   height: 24px;
   cursor: pointer;
-  color: #007acc;
+  color: #007acc ;
   transition: color 0.2s ease;
 }
 
