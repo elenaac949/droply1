@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PhotoService, Photo } from '../../services/photo.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { WaterSourceService } from '../../services/water-source.service';
+import { WaterSourceService, CreateWaterSourceRequest } from '../../services/water-source.service';
 
 /**
  * Componente de formulario para añadir una nueva fuente de agua.
@@ -42,9 +41,6 @@ export class WaterFormComponent {
   /** FormBuilder inyectado para construir el formulario */
   private fb = inject(FormBuilder);
 
-  /** Cliente HTTP para envío de datos al backend */
-  private http = inject(HttpClient);
-
   /** Router para redirigir tras enviar el formulario */
   private router = inject(Router);
 
@@ -54,7 +50,8 @@ export class WaterFormComponent {
   /** Servicio de fotos para subir a Cloudinary */
   private photoService = inject(PhotoService);
 
-  private waterSourceService=inject(WaterSourceService);
+  /** Servicio de fuentes de agua */
+  private waterSourceService = inject(WaterSourceService);
 
   photos: string[] = [];
   photoFiles: File[] = [];
@@ -86,7 +83,6 @@ export class WaterFormComponent {
     postal_code: ['', Validators.maxLength(20)],
     address: ['', Validators.maxLength(255)]
   });
-  
 
   onFileSelected(event: any): void {
     const files = event.target.files;
@@ -184,29 +180,19 @@ export class WaterFormComponent {
     return `${label} no es válido`;
   }
 
-
-
   /**
-   * Asocia las URLs de las fotos con la fuente de agua en el backend
+   * Asocia las URLs de las fotos con la fuente de agua usando el servicio
    */
   private associatePhotosWithWaterSource(waterSourceId: number, photoUrls: string[]): void {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    this.http.post(
-      `http://localhost:3000/api/water-sources/${waterSourceId}/photos`,
-      { photos: photoUrls },
-      { headers: { Authorization: `Bearer ${token}` } }
-    ).subscribe({
-      next: () => console.log('Photos associated successfully'),
-      error: (err) => {
-        console.error('Error associating photos:', err);
-        this.showErrorSnackBar('Error al asociar las fotos con la fuente');
-      }
-    });
+    this.waterSourceService.associatePhotosWithWaterSource(waterSourceId, photoUrls)
+      .subscribe({
+        next: () => console.log('Photos associated successfully'),
+        error: (err) => {
+          console.error('Error associating photos:', err);
+          this.showErrorSnackBar('Error al asociar las fotos con la fuente');
+        }
+      });
   }
-
-
 
   getCurrentLocation(): void {
     this.isGeolocating = true;
@@ -257,72 +243,53 @@ export class WaterFormComponent {
     }
   }
 
-
-
-
   /**
-   * Envia los datos del formulario al backend.
+   * Envia los datos del formulario al backend usando el servicio.
    * El usuario debe estar autenticado (se incluye token JWT).
    */
-
-
   onSubmit(): void {
-  if (this.form.valid) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      this.showErrorSnackBar('No estás autenticado. Inicia sesión para añadir fuentes.');
-      return;
-    }
+    if (this.form.valid) {
+      this.isSubmitting = true;
 
-    this.isSubmitting = true;
+      const raw = this.form.value;
 
-    const raw = this.form.value;
+      const payload: CreateWaterSourceRequest = {
+        name: raw.name ?? '',
+        description: raw.description ?? '',
+        latitude: parseFloat(raw.latitude ?? '0'),
+        longitude: parseFloat(raw.longitude ?? '0'),
+        type: raw.type ?? 'other',
+        is_accessible: !!raw.is_accessible,
+        schedule: raw.schedule ?? '',
+        country: raw.country ?? '',
+        city: raw.city ?? '',
+        postal_code: raw.postal_code ?? '',
+        address: raw.address ?? '',
+        is_osm: false,
+        osm_id: null
+      };
 
-    const payload = {
-      name: raw.name ?? '',
-      description: raw.description ?? '',
-      latitude: parseFloat(raw.latitude ?? '0'),
-      longitude: parseFloat(raw.longitude ?? '0'),
-      type: raw.type ?? 'other',
-      is_accessible: !!raw.is_accessible,
-      schedule: raw.schedule ?? '',
-      country: raw.country ?? '',
-      city: raw.city ?? '',
-      postal_code: raw.postal_code ?? '',
-      address: raw.address ?? '',
-      is_osm: false,
-      osm_id: null
-    };
-
-    this.http.post<any>('http://localhost:3000/api/water-sources', payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
-      next: () => {
-        this.showSuccessSnackBar('Fuente creada correctamente.');
-        this.router.navigate(['/']);
-        this.isSubmitting = false;
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        if (err.status === 400 && err.error?.error === 'Ya existe una fuente en esa ubicación.') {
-          this.showErrorSnackBar('Ya existe una fuente en esa ubicación.');
-        } else {
-          this.showErrorSnackBar('Error al crear la fuente.');
-          console.error(err);
+      this.waterSourceService.createWaterSource(payload).subscribe({
+        next: (response) => {
+          this.showSuccessSnackBar('Fuente creada correctamente.');
+          this.router.navigate(['/']);
+          this.isSubmitting = false;
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          if (err.message === 'Token de autenticación requerido') {
+            this.showErrorSnackBar('No estás autenticado. Inicia sesión para añadir fuentes.');
+          } else if (err.status === 400 && err.error?.error === 'Ya existe una fuente en esa ubicación.') {
+            this.showErrorSnackBar('Ya existe una fuente en esa ubicación.');
+          } else {
+            this.showErrorSnackBar('Error al crear la fuente.');
+            console.error(err);
+          }
         }
-      }
-    });
-  } else {
-    const errores = this.getFormErrors();
-    errores.forEach(msg => this.showErrorSnackBar(msg));
+      });
+    } else {
+      const errores = this.getFormErrors();
+      errores.forEach(msg => this.showErrorSnackBar(msg));
+    }
   }
-}
-
-
-
-
-
-
-
-
 }
