@@ -43,32 +43,37 @@ module.exports = class WaterSource {
    * @param {WaterSource} waterSource - Objeto fuente a guardar.
    * @returns {Promise}
    */
-  static save(waterSource) {
-    return db.execute(
-      `INSERT INTO water_sources 
-       (id, name, description, latitude, longitude, type, is_accessible, schedule, 
-        country, city, postal_code, address, user_id, is_osm, osm_id, status)
-       VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        waterSource.id,
-        waterSource.name,
-        waterSource.description,
-        waterSource.latitude,
-        waterSource.longitude,
-        waterSource.type,
-        waterSource.is_accessible ?? false,
-        waterSource.schedule,
-        waterSource.country,
-        waterSource.city,
-        waterSource.postal_code,
-        waterSource.address,
-        waterSource.user_id ?? null,
-        waterSource.is_osm ?? false,
-        waterSource.osm_id ?? null,
-        waterSource.status ?? 'approved'
-      ]
-    );
+  static async save(waterSource) {
+    const query = `
+    INSERT INTO water_sources 
+     (id, name, description, latitude, longitude, type, is_accessible, schedule, 
+      country, city, postal_code, address, user_id, is_osm, osm_id, status)
+     VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+    const values = [
+      waterSource.name ?? null,
+      waterSource.description ?? null,
+      parseFloat(waterSource.latitude ?? 0),
+      parseFloat(waterSource.longitude ?? 0),
+      waterSource.type ?? null,
+      waterSource.is_accessible ?? false,
+      waterSource.schedule ?? null,
+      waterSource.country ?? null,
+      waterSource.city ?? null,
+      waterSource.postal_code ?? null,
+      waterSource.address ?? null,
+      waterSource.user_id ?? null,
+      waterSource.is_osm ?? false,
+      waterSource.osm_id ?? null,
+      waterSource.status ?? 'pending'
+    ];
+
+    console.log('VALORES A GUARDAR:', values);
+    console.log('Valores que se van a insertar:', values);
+    return db.execute(query, values);
   }
+
 
   /**
    * Devuelve todas las fuentes con información del usuario que las creó.
@@ -211,20 +216,20 @@ module.exports = class WaterSource {
   /* obtener la ultima fuente de agua teniendo en cuenta el usuairo y las coordendas */
 
   static async findLastByUser(user_id) {
-  const query = `
+    const query = `
     SELECT * FROM water_sources
     WHERE user_id = ?
     ORDER BY created_at DESC
     LIMIT 1
   `;
 
-  try {
-    const [rows] = await db.execute(query, [user_id]);
-    return rows.length > 0 ? rows[0] : null;
-  } catch (error) {
-    throw error;
+    try {
+      const [rows] = await db.execute(query, [user_id]);
+      return rows.length > 0 ? rows[0] : null;
+    } catch (error) {
+      throw error;
+    }
   }
-}
 
 
 

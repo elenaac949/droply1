@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const PhotoController = require('../controllers/photoController');
-const isAuth = require('../middlewares/isAuth');
+const isAuth = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/multer'); // debes tener multer configurado
 
 // Subir una nueva foto (requiere autenticación y archivo)

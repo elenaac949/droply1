@@ -29,13 +29,27 @@ exports.createWaterSource = async (req, res) => {
     if (count > 0) {
       return res.status(400).json({ error: 'Ya existe una fuente en esa ubicación.' });
     }
-/* generamos el id diectamente aqui en vez de en la base de datos */
+    /* generamos el id diectamente aqui en vez de en la base de datos */
     const id = uuidv4();
-    const fuente = new WaterSource(id,
-      name, description, latitude, longitude, type,
-      is_accessible, schedule, country, city, postal_code,
-      address, user_id, is_osm, osm_id
-    );
+    const fuente = {
+      id,
+      name: name ?? null,
+      description: description ?? null,
+      latitude: latitude ?? null,
+      longitude: longitude ?? null,
+      type: type ?? null,
+      is_accessible: is_accessible ?? false,
+      schedule: schedule ?? null,
+      country: country ?? null,
+      city: city ?? null,
+      postal_code: postal_code ?? null,
+      address: address ?? null,
+      user_id: user_id ?? null,
+      is_osm: is_osm ?? false,
+      osm_id: osm_id ?? null,
+      status: 'pending'
+    };
+
 
     await WaterSource.save(fuente);
 
