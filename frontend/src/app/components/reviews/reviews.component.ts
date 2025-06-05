@@ -1,7 +1,10 @@
 import { Component, Input, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ReviewService,CreateReviewRequest } from '../../services/review.service';
+import { ReviewService, CreateReviewRequest } from '../../services/review.service';
+import { PhotoService, Photo } from '../../services/photo.service';
+import { environment } from '../../environments/environment';
+
 
 /**
  * Componente que muestra las valoraciones de una fuente de agua,
@@ -15,6 +18,7 @@ import { ReviewService,CreateReviewRequest } from '../../services/review.service
   styleUrl: './reviews.component.css'
 })
 export class ReviewsComponent implements OnInit {
+
 
   /** ID de la fuente de agua de la cual se mostrarán/enviarán valoraciones */
   @Input() waterSourceId!: string;
@@ -37,8 +41,18 @@ export class ReviewsComponent implements OnInit {
     comment: ''
   };
 
+  baseUrl = environment.apiUrl;
+
   /** Servicio de valoraciones */
   private reviewService = inject(ReviewService);
+
+
+
+  private photoService = inject(PhotoService);
+
+
+  /** Fotos asociadas a la fuente */
+  photos = signal<Photo[]>([]);
 
   /**
    * Al iniciar, carga información de la fuente y valoraciones aprobadas.
@@ -46,6 +60,7 @@ export class ReviewsComponent implements OnInit {
   ngOnInit(): void {
     this.loadSourceInfo();
     this.loadApprovedReviews();
+    this.loadPhotos();
   }
 
   /**
@@ -103,6 +118,17 @@ export class ReviewsComponent implements OnInit {
             console.error(err);
           }
         }
+      });
+  }
+
+  loadPhotos(): void {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    this.photoService.getPhotosByWaterSource(this.waterSourceId, token)
+      .subscribe({
+        next: data => this.photos.set(data.filter(p => p.status === 'approved')),
+        error: err => console.error('Error al cargar fotos:', err)
       });
   }
 }

@@ -13,30 +13,29 @@ class Photo {
 
   // Crear una nueva foto
   static async save(data) {
-  const query = `
-    INSERT INTO photos (
-      id, water_source_id, review_id, user_id,
-      url, status, created_at
-    )
-    VALUES (UUID(), ?, ?, ?, ?, ?, NOW())
-  `;
+    const query = `
+      INSERT INTO photos (
+        id, water_source_id, review_id, user_id,
+        url, status, created_at
+      )
+      VALUES (UUID(), ?, ?, ?, ?, ?, NOW())
+    `;
 
-  const values = [
-    data.water_source_id || null,
-    data.review_id || null,
-    data.user_id,
-    data.url,
-    data.status || 'pending'
-  ];
+    const values = [
+      data.water_source_id || null,
+      data.review_id || null,
+      data.user_id,
+      data.url,
+      data.status || 'pending'
+    ];
 
-  try {
-    await db.execute(query, values);
-    return true;
-  } catch (error) {
-    throw error;
+    try {
+      await db.execute(query, values);
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
-}
-
 
   // Encontrar foto por ID
   static async findById(id) {
@@ -44,7 +43,7 @@ class Photo {
       SELECT p.*, 
              u.username as user_name,
              ws.name as water_source_name,
-             r.title as review_title
+             r.comment as review_comment
       FROM photos p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN water_sources ws ON p.water_source_id = ws.id
@@ -66,7 +65,7 @@ class Photo {
       SELECT p.*, 
              u.username as user_name,
              ws.name as water_source_name,
-             r.title as review_title
+             r.comment as review_comment
       FROM photos p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN water_sources ws ON p.water_source_id = ws.id

@@ -4,6 +4,16 @@
   <h2>{{ sourceData.name }}</h2>
   <p><strong>Creado por:</strong> {{ sourceData.created_by_username || 'Desconocido' }}</p>
 
+  <!-- Galería de fotos -->
+  <div *ngIf="photos().length > 0" class="photo-gallery">
+    <h3>Fotos de la fuente</h3>
+    <div class="photo-list">
+      <img *ngFor="let photo of photos()" [src]="baseUrl + photo.public_id" alt="Foto de la fuente"
+        class="source-photo">
+    </div>
+  </div>
+
+
   <p *ngIf="sourceData.total_reviews > 0">
     <strong>Valoraciones:</strong> {{ sourceData.total_reviews }}<br>
     <strong>Puntuación media:</strong> {{ sourceData.average_rating }} / 5

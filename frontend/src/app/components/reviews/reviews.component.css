@@ -114,3 +114,20 @@ form button {
 form button:hover {
   background-color: #005c99;
 }
+.photo-gallery {
+  margin: 1rem 0;
+}
+
+.photo-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.source-photo {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}

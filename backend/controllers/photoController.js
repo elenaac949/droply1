@@ -4,6 +4,7 @@ const fs = require('fs').promises; // Para eliminar archivos temporales
 const path = require('path');
 
 class PhotoController {
+  
   static async uploadPhoto(req, res) {
     try {
       const user_id = req.user.id;
