@@ -81,8 +81,7 @@ CREATE TABLE photos (
     water_source_id CHAR(36),
     review_id CHAR(36) ,
     user_id CHAR(36),
-    public_id VARCHAR(255) NOT NULL,
-    status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    url VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     CONSTRAINT fk_photo_water_source FOREIGN KEY (water_source_id) REFERENCES water_sources(id)

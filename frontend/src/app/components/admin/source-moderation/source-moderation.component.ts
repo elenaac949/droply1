@@ -58,6 +58,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { WaterSourceService } from '../../../services/water-source.service';
 import { PhotoService, Photo } from '../../../services/photo.service';
 import { environment } from '../../../environments/environment';
+import { MatIconModule } from '@angular/material/icon';
 type WaterSourceWithPhotos = WaterSource & { photos?: Photo[] };/* extender las variables de la funete */
 
 /**
@@ -75,7 +76,7 @@ type WaterSourceWithPhotos = WaterSource & { photos?: Photo[] };/* extender las 
     MatCheckboxModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatOptionModule,
     FilterSourcesPipe,
-    FilterSourcesTextPipe
+    FilterSourcesTextPipe,MatIconModule
   ],
   templateUrl: './source-moderation.component.html',
   styleUrls: ['./source-moderation.component.css']
