@@ -58,7 +58,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { WaterSourceService } from '../../../services/water-source.service';
 import { PhotoService, Photo } from '../../../services/photo.service';
 import { environment } from '../../../environments/environment';
-
+type WaterSourceWithPhotos = WaterSource & { photos?: Photo[] };/* extender las variables de la funete */
 
 /**
  * Componente para la moderación de fuentes de agua.
@@ -83,7 +83,8 @@ import { environment } from '../../../environments/environment';
 export class SourceModerationComponent implements OnInit {
 
   /** Fuentes pendientes de aprobación */
-  pendingSources: WaterSource[] = [];
+  pendingSources: WaterSourceWithPhotos[] = [];
+
   /** Fuentes aprobadas/rechazadas (todas) */
   allSources: WaterSource[] = [];
   /** Indicador de carga de fuentes pendientes */
@@ -137,7 +138,7 @@ export class SourceModerationComponent implements OnInit {
         photos: []
       }));
       this.isLoading = false;
-      this.loadPhotos(); /* cargar las fotos asociadas  */
+      this.loadPhotos(); // cargamos las imagenes
     },
     error: (err) => {
       console.error('Error loading sources:', err);
@@ -146,6 +147,7 @@ export class SourceModerationComponent implements OnInit {
     }
   });
 }
+
 
 
   /**
