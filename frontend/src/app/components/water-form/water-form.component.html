@@ -105,8 +105,9 @@
       <div class="photos-preview-container">
         <!-- Preview de imágenes -->
         <mat-card class="photo-preview-card" *ngFor="let photo of photos; let i = index">
-          <img [src]="photo" alt="Preview foto {{i+1}}">
-          <button mat-icon-button type="button" class="remove-photo-btn" (click)="removePhoto(i)" matTooltip="Eliminar foto">
+          <img [src]="photo" alt="Preview foto {{i+1}}" (click)="openPreview(photo)" style="cursor: zoom-in;">
+          <button mat-icon-button type="button" class="remove-photo-btn" (click)="removePhoto(i)"
+            matTooltip="Eliminar foto">
             <mat-icon>close</mat-icon>
           </button>
         </mat-card>
@@ -127,6 +128,16 @@
           </div>
         </div>
       </div>
+      <!-- Modal de vista previa de imagen -->
+      <div class="image-modal" [class.active]="selectedPhoto" (click)="closePreview()">
+        <div class="image-modal-content" (click)="$event.stopPropagation()">
+          <img [src]="selectedPhoto" alt="Vista previa" />
+          <button mat-icon-button class="close-btn" (click)="closePreview()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
     </div>
 
     <mat-card-actions align="end">

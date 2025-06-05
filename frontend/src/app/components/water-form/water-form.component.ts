@@ -68,6 +68,8 @@ export class WaterFormComponent {
   /** Mensaje de error en caso de fallo de geolocalización */
   geolocationError = '';
 
+  selectedPhoto: string | null = null;
+
   /** Opciones de tipo de fuente disponibles */
   waterSourceTypes = [
     { value: 'drinking', label: 'Potable' },
@@ -93,6 +95,16 @@ export class WaterFormComponent {
     address: ['', Validators.maxLength(255)]
   });
 
+
+
+  openPreview(photoUrl: string): void {
+    this.selectedPhoto = photoUrl;
+  }
+
+  closePreview(): void {
+    this.selectedPhoto = null;
+  }
+  
   /** Maneja la selección de archivos de imagen desde el input */
   onFileSelected(event: any): void {
     const files = event.target.files;

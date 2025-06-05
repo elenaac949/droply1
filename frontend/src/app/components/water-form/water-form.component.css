@@ -225,7 +225,144 @@
   font-size: 0.75rem;
 }
 
+/* modal */
+/* Image Modal Styles */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
 
+.image-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.image-modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeInScale 0.3s ease-out;
+}
+
+.image-modal-content img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.close-btn {
+  position: absolute;
+  top: -40px;
+  right: -10px;
+  color: white !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.close-btn mat-icon {
+  color: white !important;
+  font-size: 24px !important;
+}
+
+/* Keyboard focus styles for accessibility */
+.close-btn:focus-visible {
+  outline: 3px solid #0077b6;
+  outline-offset: 2px;
+}
+
+/* Animation */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .image-modal-content {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .close-btn {
+    top: -50px;
+    right: 0;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-modal-content {
+    padding: 10px;
+  }
+  
+  .close-btn {
+    top: -45px;
+    width: 28px;
+    height: 28px;
+  }
+  
+  .close-btn mat-icon {
+    font-size: 20px !important;
+  }
+}
+
+/* Accessibility improvements for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .image-modal,
+  .image-modal-content {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  .image-modal {
+    background-color: rgba(0, 0, 0, 0.95);
+    forced-color-adjust: none;
+  }
+  
+  .close-btn {
+    border: 2px solid white;
+    forced-color-adjust: none;
+  }
+}
 /* Geolocation Button Styles */
 .geolocation-btn {
   display: flex;
@@ -269,7 +406,7 @@
   grid-column: span 3;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 600px) {
   .photo-preview-card {
     width: 100px;
