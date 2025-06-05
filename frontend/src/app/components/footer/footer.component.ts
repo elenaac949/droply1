@@ -17,4 +17,5 @@ import { CommonModule } from '@angular/common';
 })
 export class FooterComponent {
 
+  currentYear: number = new Date().getFullYear();
 }

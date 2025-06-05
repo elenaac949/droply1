@@ -13,13 +13,16 @@ import { UserManagementComponent } from './components/admin/user-management/user
 import { SourceModerationComponent } from './components/admin/source-moderation/source-moderation.component';
 import { ReviewModerationComponent } from './components/admin/review-moderation/review-moderation.component';
 import { ErrorComponent } from './components/error/error.component';
-
+import { PrivacyComponent } from './components/politics/privacy/privacy.component';
+import { CookiesPolicyComponent } from './components/politics/cookies-policy/cookies-policy.component';
 export const routes: Routes = [
     {path: '', component: LandingComponent, canActivate: [NoAuthGuard]}, //ruta predeterminada 
     {path: 'login', component: LoginComponent, canActivate: [NoAuthGuard]},
     {path: 'signup', component: RegisterComponent, canActivate: [NoAuthGuard]},
     {path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
     {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+    {path: 'privacy-policy', component:PrivacyComponent },
+    {path: 'cookies-policy', component: CookiesPolicyComponent},
     {
         path: 'admin', 
         component: AdminComponent, 
