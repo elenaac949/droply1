@@ -13,8 +13,8 @@ import { MatIcon } from '@angular/material/icon';
 import { ViewChild, ElementRef } from '@angular/core';
 
 /**
- * Componente del perfil de usuario. Permite ver, editar y eliminar los datos del usuario,
- * así como cambiar su contraseña.
+ * Componente del perfil de usuario.
+ * Permite ver, editar, actualizar la contraseña, y gestionar la foto de perfil.
  */
 @Component({
   selector: 'app-profile',
@@ -34,55 +34,59 @@ import { ViewChild, ElementRef } from '@angular/core';
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent implements OnInit {
-
   /** Usuario actual cargado */
   user: User | null = null;
 
-  /** Controla si se está mostrando el formulario de edición */
+  /** Formulario de edición de perfil activo */
   editProfileForm = false;
 
-  /** Copia editable del usuario actual */
+  /** Copia del usuario para edición */
   userToEdit: User | null = null;
 
-  /** Email original para comparación */
+  /** Email original para validar cambios */
   originalEmail = '';
 
-  /** Flag si el email editado ya existe */
+  /** Flag si el email ya existe al editar */
   emailExistsEdit = false;
 
-  /** Controla si se muestra el formulario para cambiar la contraseña */
+  /** Formulario de cambio de contraseña visible */
   changePasswordForm = false;
 
-  /** Datos del formulario de cambio de contraseña */
+  /** Datos del cambio de contraseña */
   passwordData = {
     currentPassword: '',
     newPassword: '',
     confirmNewPassword: ''
   };
 
-  /** Error si la contraseña actual no es válida */
+  /** Error en contraseña actual */
   passwordError = '';
 
   /** Flag que indica si la contraseña actual es válida */
   isCurrentPasswordValid = true;
 
-
+  /** Referencia al input de archivo para imagen */
   @ViewChild('fileInput') fileInput!: ElementRef;
-  // Variables para el manejo de imágenes
-  imageChangedEvent: any = '';
-  croppedImage: any = '';
-  showImageCropper = false;
 
+  /** Evento del input de imagen */
+  imageChangedEvent: any = '';
+
+  /** Imagen recortada lista para subir */
+  croppedImage: any = '';
+
+  /** Flag si se muestra el recortador de imagen */
+  showImageCropper = false;
 
   constructor(
     private userService: UserService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
     private router: Router
-  ) { }
+  ) {}
 
   /**
-   * Carga los datos del usuario al iniciar el componente.
+   * Inicializa el componente cargando los datos del usuario actual.
+   * @returns void
    */
   ngOnInit(): void {
     const userId = this.authService.getUserId();
@@ -95,24 +99,19 @@ export class ProfileComponent implements OnInit {
   }
 
   /**
-   * Abre el formulario para editar el perfil.
+   * Habilita el modo edición del perfil.
+   * @returns void
    */
   editarPerfil(): void {
     if (!this.user) return;
-
-    this.userToEdit = {
-      ...this.user,
-      id: this.user.id,
-      username: this.user.username,
-      email: this.user.email,
-      role: this.user.role
-    };
+    this.userToEdit = { ...this.user };
     this.originalEmail = this.user.email;
     this.editProfileForm = true;
   }
 
   /**
-   * Cierra el formulario de edición del perfil.
+   * Cierra el formulario de edición.
+   * @returns void
    */
   cerrarEdicion(): void {
     this.editProfileForm = false;
@@ -120,7 +119,9 @@ export class ProfileComponent implements OnInit {
   }
 
   /**
-   * Verifica si el nuevo email ya existe.
+   * Valida si el nuevo email ya existe en la base de datos.
+   * @param email - Email a comprobar
+   * @returns void
    */
   validateEmailEdit(email: string): void {
     if (!email || email === this.originalEmail) {
@@ -134,9 +135,9 @@ export class ProfileComponent implements OnInit {
   }
 
   /**
-   * Guarda los cambios del perfil.
+   * Guarda los cambios en el perfil del usuario.
+   * @returns void
    */
-
   guardarCambiosPerfil(): void {
     if (!this.userToEdit) return;
 
@@ -147,8 +148,6 @@ export class ProfileComponent implements OnInit {
           horizontalPosition: 'right',
           verticalPosition: 'top'
         });
-
-        // Use type assertion here since we know userToEdit has all required fields
         this.user = this.userToEdit as User;
         this.editProfileForm = false;
       },
@@ -162,9 +161,9 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-
   /**
    * Elimina la cuenta del usuario actual.
+   * @returns void
    */
   eliminarCuenta(): void {
     if (!this.user?.id || !confirm('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.')) return;
@@ -186,7 +185,8 @@ export class ProfileComponent implements OnInit {
   }
 
   /**
-   * Abre el formulario de cambio de contraseña y reinicia los datos.
+   * Muestra el formulario de cambio de contraseña.
+   * @returns void
    */
   openChangePasswordModal(): void {
     this.changePasswordForm = true;
@@ -195,14 +195,16 @@ export class ProfileComponent implements OnInit {
   }
 
   /**
-   * Alias público para abrir el formulario de cambio de contraseña.
+   * Alias público para abrir el modal de contraseña.
+   * @returns void
    */
   cambiarContrasena(): void {
     this.openChangePasswordModal();
   }
 
   /**
-   * Envía el formulario de cambio de contraseña si todo es válido.
+   * Envía los cambios de contraseña al backend.
+   * @returns void
    */
   submitPasswordChange(): void {
     const { currentPassword, newPassword, confirmNewPassword } = this.passwordData;
@@ -230,7 +232,8 @@ export class ProfileComponent implements OnInit {
   }
 
   /**
-   * Verifica si la contraseña actual introducida es válida (antes de cambiarla).
+   * Verifica si la contraseña actual introducida es correcta.
+   * @returns void
    */
   checkCurrentPassword(): void {
     const userId = this.user?.id;
@@ -243,7 +246,8 @@ export class ProfileComponent implements OnInit {
   }
 
   /**
-   * Comprueba si las nuevas contraseñas introducidas no coinciden.
+   * Verifica si las nuevas contraseñas no coinciden.
+   * @returns boolean
    */
   passwordsDoNotMatch(): boolean {
     return (
@@ -253,68 +257,72 @@ export class ProfileComponent implements OnInit {
     );
   }
 
-  // Método para abrir el selector de archivos
+  /**
+   * Dispara el input de archivo para subir imagen.
+   * @returns void
+   */
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
   }
 
-
+  /**
+   * Procesa el archivo seleccionado para subir como imagen de perfil.
+   * @param event - Evento de selección de archivo
+   * @returns void
+   */
   onFileSelected(event: any): void {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
 
-      // Verificar el tamaño del archivo (ejemplo: máximo 5MB)
       if (file.size > 5 * 1024 * 1024) {
         this.snackBar.open('La imagen es demasiado grande. Máximo 5MB.', 'Cerrar', { duration: 3000 });
         return;
       }
 
-      // Verificar el tipo de archivo
       if (!file.type.match('image.*')) {
         this.snackBar.open('Solo se permiten imágenes.', 'Cerrar', { duration: 3000 });
         return;
       }
       this.uploadImage(file);
-
-
     }
   }
 
-  // Método para subir la imagen al servidor
-
+  /**
+   * Sube la imagen de perfil al servidor.
+   * @param file - Archivo seleccionado
+   * @returns void
+   */
   uploadImage(file: File): void {
-  if (!this.user) return;
+    if (!this.user) return;
 
-  this.userService.uploadProfileImage(this.user.id, file).subscribe({
-    next: (response) => {
-      if (this.user) {
-        this.user.profile_picture = response.profile_picture;
+    this.userService.uploadProfileImage(this.user.id, file).subscribe({
+      next: (response) => {
+        if (this.user) {
+          this.user.profile_picture = response.profile_picture;
+        }
+        this.snackBar.open('Imagen de perfil actualizada', 'Cerrar', { duration: 3000 });
+      },
+      error: () => {
+        this.snackBar.open('Error al subir la imagen', 'Cerrar', { duration: 3000 });
       }
-      this.snackBar.open('Imagen de perfil actualizada', 'Cerrar', { duration: 3000 });
-    },
-    error: () => {
-      this.snackBar.open('Error al subir la imagen', 'Cerrar', { duration: 3000 });
-    }
-  });
+    });
+  }
+
+  /**
+   * Elimina la imagen de perfil del usuario actual.
+   * @returns void
+   */
+  removeProfilePicture(): void {
+    if (!this.user) return;
+
+    this.userService.deleteProfilePicture(this.user.id).subscribe({
+      next: () => {
+        this.user!.profile_picture = '';
+        this.snackBar.open('Foto de perfil eliminada', 'Cerrar', { duration: 3000 });
+      },
+      error: () => {
+        this.snackBar.open('Error al eliminar la foto de perfil', 'Cerrar', { duration: 3000 });
+      }
+    });
+  }
 }
-
-removeProfilePicture(): void {
-  if (!this.user) return;
-
-  this.userService.deleteProfilePicture(this.user.id).subscribe({
-    next: () => {
-      this.user!.profile_picture = '';
-      this.snackBar.open('Foto de perfil eliminada', 'Cerrar', { duration: 3000 });
-    },
-    error: () => {
-      this.snackBar.open('Error al eliminar la foto de perfil', 'Cerrar', { duration: 3000 });
-    }
-  });
-}
-
-
-
-
-}
-
-
