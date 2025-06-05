@@ -12,6 +12,7 @@ import { AdminGuard } from './guards/admin.guard';
 import { UserManagementComponent } from './components/admin/user-management/user-management.component';
 import { SourceModerationComponent } from './components/admin/source-moderation/source-moderation.component';
 import { ReviewModerationComponent } from './components/admin/review-moderation/review-moderation.component';
+import { ErrorComponent } from './components/error/error.component';
 
 export const routes: Routes = [
     {path: '', component: LandingComponent, canActivate: [NoAuthGuard]}, //ruta predeterminada 
@@ -31,5 +32,5 @@ export const routes: Routes = [
         ]
     },
     {path: 'water-form', component: WaterFormComponent, canActivate: [AuthGuard] },
-    {path: '**', redirectTo: ''} //las rutas que no se encuentran te llevan al landing
+    {path: '**', component:ErrorComponent} //las rutas que no se encuentran te llevan al landing
 ];
