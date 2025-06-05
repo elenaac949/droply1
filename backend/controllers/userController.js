@@ -260,7 +260,7 @@ exports.uploadProfilePicture = async (req, res) => {
 
   try {
     // Guardar la ruta relativa en la base de datos
-    const relativePath = `/uploads/${req.file.filename}`;
+    const relativePath = `/uploads/profile-pictures/${req.file.filename}`;
     await User.updateProfilePicture(id, relativePath);
 
     return res.status(200).json({
