@@ -53,10 +53,19 @@ export class WaterFormComponent {
   /** Servicio de fuentes de agua */
   private waterSourceService = inject(WaterSourceService);
 
+  /** Lista de URLs de fotos */
   photos: string[] = [];
+
+  /** Archivos de fotos seleccionados para enviar */
   photoFiles: File[] = [];
+
+  /** Indica si se está enviando el formulario */
   isSubmitting = false;
+
+  /** Indica si se está obteniendo la ubicación */
   isGeolocating = false;
+
+  /** Mensaje de error en caso de fallo de geolocalización */
   geolocationError = '';
 
   /** Opciones de tipo de fuente disponibles */
@@ -84,6 +93,7 @@ export class WaterFormComponent {
     address: ['', Validators.maxLength(255)]
   });
 
+  /** Maneja la selección de archivos de imagen desde el input */
   onFileSelected(event: any): void {
     const files = event.target.files;
     if (!files) return;
@@ -100,6 +110,10 @@ export class WaterFormComponent {
     }
   }
 
+  /**
+   * Elimina una foto del array de previsualización y archivos
+   * @param index Índice de la foto a eliminar
+   */
   removePhoto(index: number): void {
     this.photos.splice(index, 1);
     this.photoFiles.splice(index, 1);
@@ -107,6 +121,7 @@ export class WaterFormComponent {
 
   /**
    * Muestra un mensaje de error en SnackBar
+   * @param message Mensaje a mostrar
    */
   private showErrorSnackBar(message: string): void {
     this.snackBar.open(message, 'Cerrar', {
@@ -119,6 +134,7 @@ export class WaterFormComponent {
 
   /**
    * Muestra un mensaje de éxito en SnackBar
+   * @param message Mensaje a mostrar
    */
   private showSuccessSnackBar(message: string): void {
     this.snackBar.open(message, 'Cerrar', {
@@ -131,6 +147,7 @@ export class WaterFormComponent {
 
   /**
    * Obtiene los errores del formulario y genera mensajes descriptivos
+   * @returns Array de errores formateados
    */
   private getFormErrors(): string[] {
     const errors: string[] = [];
@@ -147,6 +164,9 @@ export class WaterFormComponent {
 
   /**
    * Genera mensajes de error específicos para cada campo
+   * @param fieldName Nombre del campo
+   * @param errors Objeto de errores del campo
+   * @returns Mensaje de error formateado
    */
   private getErrorMessage(fieldName: string, errors: any): string {
     const fieldLabels: { [key: string]: string } = {
@@ -182,6 +202,8 @@ export class WaterFormComponent {
 
   /**
    * Asocia las URLs de las fotos con la fuente de agua usando el servicio
+   * @param waterSourceId ID de la fuente
+   * @param photoUrls Array de URLs de las fotos
    */
   private associatePhotosWithWaterSource(waterSourceId: number, photoUrls: string[]): void {
     this.waterSourceService.associatePhotosWithWaterSource(waterSourceId, photoUrls)
@@ -194,6 +216,9 @@ export class WaterFormComponent {
       });
   }
 
+  /**
+   * Obtiene la ubicación actual del usuario y la aplica al formulario
+   */
   getCurrentLocation(): void {
     this.isGeolocating = true;
     this.geolocationError = '';
@@ -209,7 +234,6 @@ export class WaterFormComponent {
             longitude: lng
           });
 
-          // Marca como no tocado para evitar errores visuales
           this.form.get('latitude')?.markAsUntouched();
           this.form.get('longitude')?.markAsUntouched();
 
