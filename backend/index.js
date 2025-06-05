@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet'); // Para seguridad adicional
 const rateLimit = require('express-rate-limit'); // Para limitar peticiones
+const path = require('path');
 
 const errorController = require('./controllers/errorController');
 
@@ -15,13 +16,6 @@ const photoRoutes = require('./routes/photoRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-// --------------------------------------------
-// 📁 Servir archivos estáticos (imágenes locales)
-// --------------------------------------------
-const path = require('path');
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 
 // --------------------------------------------
 // 🔒 Configuración de seguridad
@@ -119,7 +113,7 @@ app.use(helmet({
 app.use(limiter);
 
 /**
- * CORS seguro
+ * CORS seguro - APLICAR GLOBALMENTE PRIMERO
  */
 app.use(cors(corsOptions));
 
@@ -148,17 +142,52 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  console.log(`🔍 ${req.method} ${req.path}`);
-  console.log('Headers:', req.headers);
+// --------------------------------------------
+// 📁 ARCHIVOS ESTÁTICOS CON CORS EXPLÍCITO
+// --------------------------------------------
+
+/**
+ * Middleware específico para archivos estáticos con CORS
+ */
+app.use('/uploads', (req, res, next) => {
+  // Establecer headers CORS para archivos estáticos
+  const origin = req.headers.origin;
+  
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    
+    // Cache headers para mejor rendimiento
+    res.header('Cache-Control', 'public, max-age=31536000'); // 1 año
+    res.header('Expires', new Date(Date.now() + 31536000000).toUTCString());
+  }
   
   if (req.method === 'OPTIONS') {
-    console.log('✅ Handling preflight request');
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Max-Age', '86400');
+    return res.status(204).end();
+  }
+  
+  next();
+}, express.static(path.join(__dirname, 'public/uploads'), {
+  maxAge: '1y', // Cache por 1 año
+  etag: true,
+  lastModified: true
+}));
+
+// Middleware adicional para debugging CORS
+app.use((req, res, next) => {
+  console.log(`🔍 ${req.method} ${req.path}`);
+  
+  if (req.path.startsWith('/uploads')) {
+    console.log('📸 Sirviendo archivo estático:', req.path);
+    console.log('🌍 Origin:', req.headers.origin);
+  }
+  
+  if (req.method === 'OPTIONS') {
+    console.log('✅ Handling preflight request for:', req.path);
+    // Los headers CORS ya se establecieron arriba
     return res.status(204).end();
   }
   
@@ -249,6 +278,7 @@ const server = app.listen(port, () => {
   console.log(`🚀 Servidor escuchando en puerto ${port}`);
   console.log(`🏥 Health check: http://localhost:${port}/health`);
   console.log(`📸 Photos API: http://localhost:${port}/api/photos`);
+  console.log(`🖼️  Static files: http://localhost:${port}/uploads`);
   console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔒 CORS configurado para: ${allowedOrigins.join(', ')}`);
 });

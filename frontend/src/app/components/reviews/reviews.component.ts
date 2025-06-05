@@ -121,21 +121,29 @@ export class ReviewsComponent implements OnInit {
       });
   }
 
-  loadPhotos(): void {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+loadPhotos(): void {
+  const token = localStorage.getItem('token');
+  if (!token) return;
 
-    this.photoService.getPhotosByWaterSource(this.waterSourceId, token)
-      .subscribe({
-        next: data => {
-          console.log(this.waterSourceId);
-          console.log('✅ Fotos cargadas:', data);
-          console.log(this.baseUrl);
-          this.photos.set(data);
-        },
-        error: err => console.error('❌ Error al cargar fotos:', err)
-      });
-  }
+  this.photoService.getPhotosByWaterSource(this.waterSourceId, token)
+    .subscribe({
+      next: data => {
+        console.log(this.waterSourceId);
+        console.log('✅ Fotos cargadas:', data);
+        console.log('Base URL:', this.baseUrl);
+
+        // Asegurar que la URL completa apunte al backend
+        const processedPhotos = data.map(photo => ({
+          ...photo,
+          url: `${this.baseUrl}${photo.url}` 
+        }));
+
+        console.log('URLs procesadas:', processedPhotos.map(p => p.url)); // Para debug
+        this.photos.set(processedPhotos);
+      },
+      error: err => console.error('Error al cargar fotos:', err)
+    });
+}
 
 
 }

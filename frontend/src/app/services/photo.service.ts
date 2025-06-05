@@ -9,8 +9,7 @@ export interface Photo {
   water_source_id?: string | null;
   review_id?: string | null;
   user_id: string;
-  public_id: string;
-  status: 'pending' | 'approved' | 'rejected';
+  url: string;
   created_at?: string;
 }
 
@@ -89,7 +88,6 @@ export class PhotoService {
     water_source_id?: string,
     review_id?: string,
     user_id?: string,
-    status?: string,
     limit?: number
   } = {}, token: string): Observable<Photo[]> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
