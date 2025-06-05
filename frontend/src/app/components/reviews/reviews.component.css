@@ -131,3 +131,80 @@ form button:hover {
   border-radius: 8px;
   border: 1px solid #ccc;
 }
+
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.image-modal-content {
+  position: relative;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 90vw;
+  max-height: 90vh;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+.image-modal-content img {
+  max-width: 100%;
+  max-height: 80vh;
+  display: block;
+  margin: auto;
+}
+
+.image-modal-content .close-btn {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
+  background: rgba(255,255,255,0.8);
+}
+
+/* Contenedor principal de la galería */
+.photo-gallery {
+  width: 100%;
+  overflow: hidden; /* Oculta el scroll fuera del contenedor */
+}
+
+/* Lista de fotos con scroll horizontal */
+.photo-list {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 15px; /* Espacio para el scroll */
+  overflow-x: auto; /* Habilita scroll horizontal */
+  scrollbar-width: thin; /* Para navegadores modernos */
+  scrollbar-color: #ccc transparent; /* Color del scroll */
+}
+
+/* Estilo de la barra de scroll (para WebKit: Chrome/Safari) */
+.photo-list::-webkit-scrollbar {
+  height: 8px;
+}
+.photo-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+/* Miniaturas de las fotos */
+.source-photo {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0; /* Evita que se reduzcan */
+  cursor: zoom-in;
+  transition: transform 0.2s;
+}
+
+.source-photo:hover {
+  transform: scale(1.03);
+}

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ReviewService, CreateReviewRequest } from '../../services/review.service';
 import { PhotoService, Photo } from '../../services/photo.service';
 import { environment } from '../../environments/environment';
+import { MatIconModule  } from '@angular/material/icon';
 
 
 /**
@@ -13,7 +14,7 @@ import { environment } from '../../environments/environment';
 @Component({
   selector: 'app-reviews',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatIconModule ],
   templateUrl: './reviews.component.html',
   styleUrl: './reviews.component.css'
 })
@@ -121,29 +122,40 @@ export class ReviewsComponent implements OnInit {
       });
   }
 
-loadPhotos(): void {
-  const token = localStorage.getItem('token');
-  if (!token) return;
+  selectedPhoto: string | null = null;
 
-  this.photoService.getPhotosByWaterSource(this.waterSourceId, token)
-    .subscribe({
-      next: data => {
-        console.log(this.waterSourceId);
-        console.log('✅ Fotos cargadas:', data);
-        console.log('Base URL:', this.baseUrl);
+  openPreview(photoUrl: string): void {
+    this.selectedPhoto = photoUrl;
+  }
 
-        // Asegurar que la URL completa apunte al backend
-        const processedPhotos = data.map(photo => ({
-          ...photo,
-          url: `${this.baseUrl}${photo.url}` 
-        }));
+  closePreview(): void {
+    this.selectedPhoto = null;
+  }
 
-        console.log('URLs procesadas:', processedPhotos.map(p => p.url)); // Para debug
-        this.photos.set(processedPhotos);
-      },
-      error: err => console.error('Error al cargar fotos:', err)
-    });
-}
+
+  loadPhotos(): void {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    this.photoService.getPhotosByWaterSource(this.waterSourceId, token)
+      .subscribe({
+        next: data => {
+          console.log(this.waterSourceId);
+          console.log('✅ Fotos cargadas:', data);
+          console.log('Base URL:', this.baseUrl);
+
+          // Asegurar que la URL completa apunte al backend
+          const processedPhotos = data.map(photo => ({
+            ...photo,
+            url: `${this.baseUrl}${photo.url}`
+          }));
+
+          console.log('URLs procesadas:', processedPhotos.map(p => p.url)); // Para debug
+          this.photos.set(processedPhotos);
+        },
+        error: err => console.error('Error al cargar fotos:', err)
+      });
+  }
 
 
 }

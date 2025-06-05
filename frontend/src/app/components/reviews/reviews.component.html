@@ -8,7 +8,8 @@
   <div *ngIf="photos().length > 0" class="photo-gallery">
     <h3>Fotos de la fuente</h3>
     <div class="photo-list">
-      <img *ngFor="let photo of photos()" [src]="photo.url" alt="Foto de la fuente" class="source-photo">
+      <img *ngFor="let photo of photos()" [src]="photo.url" alt="Foto de la fuente" class="source-photo"
+        (click)="openPreview(photo.url)" style="cursor: zoom-in;">
     </div>
   </div>
 
@@ -50,5 +51,15 @@
       </label>
       <button type="submit">Enviar valoración</button>
     </form>
+  </div>
+</div>
+
+<!-- Modal de vista previa de imagen -->
+<div class="image-modal" *ngIf="selectedPhoto" (click)="closePreview()">
+  <div class="image-modal-content" (click)="$event.stopPropagation()">
+    <img [src]="selectedPhoto" alt="Vista previa de imagen" />
+    <button mat-icon-button class="close-btn" (click)="closePreview()">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
 </div>
