@@ -7,16 +7,6 @@
 <div class="part">
   <form class="filter-row" (ngSubmit)="applyFilters()">
     <mat-form-field appearance="outline">
-      <mat-label>Filtrar por estado</mat-label>
-      <mat-select [(ngModel)]="filters.status" name="status">
-        <mat-option value="">Todos</mat-option>
-        <mat-option value="pending">Pendientes</mat-option>
-        <mat-option value="approved">Aprobadas</mat-option>
-        <mat-option value="rejected">Rechazadas</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
       <mat-label>Filtrar por tipo</mat-label>
       <mat-select [(ngModel)]="filters.type" name="type">
         <mat-option value="">Todos</mat-option>

@@ -8,8 +8,11 @@ import { CommonModule } from '@angular/common';
 import { WaterSource, WaterSourceService } from '../../../services/water-source.service';
 
 /**
- * Componente de mapa Leaflet para mostrar fuentes de agua (base de datos + OSM).
- * Permite centrarse en la ubicación del usuario, agrupar marcadores, y abrir un modal de valoraciones.
+ * @component MapComponent
+ * 
+ * Componente responsable de mostrar un mapa con fuentes de agua.
+ * Integra datos tanto desde OpenStreetMap como desde la base de datos interna,
+ * permitiendo filtrado y visualización agrupada mediante clusters.
  */
 @Component({
   selector: 'app-map',
@@ -20,10 +23,19 @@ import { WaterSource, WaterSourceService } from '../../../services/water-source.
 })
 export class MapComponent implements AfterViewInit, OnChanges {
 
-  /** Determina si se debe centrar el mapa en la ubicación del usuario */
+  /**
+   * @input useGeolocation Indica si el mapa debe centrarse en la ubicación del usuario.
+   */
   @Input() useGeolocation = false;
 
-  /** Icono de marcador para la ubicación del usuario */
+  /**
+   * @input filters Objeto de filtros aplicados desde el componente padre.
+   * @property type Tipo de fuente de agua (por ejemplo, 'drinking').
+   * @property accessible Si la fuente es accesible (true/false).
+   */
+  @Input() filters: { type?: string; accessible?: boolean } = {};
+
+  /** Icono de ubicación del usuario */
   userIcon = L.icon({
     iconUrl: 'assets/icons/localizacion.png',
     iconSize: [40, 41],
@@ -32,7 +44,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
     shadowSize: [41, 41]
   });
 
-  /** Icono de marcador para fuentes de agua desde la base de datos */
+  /** Icono para fuentes desde base de datos */
   dbSourceIcon = L.icon({
     iconUrl: 'assets/icons/gota.png',
     iconSize: [40, 41],
@@ -40,6 +52,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
     popupAnchor: [0, -32]
   });
 
+  /** Icono por defecto para marcadores */
   defaultIcon = L.icon({
     iconUrl: 'assets/icons/marker-icon.png',
     shadowUrl: 'assets/icons/marker-shadow.png',
@@ -49,20 +62,19 @@ export class MapComponent implements AfterViewInit, OnChanges {
     shadowSize: [41, 41]
   });
 
-  
-  /** Mapa Leaflet */
+  /** Mapa de Leaflet */
   map!: L.Map;
 
-  /** Marcador del usuario (si se usa geolocalización) */
+  /** Marcador del usuario (geolocalización) */
   userMarker?: L.Marker;
 
-  /** Grupo de marcadores para fuentes OSM */
+  /** Cluster de fuentes desde OpenStreetMap */
   osmCluster = L.markerClusterGroup();
 
-  /** Grupo de marcadores para fuentes internas de la base de datos */
+  /** Cluster de fuentes desde la base de datos */
   mySourcesCluster = L.markerClusterGroup();
 
-  /** Fuente seleccionada para mostrar modal de valoraciones */
+  /** ID de la fuente seleccionada (para abrir modal de reseñas) */
   selectedSourceId: string | null = null;
 
   constructor(
@@ -71,42 +83,58 @@ export class MapComponent implements AfterViewInit, OnChanges {
     private waterSourceService: WaterSourceService
   ) { }
 
-  /** Hook que se ejecuta después de montar la vista: inicializa el mapa */
+  /**
+   * @method ngAfterViewInit
+   * Inicializa el mapa al cargar el componente.
+   */
   ngAfterViewInit(): void {
     this.loadDefaultMap();
   }
 
-  /** Hook que detecta cambios en los inputs. Centra el mapa si se activa la geolocalización */
+  /**
+   * @method ngOnChanges
+   * Responde a cambios en los inputs (`useGeolocation` y `filters`).
+   * 
+   * @param changes Cambios en los inputs del componente
+   */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['useGeolocation'] && !changes['useGeolocation'].firstChange) {
-      const before = changes['useGeolocation'].previousValue;
-      const current = changes['useGeolocation'].currentValue;
-
-      if (!before && current) {
+      if (changes['useGeolocation'].currentValue) {
         this.centerOnUserLocation();
       }
+    }
 
-      console.log('ngOnChanges: useGeolocation =', this.useGeolocation);
+    if (changes['filters'] && !changes['filters'].firstChange) {
+      this.loadMyWaterSources();
     }
   }
 
   /**
-   * Abre el modal de valoraciones para la fuente indicada.
-   * @param id ID de la fuente seleccionada
+   * @method openModal
+   * Abre el modal de reseñas para la fuente seleccionada.
+   * 
+   * @param id ID de la fuente de agua
    */
   openModal(id: string): void {
     this.selectedSourceId = id;
   }
 
-  /** Cierra el modal de valoraciones */
+  /**
+   * @method closeModal
+   * Cierra el modal de reseñas.
+   */
   closeModal(): void {
     this.selectedSourceId = null;
   }
 
-  /** Inicializa el mapa Leaflet con capas base y clústeres de marcadores */
+  /**
+   * @method loadDefaultMap
+   * Configura el mapa base, añade capas y carga las fuentes iniciales.
+   */
   loadDefaultMap(): void {
     this.map = L.map('map').setView([40.5, -3.7], 11);
     L.Marker.prototype.options.icon = this.defaultIcon;
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
@@ -117,16 +145,17 @@ export class MapComponent implements AfterViewInit, OnChanges {
     this.loadMyWaterSources();
     this.loadOSMWaterSources();
 
-    // Recargar fuentes OSM cuando el usuario se mueva en el mapa
     this.map.on('moveend', () => {
-      const zoom = this.map.getZoom();
-      if (zoom >= 13) {
+      if (this.map.getZoom() >= 13) {
         this.loadOSMWaterSources();
       }
     });
   }
 
-  /** Centra el mapa en la ubicación del usuario y coloca un marcador */
+  /**
+   * @method centerOnUserLocation
+   * Centra el mapa en la posición geográfica del usuario.
+   */
   centerOnUserLocation(): void {
     if (!navigator.geolocation) {
       console.warn('Geolocalización no soportada');
@@ -155,12 +184,30 @@ export class MapComponent implements AfterViewInit, OnChanges {
     );
   }
 
-  /** Carga fuentes aprobadas desde la base de datos y las agrega al mapa */
+  /**
+   * @method loadMyWaterSources
+   * Carga las fuentes de la base de datos que están aprobadas.
+   * Aplica los filtros de tipo y accesibilidad si están definidos.
+   */
   loadMyWaterSources(): void {
     this.mySourcesCluster.clearLayers();
 
-    this.http.get<any[]>('http://localhost:3000/api/water-sources/approved').subscribe(data => {
-      data.forEach(f => {
+    this.waterSourceService.getApprovedSources().subscribe((data: WaterSource[]) => {
+      const filtered = data.filter(f => {
+        const matchType = !this.filters.type || f.type === this.filters.type;
+
+        const accessibleValue = f.is_accessible; // puede ser 0, 1 o null
+        const filterValue = this.filters.accessible; // true, false o undefined
+
+        const matchAccess =
+          filterValue === undefined ||
+          (filterValue === true && accessibleValue === 1) ||
+          (filterValue === false && accessibleValue === 0);
+
+        return matchType && matchAccess;
+      });
+
+      filtered.forEach(f => {
         const typeMap: { [key: string]: string } = {
           drinking: 'Agua potable',
           tap: 'Grifo público',
@@ -171,13 +218,18 @@ export class MapComponent implements AfterViewInit, OnChanges {
         };
 
         const tooltipText = `
-          <strong>${f.name || 'Desconocido'}</strong><br>
-          ${f.description ? f.description : 'Descripción: Desconocida'}<br>
-          Tipo: ${typeMap[f.type] || 'Desconocido'}<br>
-          Accesible: ${f.is_accessible === true ? 'Sí' : f.is_accessible === false ? 'No' : 'Desconocido'}<br>
-          Horario: ${f.schedule || 'Desconocido'}<br>
-          Fecha: ${f.created_at ? new Date(f.created_at).toLocaleDateString() : 'Desconocida'}
-        `;
+        <strong>${f.name || 'Desconocido'}</strong><br>
+        ${f.description || 'Descripción: Desconocida'}<br>
+        Tipo: ${typeMap[f.type] || 'Desconocido'}<br>
+        Accesible: ${f.is_accessible === 1
+            ? 'Sí'
+            : f.is_accessible === 0
+              ? 'No'
+              : 'Desconocido'
+          }<br>
+        Horario: ${f.schedule || 'Desconocido'}<br>
+        Fecha: ${f.created_at ? new Date(f.created_at).toLocaleDateString() : 'Desconocida'}
+      `;
 
         const marker = L.marker([f.latitude, f.longitude], { icon: this.dbSourceIcon })
           .bindTooltip(tooltipText, { direction: 'top', offset: [0, -10], opacity: 0.9 })
@@ -188,7 +240,10 @@ export class MapComponent implements AfterViewInit, OnChanges {
     });
   }
 
-  /** Carga fuentes públicas desde OpenStreetMap en función de los límites visibles del mapa */
+  /**
+   * @method loadOSMWaterSources
+   * Carga fuentes de agua desde OpenStreetMap según los límites visibles del mapa.
+   */
   loadOSMWaterSources(): void {
     this.osmCluster.clearLayers();
 
@@ -220,9 +275,11 @@ export class MapComponent implements AfterViewInit, OnChanges {
   }
 
   /**
-   * Al hacer clic en una fuente OSM, comprueba si ya existe en la base de datos.
-   * Si existe, abre el modal. Si no, la crea automáticamente y luego abre el modal.
-   * @param osmSource Objeto de fuente OSM
+   * @method handleOSMReview
+   * Al hacer clic en una fuente OSM, intenta encontrarla en la base de datos.
+   * Si no existe, la crea automáticamente.
+   * 
+   * @param osmSource Fuente de agua desde OpenStreetMap
    */
   handleOSMReview(osmSource: any): void {
     const osmId = osmSource.id;

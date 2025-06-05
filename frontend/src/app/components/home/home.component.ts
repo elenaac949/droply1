@@ -4,8 +4,15 @@ import { FiltersComponent } from './filters/filters.component';
 import { NgIf } from '@angular/common';
 
 /**
+ * @component HomeComponent
+ * 
  * Componente principal de la página de inicio.
- * Contiene el mapa, los filtros y controla la activación de geolocalización.
+ * 
+ * Este componente:
+ * - Muestra el mapa (`MapComponent`) y los filtros (`FiltersComponent`).
+ * - Controla la activación o desactivación de la geolocalización.
+ * - Guarda la preferencia de geolocalización en `localStorage`.
+ * - Recibe y maneja filtros para pasarlos al componente del mapa.
  */
 @Component({
   selector: 'app-home',
@@ -16,14 +23,35 @@ import { NgIf } from '@angular/common';
 })
 export class HomeComponent {
 
-  /** Indica si la geolocalización está activada */
+  /**
+   * Indica si la geolocalización está activada.
+   * Se guarda y recupera desde `localStorage` bajo la clave `useGeolocation`.
+   * 
+   * @type {boolean}
+   */
   useGeolocation = false;
 
-  /** Muestra el spinner mientras cambia el estado de geolocalización */
+  /**
+   * Indica si se está mostrando el spinner de carga mientras cambia el estado de la geolocalización.
+   * 
+   * @type {boolean}
+   */
   isLoadingGeo = false;
 
   /**
-   * Al iniciar, carga el valor de `useGeolocation` desde localStorage.
+   * Filtros activos aplicados por el usuario desde el componente de filtros.
+   * Este objeto se pasa al `MapComponent` como input.
+   * 
+   * @type {{ type?: string; accessible?: boolean }}
+   */
+  filters: { type?: string; accessible?: boolean } = {};
+
+  /**
+   * Hook de inicialización del componente.
+   * Recupera la preferencia de geolocalización desde `localStorage`.
+   * 
+   * @method ngOnInit
+   * @returns {void}
    */
   ngOnInit(): void {
     const saved = localStorage.getItem('useGeolocation');
@@ -31,8 +59,11 @@ export class HomeComponent {
   }
 
   /**
-   * Cambia el estado de la geolocalización y lo guarda en localStorage.
-   * Simula una carga con un pequeño retardo.
+   * Cambia el estado de la geolocalización.
+   * Guarda el nuevo valor en `localStorage` y muestra un spinner de carga durante 1.5 segundos.
+   * 
+   * @method handleToggleGeo
+   * @returns {void}
    */
   handleToggleGeo(): void {
     this.isLoadingGeo = true;
@@ -44,5 +75,18 @@ export class HomeComponent {
     setTimeout(() => {
       this.isLoadingGeo = false;
     }, 1500);
+  }
+
+  /**
+   * Maneja los filtros aplicados emitidos desde el componente `FiltersComponent`.
+   * Se guardan para pasarlos como input al `MapComponent`.
+   * 
+   * @method onFiltersChanged
+   * @param {{ type?: string; accessible?: boolean }} filters Objeto con los filtros aplicados.
+   * @returns {void}
+   */
+  onFiltersChanged(filters: { type?: string; accessible?: boolean }): void {
+    this.filters = filters;
+    console.log('Filtros aplicados:', filters);
   }
 }

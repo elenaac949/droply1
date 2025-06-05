@@ -12,7 +12,7 @@ export interface WaterSource {
   latitude: number;
   longitude: number;
   type: 'drinking' | 'tap' | 'decorative' | 'bottle_refill' | 'natural_spring' | 'other';
-  is_accessible: boolean;
+  is_accessible: boolean | 0 | 1 | null;
   schedule: string;
   username: string;
   created_at: string;
