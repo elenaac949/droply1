@@ -3,40 +3,14 @@ const multer = require('multer');
 const path = require('path');
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
-
+const uploadProfilePicture = require('../middlewares/profileMulter');
 
 const router = express.Router();
 
 
-// 📁 Configurar almacenamiento en disco (local)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads')); // guarda en /backend/uploads
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const uniqueName = `profile_${Date.now()}${ext}`;
-    cb(null, uniqueName);
-  }
-});
 
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
-    files: 1
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Solo se permiten archivos de imagen'), false);
-    }
-  }
-});
+router.put('/:id/profile-picture', authMiddleware, uploadProfilePicture.single('photo'), userController.uploadProfilePicture);
 
-
-router.put('/:id/profile-picture', authMiddleware, upload.single('image'), userController.uploadProfilePicture);
 router.delete('/:id/profile-picture', authMiddleware, userController.deleteProfilePicture);
 
 /**
