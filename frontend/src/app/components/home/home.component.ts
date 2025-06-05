@@ -87,6 +87,5 @@ export class HomeComponent {
    */
   onFiltersChanged(filters: { type?: string; accessible?: boolean }): void {
     this.filters = filters;
-    console.log('Filtros aplicados:', filters);
   }
 }

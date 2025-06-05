@@ -78,7 +78,6 @@ export class MapComponent implements AfterViewInit, OnChanges {
   selectedSourceId: string | null = null;
 
   constructor(
-    private http: HttpClient,
     private osmService: OsmService,
     private waterSourceService: WaterSourceService
   ) { }

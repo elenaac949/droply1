@@ -84,14 +84,14 @@ export class FiltersComponent {
    * @returns void
    */
   applyFilters(): void {
-    const result = {
-      type: this.filters.type || undefined,
-      accessible:
-        this.filters.accessible === ''
-          ? undefined
-          : this.filters.accessible === 'true'
-    };
+  const result = {
+    type: this.filters.type || undefined,
+    accessible:
+      this.filters.accessible === ''
+        ? undefined
+        : this.filters.accessible === 'true'
+  };
 
-    this.filtersChange.emit(result);
-  }
+  this.filtersChange.emit(result);
+}
 }

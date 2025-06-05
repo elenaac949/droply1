@@ -3,6 +3,7 @@
     <app-filters
       [useGeolocation]="useGeolocation"
       (toggleGeo)="handleToggleGeo()"
+       (filtersChange)="onFiltersChanged($event)"
     ></app-filters>
     <p *ngIf="isLoadingGeo">Buscando ubicación...</p>
   </section>
