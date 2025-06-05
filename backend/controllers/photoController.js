@@ -20,6 +20,7 @@ class PhotoController {
 
       // Obtener ruta relativa del archivo
       const storagePath = `/uploads/water-sources/${req.file.filename}`;
+      const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'water-sources');
 
       // Guardar en la base de datos
       const newPhoto = {
