@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "compodoc": "compodoc -p src/tsconfig.app.json",
+    "compodoc:serve": "compodoc -p src/tsconfig.app.json -s"
   },
   "private": true,
   "dependencies": {
@@ -30,6 +32,7 @@
     "@angular-devkit/build-angular": "^19.2.8",
     "@angular/cli": "^19.2.8",
     "@angular/compiler-cli": "^19.2.0",
+    "@compodoc/compodoc": "^1.1.26",
     "@types/jasmine": "~5.1.0",
     "@types/leaflet": "^1.9.18",
     "@types/leaflet.markercluster": "^1.5.5",
