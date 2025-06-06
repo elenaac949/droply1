@@ -91,9 +91,4 @@ CREATE TABLE photos (
     CONSTRAINT fk_photo_user FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE,
     
-    -- Validación: solo puede tener asociado water_source_id o review_id (no ambos)
-    CONSTRAINT chk_photo_target CHECK (
-        (water_source_id IS NOT NULL AND review_id IS NULL)
-        OR (water_source_id IS NULL AND review_id IS NOT NULL)
-    )
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
