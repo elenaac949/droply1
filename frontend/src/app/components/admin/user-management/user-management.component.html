@@ -141,19 +141,20 @@
   </thead>
   <tbody>
     <tr *ngFor="let user of filteredUsers">
-      <td>{{ user.username }}</td>
-      <td>{{ user.email }}</td>
-      <td>{{ user.phone || '-' }}</td>
-      <td>{{ user.country || '-' }}</td>
-      <td>{{ user.city || '-' }}</td>
-      <td>{{ user.postal_code || '-' }}</td>
-      <td>{{ user.address || '-' }}</td>
-      <td>{{ user.role === 'admin' ? 'Admin' : 'Usuario' }}</td>
-      <td>
+      <td data-label="Usuario">{{ user.username }}</td>
+      <td data-label="Email">{{ user.email }}</td>
+      <td data-label="Teléfono">{{ user.phone || '-' }}</td>
+      <td data-label="País">{{ user.country || '-' }}</td>
+      <td data-label="Ciudad">{{ user.city || '-' }}</td>
+      <td data-label="Código Postal">{{ user.postal_code || '-' }}</td>
+      <td data-label="Dirección">{{ user.address || '-' }}</td>
+      <td data-label="Rol">{{ user.role === 'admin' ? 'Admin' : 'Usuario' }}</td>
+      <td data-label="Acciones">
         <button mat-button color="accent" (click)="editUser(user)">Editar</button>
         <button mat-button class="btn-delete" (click)="deleteUser(user.id)">Eliminar</button>
       </td>
     </tr>
+
     <tr *ngIf="filteredUsers.length === 0">
       <td colspan="9">No se encontraron usuarios con ese criterio.</td>
     </tr>
