@@ -1,10 +1,8 @@
 {
-  "tags": {
-    "allowUnknownTags": true
-  },
   "source": {
-    "include": ["./controllers", "./models", "./middlewares"],
-    "includePattern": ".+\\.js(doc|x)?$"
+    "include": ["controllers", "models", "routes", "middlewares"],
+    "includePattern": ".js$",
+    "excludePattern": "(node_modules|public)"
   },
   "opts": {
     "destination": "./docs",
@@ -12,3 +10,4 @@
     "template": "default"
   }
 }
+
