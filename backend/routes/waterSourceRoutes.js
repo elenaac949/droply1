@@ -58,8 +58,8 @@ router.get('/approved', waterSourceController.getApprovedWaterSources);
 router.get('/osm/:osmId', waterSourceController.getByOSMId);
 
 /**
- * @route GET /water-sources/latest/by-coordinates
- * @desc Obtener la última fuente por usuario y coordenada
+ * @route GET /water-sources/latest/by-user
+ * @desc Obtener la última fuente por usuario autenticado.
  * @access Privado (requiere autenticación)
  */
 router.get(
@@ -67,7 +67,6 @@ router.get(
   authMiddleware,
   waterSourceController.getLastByUser
 );
-
 
 /**
  * @route GET /water-sources/

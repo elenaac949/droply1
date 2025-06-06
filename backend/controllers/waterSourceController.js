@@ -1,4 +1,3 @@
-
 const { validationResult } = require('express-validator');
 const WaterSource = require('../models/waterSourceModel');
 
@@ -6,8 +5,8 @@ const WaterSource = require('../models/waterSourceModel');
  * Crea una nueva fuente de agua en la base de datos.
  * 
  * @route POST /water-sources
- * @param {Request} req - Datos de la fuente en el body.
- * @param {Response} res - Mensaje de éxito o error.
+ * @param {import('express').Request} req - Datos de la fuente en el body.
+ * @param {import('express').Response} res - Mensaje de éxito o error.
  */
 exports.createWaterSource = async (req, res) => {
   const errors = validationResult(req);
@@ -25,38 +24,25 @@ exports.createWaterSource = async (req, res) => {
 
     const user_id = req.user?.id ?? null;
 
-    // Verificar si ya existe una fuente en las coordenadas
     const [[{ count }]] = await WaterSource.existsAtCoordinates(latitude, longitude);
     if (count > 0) {
       return res.status(400).json({ error: 'Ya existe una fuente en esa ubicación.' });
     }
 
-    // Datos de la fuente SIN incluir el ID (la DB lo generará)
     const fuente = {
-      name: name ?? null,
-      description: description ?? null,
-      latitude: latitude ?? null,
-      longitude: longitude ?? null,
-      type: type ?? null,
-      is_accessible: is_accessible ?? false,
-      schedule: schedule ?? null,
-      country: country ?? null,
-      city: city ?? null,
-      postal_code: postal_code ?? null,
-      address: address ?? null,
-      user_id: user_id ?? null,
-      is_osm: is_osm ?? false,
-      osm_id: osm_id ?? null,
+      name, description, latitude, longitude,
+      type, is_accessible: is_accessible ?? false, schedule,
+      country, city, postal_code, address,
+      user_id, is_osm: is_osm ?? false, osm_id,
       status: 'pending'
     };
 
-    // Guardar la fuente (la DB generará el UUID v1)
     const waterSourceId = await WaterSource.save(fuente);
 
     res.status(201).json({
       success: true,
       message: 'Fuente creada correctamente.',
-      id: waterSourceId // ID generado por la DB
+      id: waterSourceId
     });
 
   } catch (err) {
@@ -65,9 +51,13 @@ exports.createWaterSource = async (req, res) => {
   }
 };
 
-
-/* encontrar fuente por usuario y coordenaas */
-
+/**
+ * Obtiene la última fuente registrada por el usuario autenticado.
+ * 
+ * @route GET /water-sources/user/last
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 exports.getLastByUser = async (req, res) => {
   const user_id = req.user.id;
 
@@ -84,7 +74,6 @@ exports.getLastByUser = async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
-
 
 /**
  * Obtiene todas las fuentes de agua (sin filtrar).
@@ -134,7 +123,7 @@ exports.getById = async (req, res, next) => {
     const [reviews] = await WaterSource.getReviews(id);
 
     let average_rating = null;
-    let total_reviews = reviews.length;
+    const total_reviews = reviews.length;
     if (total_reviews > 0) {
       const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
       average_rating = parseFloat((sum / total_reviews).toFixed(2));
@@ -221,18 +210,9 @@ exports.updateWaterSource = async (req, res) => {
 
   try {
     await WaterSource.updateFull(
-      id,
-      name,
-      description,
-      latitude,
-      longitude,
-      type,
-      is_accessible,
-      schedule,
-      country,
-      city,
-      postal_code,
-      address
+      id, name, description, latitude, longitude,
+      type, is_accessible, schedule,
+      country, city, postal_code, address
     );
 
     res.status(200).json({ message: 'Fuente actualizada correctamente.' });

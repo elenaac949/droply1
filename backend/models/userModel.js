@@ -113,11 +113,11 @@ module.exports = class User {
   }
 
   /**
- * Actualiza solo la foto de perfil del usuario.
- * @param {string} id - ID del usuario.
- * @param {string} profilePicturePath - Ruta relativa de la imagen.
- * @returns {Promise} Resultado de la actualización.
- */
+   * Actualiza solo la foto de perfil del usuario.
+   * @param {string} id - ID del usuario.
+   * @param {string} profilePicturePath - Ruta relativa de la imagen.
+   * @returns {Promise} Resultado de la actualización.
+   */
   static updateProfilePicture(id, profilePicturePath) {
     return db.execute(
       'UPDATE users SET profile_picture = ? WHERE id = ?',
@@ -125,16 +125,14 @@ module.exports = class User {
     );
   }
 
-
   /**
- * Elimina la foto de perfil de un usuario.
- * @param {string} id - ID del usuario.
- */
+   * Elimina la foto de perfil de un usuario (la deja como NULL).
+   * @param {string} id - ID del usuario.
+   * @returns {Promise} Resultado de la actualización.
+   */
   static deleteProfilePicture(id) {
     return db.execute('UPDATE users SET profile_picture = NULL WHERE id = ?', [id]);
   }
-
-
 
   /**
    * Busca un usuario por su ID.

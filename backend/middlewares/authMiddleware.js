@@ -7,8 +7,8 @@ const jwt = require('jsonwebtoken');
  * Verifica la existencia y validez de un token JWT enviado en la cabecera Authorization.
  * Si es válido, agrega los datos del usuario a `req.user`.
  * 
- * @param {Request} req - Objeto de solicitud HTTP.
- * @param {Response} res - Objeto de respuesta HTTP.
+ * @param {import('express').Request} req - Objeto de solicitud HTTP.
+ * @param {import('express').Response} res - Objeto de respuesta HTTP.
  * @param {Function} next - Función para continuar con la siguiente capa del middleware.
  */
 module.exports = (req, res, next) => {
@@ -30,6 +30,12 @@ module.exports = (req, res, next) => {
   }
 
   // Esta función isAdmin está definida aquí pero no se puede usar fuera
+  /**
+   * Middleware local para validar si el usuario es administrador.
+   * @param {import('express').Request} req 
+   * @param {import('express').Response} res 
+   * @param {Function} next 
+   */
   function isAdmin(req, res, next) {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ mensaje: 'Solo admins pueden hacer esto' });

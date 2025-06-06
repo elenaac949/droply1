@@ -10,7 +10,10 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Configuración del almacenamiento
+/**
+ * Configuración del almacenamiento en disco para los archivos subidos.
+ * Define la ruta de destino y el nombre de archivo generado de forma única.
+ */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir);
@@ -25,7 +28,13 @@ const storage = multer.diskStorage({
   }
 });
 
-// Filtro mejorado con validación adicional
+/**
+ * Filtro personalizado para aceptar solo ciertos tipos y extensiones de imagen.
+ * 
+ * @param {import('express').Request} req - Solicitud HTTP.
+ * @param {Express.Multer.File} file - Archivo a evaluar.
+ * @param {function} cb - Callback para aceptar o rechazar el archivo.
+ */
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
   const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
@@ -39,13 +48,17 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Middleware exportado con configuración mejorada
+/**
+ * Middleware Multer para gestionar la subida de imágenes.
+ * - Límite de tamaño: 5MB
+ * - Máximo 1 archivo por solicitud
+ */
 const upload = multer({
   storage,
   fileFilter,
   limits: { 
     fileSize: 5 * 1024 * 1024, // 5 MB
-    files: 1 // Solo un archivo por request
+    files: 1
   }
 });
 

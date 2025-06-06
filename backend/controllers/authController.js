@@ -6,17 +6,21 @@ const jwt = require('jsonwebtoken');
 /**
  * Controlador para registrar un nuevo usuario.
  * 
- * Valida los datos de entrada, encripta la contraseña y guarda el usuario en la base de datos.
+ * Este controlador:
+ * - Valida los datos recibidos mediante express-validator.
+ * - Encripta la contraseña usando bcrypt.
+ * - Guarda el nuevo usuario en la base de datos con rol 'user'.
  * 
  * @route POST /auth/signup
- * @param {Request} req - Solicitud HTTP con los datos del usuario (username, email, password, etc.).
- * @param {Response} res - Respuesta HTTP.
- * @param {Function} next - Middleware de error.
- * @returns {JSON} Mensaje de confirmación.
+ * @param {import('express').Request} req - Solicitud HTTP con los datos del usuario (username, email, password, etc.).
+ * @param {import('express').Response} res - Respuesta HTTP.
+ * @param {Function} next - Función middleware para manejo de errores.
+ * @returns {void}
  */
 exports.signup = async (req, res, next) => {
   const errors = validationResult(req);
 
+  // Si hay errores de validación, se devuelve un 422
   if (!errors.isEmpty()) {
     return res.status(422).json({
       message: 'Validación fallida.',
@@ -27,8 +31,10 @@ exports.signup = async (req, res, next) => {
   const { username, email, password } = req.body;
 
   try {
+    // Encriptar la contraseña con 12 rondas de hashing
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // Crear objeto con los datos del usuario
     const userDetails = {
       username,
       email,
@@ -38,14 +44,16 @@ exports.signup = async (req, res, next) => {
       city: req.body.city || '',
       postal_code: req.body.postal_code || '',
       address: req.body.address || '',
-      role: 'user'
+      role: 'user' // Todos los usuarios nuevos son "user" por defecto
     };
 
+    // Guardar en base de datos
     await User.save(userDetails);
 
     res.status(201).json({ message: 'Usuario registrado correctamente' });
 
   } catch (err) {
+    // Si no se ha definido un statusCode, se asigna 500
     if (!err.statusCode) err.statusCode = 500;
     next(err);
   }
@@ -54,16 +62,21 @@ exports.signup = async (req, res, next) => {
 /**
  * Controlador para iniciar sesión.
  * 
- * Verifica las credenciales y devuelve un token JWT con los datos del usuario.
+ * Este controlador:
+ * - Verifica que el email exista en la base de datos.
+ * - Compara la contraseña enviada con la almacenada.
+ * - Si es válida, genera y devuelve un JWT con la información del usuario.
  * 
  * @route POST /auth/login
- * @param {Request} req - Solicitud HTTP con email y contraseña.
- * @param {Response} res - Respuesta HTTP con el token JWT.
- * @param {Function} next - Middleware de error.
- * @returns {JSON} Objeto con token, userId, role y username.
+ * @param {import('express').Request} req - Solicitud HTTP con email y contraseña.
+ * @param {import('express').Response} res - Respuesta HTTP con el token JWT.
+ * @param {Function} next - Función middleware para manejo de errores.
+ * @returns {void}
  */
 exports.login = async (req, res, next) => {
   const errors = validationResult(req);
+
+  // Validación de campos requeridos
   if (!errors.isEmpty()) {
     return res.status(422).json({
       message: 'Validación fallida.',
@@ -72,8 +85,11 @@ exports.login = async (req, res, next) => {
   }
 
   const { email, password } = req.body;
+
   try {
+    // Buscar el usuario por email
     const [rows] = await User.find(email);
+
     if (rows.length === 0) {
       const error = new Error('Email o contraseña incorrectos.');
       error.statusCode = 401;
@@ -81,6 +97,8 @@ exports.login = async (req, res, next) => {
     }
 
     const user = rows[0];
+
+    // Comprobar que la contraseña sea correcta
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
       const error = new Error('Email o contraseña incorrectos');
@@ -88,6 +106,7 @@ exports.login = async (req, res, next) => {
       throw error;
     }
 
+    // Generar token JWT con una duración de 6 horas
     const token = jwt.sign(
       {
         userId: user.id,
@@ -97,6 +116,7 @@ exports.login = async (req, res, next) => {
       { expiresIn: '6h' }
     );
 
+    // Devolver token y datos del usuario
     res.status(200).json({
       token,
       userId: user.id,

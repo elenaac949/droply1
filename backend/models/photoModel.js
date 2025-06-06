@@ -1,5 +1,9 @@
 const db = require('../util/database');
 
+/**
+ * Clase que representa una foto dentro del sistema.
+ * Incluye métodos estáticos para guardar, buscar y eliminar fotos desde la base de datos.
+ */
 class Photo {
   constructor(data) {
     this.id = data.id;
@@ -10,7 +14,11 @@ class Photo {
     this.created_at = data.created_at;
   }
 
-  // Crear una nueva foto
+  /**
+   * Guarda una nueva foto en la base de datos.
+   * @param {Object} data - Datos de la foto.
+   * @returns {Promise<boolean>}
+   */
   static async save(data) {
     const query = `
       INSERT INTO photos (
@@ -35,7 +43,11 @@ class Photo {
     }
   }
 
-  // Encontrar foto por ID
+  /**
+   * Busca una foto por su ID.
+   * @param {string} id - ID de la foto.
+   * @returns {Promise<Photo|null>}
+   */
   static async findById(id) {
     const query = `
       SELECT p.*, 
@@ -57,7 +69,11 @@ class Photo {
     }
   }
 
-  // Obtener todas las fotos con filtros opcionales
+  /**
+   * Devuelve todas las fotos con filtros opcionales.
+   * @param {Object} filters - Filtros: water_source_id, review_id, user_id, limit.
+   * @returns {Promise<Photo[]>}
+   */
   static async findAll(filters = {}) {
     let query = `
       SELECT p.*, 
@@ -103,7 +119,11 @@ class Photo {
     }
   }
 
-  // Obtener fotos por fuente de agua
+  /**
+   * Obtiene todas las fotos relacionadas con una fuente de agua.
+   * @param {string} waterSourceId - ID de la fuente.
+   * @returns {Promise<Photo[]>}
+   */
   static async findByWaterSource(waterSourceId) {
     const query = `
       SELECT p.*, 
@@ -126,17 +146,29 @@ class Photo {
     }
   }
 
-  // Obtener fotos por review
+  /**
+   * Obtiene todas las fotos relacionadas con una reseña.
+   * @param {string} reviewId - ID de la review.
+   * @returns {Promise<Photo[]>}
+   */
   static async findByReview(reviewId) {
     return await this.findAll({ review_id: reviewId });
   }
 
-  // Obtener fotos por usuario
+  /**
+   * Obtiene todas las fotos subidas por un usuario.
+   * @param {string} userId - ID del usuario.
+   * @returns {Promise<Photo[]>}
+   */
   static async findByUser(userId) {
     return await this.findAll({ user_id: userId });
   }
 
-  // Eliminar foto
+  /**
+   * Elimina una foto por su ID.
+   * @param {string} id - ID de la foto.
+   * @returns {Promise<boolean>} - True si se eliminó.
+   */
   static async delete(id) {
     const query = 'DELETE FROM photos WHERE id = ?';
 
@@ -148,7 +180,11 @@ class Photo {
     }
   }
 
-  // Contar fotos por usuario
+  /**
+   * Cuenta cuántas fotos ha subido un usuario.
+   * @param {string} userId - ID del usuario.
+   * @returns {Promise<number>} - Número de fotos.
+   */
   static async countByUser(userId) {
     const query = 'SELECT COUNT(*) as count FROM photos WHERE user_id = ?';
 

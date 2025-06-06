@@ -8,8 +8,8 @@ const fs = require('fs');
  * Crea un nuevo usuario en la base de datos.
  * 
  * @route POST /users
- * @param {Request} req - Cuerpo con datos del usuario (username, email, password, etc.).
- * @param {Response} res - Respuesta HTTP con mensaje de éxito o error.
+ * @param {import('express').Request} req - Cuerpo con datos del usuario (username, email, password, etc.).
+ * @param {import('express').Response} res - Respuesta HTTP con mensaje de éxito o error.
  */
 exports.createUser = async (req, res) => {
   const {
@@ -60,8 +60,8 @@ exports.createUser = async (req, res) => {
  * Actualiza los datos de un usuario.
  * 
  * @route PUT /users/:id
- * @param {Request} req - Datos actualizados del usuario.
- * @param {Response} res - Confirmación de actualización.
+ * @param {import('express').Request} req - Datos actualizados del usuario.
+ * @param {import('express').Response} res - Confirmación de actualización.
  */
 exports.updateUser = async (req, res) => {
   const {
@@ -93,8 +93,8 @@ exports.updateUser = async (req, res) => {
  * Verifica si un email ya está registrado.
  * 
  * @route GET /users/check-email?email=...
- * @param {Request} req - Query con el email.
- * @param {Response} res - { exists: boolean }
+ * @param {import('express').Request} req - Query con el email.
+ * @param {import('express').Response} res - { exists: boolean }
  */
 exports.checkEmailExists = async (req, res) => {
   const { email } = req.query;
@@ -116,8 +116,8 @@ exports.checkEmailExists = async (req, res) => {
  * Obtiene la lista completa de usuarios.
  * 
  * @route GET /users
- * @param {Request} req 
- * @param {Response} res - Array de usuarios.
+ * @param {import('express').Request} req 
+ * @param {import('express').Response} res - Array de usuarios.
  */
 exports.getAllUsers = async (req, res) => {
   try {
@@ -132,8 +132,8 @@ exports.getAllUsers = async (req, res) => {
  * Elimina un usuario por su ID.
  * 
  * @route DELETE /users/:id
- * @param {Request} req - ID del usuario.
- * @param {Response} res - Mensaje de confirmación.
+ * @param {import('express').Request} req - ID del usuario.
+ * @param {import('express').Response} res - Mensaje de confirmación.
  */
 exports.deleteUser = async (req, res) => {
   const userId = req.params.id;
@@ -149,8 +149,8 @@ exports.deleteUser = async (req, res) => {
  * Obtiene un usuario por su ID.
  * 
  * @route GET /users/:id
- * @param {Request} req - ID del usuario.
- * @param {Response} res - Objeto del usuario o error 404.
+ * @param {import('express').Request} req - ID del usuario.
+ * @param {import('express').Response} res - Objeto del usuario o error 404.
  */
 exports.getUserById = async (req, res) => {
   const { id } = req.params;
@@ -170,8 +170,8 @@ exports.getUserById = async (req, res) => {
  * Verifica si la contraseña actual del usuario es correcta.
  * 
  * @route POST /users/:userId/verify-password
- * @param {Request} req - { currentPassword }
- * @param {Response} res - { valid: boolean }
+ * @param {import('express').Request} req - { currentPassword }
+ * @param {import('express').Response} res - { valid: boolean }
  */
 exports.verifyPassword = async (req, res) => {
   const { userId } = req.params;
@@ -199,8 +199,8 @@ exports.verifyPassword = async (req, res) => {
  * Actualiza la contraseña de un usuario.
  * 
  * @route PATCH /users/:id/password
- * @param {Request} req - { currentPassword, newPassword }
- * @param {Response} res - Mensaje de éxito o error.
+ * @param {import('express').Request} req - { currentPassword, newPassword }
+ * @param {import('express').Response} res - Mensaje de éxito o error.
  */
 exports.updatePassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
@@ -227,56 +227,33 @@ exports.updatePassword = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: 'Error al cambiar la contraseña' });
   }
-
-
-
-
-
 };
 
 /**
-* Sube una imagen de perfil 
-* 
-* @route PUT /users/:id/profile-picture
-* @param {Request} req - Imagen en el cuerpo.
-* @param {Response} res - URL subida o error.
-*/
-
+ * Sube una imagen de perfil.
+ * 
+ * @route PUT /users/:id/profile-picture
+ * @param {import('express').Request} req - Imagen en el cuerpo.
+ * @param {import('express').Response} res - URL subida o error.
+ */
 exports.uploadProfilePicture = async (req, res) => {
   const { id } = req.params;
 
-  // Debug: Verificar archivo recibido
-  console.log('Archivo recibido:', req.file);
-  
   if (!req.file) {
-    return res.status(400).json({ 
-      success: false,
-      error: 'No se ha subido ningún archivo' 
-    });
+    return res.status(400).json({ success: false, error: 'No se ha subido ningún archivo' });
   }
 
   try {
-    // 1. Verificar que el usuario existe
     const [user] = await User.findById(id);
     if (!user) {
-      // Eliminar archivo subido si el usuario no existe
       fs.unlinkSync(req.file.path);
-      return res.status(404).json({ 
-        success: false,
-        error: 'Usuario no encontrado' 
-      });
+      return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
     }
 
-    // 2. Construir ruta relativa (sin /public)
     const relativePath = `/uploads/profile-pictures/${req.file.filename}`;
-    
-    // 3. Actualizar en base de datos
     await User.updateProfilePicture(id, relativePath);
-
-    // Devuelve la URL COMPLETA 
     const fullUrl = `${req.protocol}://${req.get('host')}${relativePath}`;
 
-    // 4. Responder con éxito
     return res.status(200).json({
       success: true,
       message: 'Imagen de perfil actualizada',
@@ -285,11 +262,7 @@ exports.uploadProfilePicture = async (req, res) => {
 
   } catch (error) {
     console.error('Error detallado:', error);
-    
-    // Eliminar archivo si hubo error
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
+    if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
 
     return res.status(500).json({
       success: false,
@@ -299,7 +272,13 @@ exports.uploadProfilePicture = async (req, res) => {
   }
 };
 
-/* borrar la foto de perfil */
+/**
+ * Elimina la imagen de perfil de un usuario.
+ * 
+ * @route DELETE /users/:id/profile-picture
+ * @param {import('express').Request} req - ID del usuario.
+ * @param {import('express').Response} res - Mensaje de confirmación.
+ */
 exports.deleteProfilePicture = async (req, res) => {
   const { id } = req.params;
 
@@ -309,17 +288,12 @@ exports.deleteProfilePicture = async (req, res) => {
 
     const user = rows[0];
 
-    // Borrar la imagen del disco si existe
     if (user.profile_picture) {
       const filePath = path.join(__dirname, '..', user.profile_picture);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
 
-    // Establecer profile_picture como NULL en BD
     await User.deleteProfilePicture(id);
-
     res.json({ success: true, message: 'Foto de perfil eliminada' });
   } catch (err) {
     console.error('Error al eliminar la foto de perfil:', err);

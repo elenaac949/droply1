@@ -6,9 +6,18 @@ const uploadProfilePicture = require('../middlewares/profileMulter');
 
 const router = express.Router();
 
-
-
+/**
+ * @route PUT /users/:id/profile-picture
+ * @desc Sube una nueva foto de perfil.
+ * @access Privado (requiere autenticación)
+ */
 router.put('/:id/profile-picture', authMiddleware, uploadProfilePicture, userController.uploadProfilePicture);
+
+/**
+ * @route DELETE /users/:id/profile-picture
+ * @desc Elimina la foto de perfil del usuario.
+ * @access Privado (requiere autenticación)
+ */
 router.delete('/:id/profile-picture', authMiddleware, userController.deleteProfilePicture);
 
 /**
@@ -31,7 +40,6 @@ router.get('/exists', userController.checkEmailExists);
  * @access Público (usado en registro externo o testing)
  */
 router.post('/', userController.createUser);
-
 
 /**
  * @route POST /users/verify-password/:userId
@@ -67,8 +75,5 @@ router.get('/:id', userController.getUserById);
  * @access Admin (recomendado)
  */
 router.delete('/:id', userController.deleteUser);
-
-
-
 
 module.exports = router;

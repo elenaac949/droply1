@@ -3,8 +3,21 @@ const { validationResult } = require('express-validator');
 const fs = require('fs').promises;
 const path = require('path');
 
+/**
+ * Controlador para la gestión de fotos subidas por los usuarios.
+ * 
+ * Incluye funcionalidades como subir, listar, filtrar y eliminar fotos,
+ * ya sea por fuente de agua, por reseña o por usuario.
+ */
 class PhotoController {
-  
+  /**
+   * Sube una nueva foto y la guarda en la base de datos.
+   * 
+   * @route POST /api/photos/upload
+   * @param {import('express').Request} req - Solicitud con archivo subido y datos (user, fuente, reseña).
+   * @param {import('express').Response} res - Respuesta con resultado de la operación.
+   * @returns {void}
+   */
   static async uploadPhoto(req, res) {
     try {
       const user_id = req.user.id;
@@ -18,7 +31,6 @@ class PhotoController {
       }
 
       const storagePath = `/uploads/water-sources/${req.file.filename}`;
-      const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'water-sources');
 
       const newPhoto = {
         user_id,
@@ -46,6 +58,14 @@ class PhotoController {
     }
   }
 
+  /**
+   * Obtiene una foto por su ID.
+   * 
+   * @route GET /api/photos/:id
+   * @param {import('express').Request} req - Solicitud con ID de la foto.
+   * @param {import('express').Response} res - Respuesta con la foto encontrada.
+   * @returns {void}
+   */
   static async getPhotoById(req, res) {
     try {
       const { id } = req.params;
@@ -72,14 +92,21 @@ class PhotoController {
     }
   }
 
+  /**
+   * Devuelve todas las fotos con filtros opcionales.
+   * 
+   * @route GET /api/photos
+   * @queryparam {string} [water_source_id] - Filtrar por ID de fuente.
+   * @queryparam {string} [review_id] - Filtrar por ID de reseña.
+   * @queryparam {string} [user_id] - Filtrar por ID de usuario.
+   * @queryparam {number} [limit] - Límite de resultados.
+   * @param {import('express').Request} req - Solicitud con filtros opcionales.
+   * @param {import('express').Response} res - Respuesta con lista de fotos.
+   * @returns {void}
+   */
   static async getAllPhotos(req, res) {
     try {
-      const { 
-        water_source_id, 
-        review_id, 
-        user_id, 
-        limit 
-      } = req.query;
+      const { water_source_id, review_id, user_id, limit } = req.query;
 
       const filters = {};
       if (water_source_id) filters.water_source_id = water_source_id;
@@ -104,6 +131,14 @@ class PhotoController {
     }
   }
 
+  /**
+   * Devuelve fotos asociadas a una fuente de agua específica.
+   * 
+   * @route GET /api/photos/water-source/:waterSourceId
+   * @param {import('express').Request} req - Solicitud con ID de fuente.
+   * @param {import('express').Response} res - Respuesta con fotos encontradas.
+   * @returns {void}
+   */
   static async getPhotosByWaterSource(req, res) {
     try {
       const { waterSourceId } = req.params;
@@ -124,6 +159,14 @@ class PhotoController {
     }
   }
 
+  /**
+   * Devuelve fotos asociadas a una reseña específica.
+   * 
+   * @route GET /api/photos/review/:reviewId
+   * @param {import('express').Request} req - Solicitud con ID de reseña.
+   * @param {import('express').Response} res - Respuesta con fotos encontradas.
+   * @returns {void}
+   */
   static async getPhotosByReview(req, res) {
     try {
       const { reviewId } = req.params;
@@ -144,6 +187,14 @@ class PhotoController {
     }
   }
 
+  /**
+   * Devuelve las fotos subidas por el usuario autenticado.
+   * 
+   * @route GET /api/photos/my
+   * @param {import('express').Request} req - Solicitud con datos del usuario autenticado.
+   * @param {import('express').Response} res - Respuesta con fotos del usuario.
+   * @returns {void}
+   */
   static async getMyPhotos(req, res) {
     try {
       const user_id = req.user.id;
@@ -164,6 +215,14 @@ class PhotoController {
     }
   }
 
+  /**
+   * Elimina una foto específica si pertenece al usuario o si es admin.
+   * 
+   * @route DELETE /api/photos/:id
+   * @param {import('express').Request} req - Solicitud con ID de la foto y usuario autenticado.
+   * @param {import('express').Response} res - Respuesta con resultado de la operación.
+   * @returns {void}
+   */
   static async deletePhoto(req, res) {
     try {
       const { id } = req.params;

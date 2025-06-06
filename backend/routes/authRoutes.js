@@ -8,12 +8,12 @@ const router = express.Router();
 
 /**
  * @route POST /signup
- * @desc Registra un nuevo usuario.
+ * @description Registra un nuevo usuario en la plataforma.
  * @access Público
- * @validación:
+ * @validacion:
  *  - username obligatorio
- *  - email válido y único
- *  - password de mínimo 7 caracteres
+ *  - email debe ser válido y no estar registrado previamente
+ *  - contraseña con mínimo 7 caracteres
  */
 router.post(
   '/signup',
@@ -44,11 +44,11 @@ router.post(
 
 /**
  * @route POST /login
- * @desc Inicia sesión y devuelve un token JWT.
+ * @description Inicia sesión con email y contraseña. Devuelve un token JWT si las credenciales son correctas.
  * @access Público
  * @validación:
  *  - email válido
- *  - password no vacío
+ *  - contraseña no vacía
  */
 router.post(
   '/login',

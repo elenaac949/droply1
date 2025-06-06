@@ -20,8 +20,9 @@ module.exports = class Review {
 
   /**
    * Inserta una nueva valoración en la base de datos con estado inicial 'pending'.
+   * 
    * @param {Review} review - Instancia con los datos de la valoración.
-   * @returns {Promise} Resultado de la ejecución del INSERT.
+   * @returns {Promise<any>} Resultado de la ejecución del INSERT.
    */
   static create(review) {
     return db.execute(
@@ -33,8 +34,9 @@ module.exports = class Review {
 
   /**
    * Obtiene todas las valoraciones aprobadas para una fuente concreta.
+   * 
    * @param {string} water_source_id - ID de la fuente de agua.
-   * @returns {Promise} Lista de valoraciones con username y fecha.
+   * @returns {Promise<any>} Lista de valoraciones con username y fecha.
    */
   static getByWaterSource(water_source_id) {
     return db.execute(
@@ -49,7 +51,8 @@ module.exports = class Review {
 
   /**
    * Devuelve todas las valoraciones registradas, sin filtrar.
-   * @returns {Promise} Lista de todas las valoraciones.
+   * 
+   * @returns {Promise<any>} Lista de todas las valoraciones.
    */
   static getAll() {
     return db.execute(`SELECT * FROM reviews ORDER BY created_at DESC`);
@@ -57,7 +60,8 @@ module.exports = class Review {
 
   /**
    * Devuelve todas las valoraciones con estado 'pending', incluyendo nombre del usuario y fuente.
-   * @returns {Promise} Lista de valoraciones pendientes.
+   * 
+   * @returns {Promise<any>} Lista de valoraciones pendientes.
    */
   static getPending() {
     return db.execute(`
@@ -79,9 +83,10 @@ module.exports = class Review {
 
   /**
    * Actualiza el estado de una valoración ('approved' o 'rejected').
+   * 
    * @param {string} id - ID de la valoración.
-   * @param {string} status - Nuevo estado.
-   * @returns {Promise} Resultado de la actualización.
+   * @param {string} status - Nuevo estado ('approved' o 'rejected').
+   * @returns {Promise<any>} Resultado de la actualización.
    */
   static moderate(id, status) {
     return db.execute(
