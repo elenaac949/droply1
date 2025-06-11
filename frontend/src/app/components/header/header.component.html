@@ -1,7 +1,7 @@
 <mat-toolbar color="primary" class="header-toolbar">
   <span class="logo" routerLink="">Droply</span>
-  <span class="welcome-message">
-      Bienvenid&#64; de nuevo,  {{ authService.getUsername() }}
+  <span class="welcome-message" *ngIf="!(authService.isLoggedIn$ | async)">
+      Bienvenid&#64; de nuevo  {{ authService.getUsername() }}
     </span>
   <span class="spacer"></span>
 
