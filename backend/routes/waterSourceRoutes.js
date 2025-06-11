@@ -69,12 +69,6 @@ router.get(
 );
 
 
-/**
- * @route GET /water-sources/
- * @desc Devuelve todas las fuentes con información de usuario.
- * @access Público
- */
-router.get('/', waterSourceController.getAllWaterSources);
 
 /**
  * @route PUT /water-sources/:id/status
@@ -97,11 +91,23 @@ router.put('/:id', authMiddleware, waterSourceController.updateWaterSource);
  */
 router.delete('/:id', authMiddleware, waterSourceController.deleteWaterSource);
 
+
+/**
+ * @route GET /water-sources/
+ * @desc Devuelve todas las fuentes con información de usuario.
+ * @access Público
+ */
+router.get('/', waterSourceController.getAllWaterSources);
+
+
 /**
  * @route GET /water-sources/:id
  * @desc Obtiene una fuente por su ID.
  * @access Público
  */
 router.get('/:id', waterSourceController.getById);
+
+
+
 
 module.exports = router;

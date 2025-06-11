@@ -26,7 +26,6 @@ const port = process.env.PORT || 3000;
  */
 const allowedOrigins = [
   'http://localhost:4200', // Angular dev
-  'http://localhost:3000', // React dev
   'https://droply.es', // Producción
   'https://www.droply.es',
   'https://droply1.vercel.app/' 
