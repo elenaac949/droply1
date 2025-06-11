@@ -68,12 +68,12 @@ export class LoginComponent implements OnInit {
    */
   ngOnInit(): void {
     const savedEmail = localStorage.getItem('email');
-    const savedPassword = localStorage.getItem('password');
+    /* const savedPassword = localStorage.getItem('password'); */
 
-    if (savedEmail && savedPassword) {
+    if (savedEmail /* && savedPassword */) {
       this.loginForm.patchValue({
         email: savedEmail,
-        password: savedPassword,
+        /* password: savedPassword, */
         rememberMe: true
       });
     }
