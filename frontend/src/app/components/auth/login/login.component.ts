@@ -91,10 +91,8 @@ export class LoginComponent implements OnInit {
 
     if (rememberMe) {
       localStorage.setItem('email', email);
-      localStorage.setItem('password', password);
     } else {
       localStorage.removeItem('email');
-      localStorage.removeItem('password');
     }
 
     this.authService.login(email!, password!).subscribe({
