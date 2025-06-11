@@ -1,3 +1,4 @@
+<div class="modal-overlay">
 <div class="modal">
   <button class="close-btn" (click)="close()">×</button>
 
@@ -53,7 +54,7 @@
     </form>
   </div>
 </div>
-
+</div>
 <!-- Modal de vista previa de imagen -->
 <div class="image-modal" *ngIf="selectedPhoto" (click)="closePreview()">
   <div class="image-modal-content" (click)="$event.stopPropagation()">
