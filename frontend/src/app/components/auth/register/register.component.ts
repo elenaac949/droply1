@@ -31,12 +31,10 @@ import { UserService } from '../../../services/user.service';
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
+
 export class RegisterComponent {
 
-  /** Formulario reactivo de registro */
   registerForm: FormGroup;
-
-  /** Mensaje de error al registrar */
   registerError = '';
 
   constructor(
@@ -45,7 +43,6 @@ export class RegisterComponent {
     private router: Router,
     private userService: UserService
   ) {
-    // Inicializa el formulario con validaciones y validador asíncrono para email
     this.registerForm = this.fb.group({
       username: ['', Validators.required],
       email: [
@@ -57,7 +54,10 @@ export class RegisterComponent {
         ],
         [this.emailExistsValidator()]
       ],
-      password: ['', [Validators.required, Validators.minLength(7)]],
+      password: ['', [
+        Validators.required,
+        this.passwordValidator.bind(this)
+      ]],
       confirmPassword: ['', Validators.required],
       phone: [''],
       country: [''],
@@ -65,12 +65,54 @@ export class RegisterComponent {
       postal_code: [''],
       address: ['']
     });
+
+    // Escuchar cambios en la contraseña o confirmación para validar coincidencia
+    this.registerForm.get('password')?.valueChanges.subscribe(() => {
+      if (this.registerForm.get('password')?.value !== this.registerForm.get('confirmPassword')?.value) {
+        this.registerForm.get('confirmPassword')?.setErrors({ passwordMismatch: true });
+      } else {
+        this.registerForm.get('confirmPassword')?.setErrors(null);
+      }
+    });
+
+    this.registerForm.get('confirmPassword')?.valueChanges.subscribe(() => {
+      if (this.registerForm.get('password')?.value !== this.registerForm.get('confirmPassword')?.value) {
+        this.registerForm.get('confirmPassword')?.setErrors({ passwordMismatch: true });
+      } else {
+        this.registerForm.get('confirmPassword')?.setErrors(null);
+      }
+    });
   }
 
-  /**
-   * Envía el formulario si es válido y las contraseñas coinciden.
-   * En caso de éxito, redirige al login con query param `registered=1`.
-   */
+  passwordValidator(control: AbstractControl): { [key: string]: boolean } | null {
+  const value = control.value || '';
+  
+  if (!value) return null;
+  
+  // Verificar longitud mínima (7 caracteres)
+  const hasMinLength = value.length >= 7;
+  
+  // Verificar mayúscula
+  const hasUpperCase = /[A-Z]/.test(value);
+  
+  // Verificar minúscula
+  const hasLowerCase = /[a-z]/.test(value);
+  
+  // Verificar número
+  const hasNumber = /[0-9]/.test(value);
+
+  // Objeto para acumular errores (usando notación de corchetes)
+  const errors: { [key: string]: boolean } = {};
+  
+  if (!hasMinLength) errors['passwordMinLength'] = true;
+  if (!hasUpperCase) errors['passwordNoUpperCase'] = true;
+  if (!hasLowerCase) errors['passwordNoLowerCase'] = true;
+  if (!hasNumber) errors['passwordNoNumber'] = true;
+
+  // Si hay errores, los devolvemos, sino null
+  return Object.keys(errors).length > 0 ? errors : null;
+}
+
   onSubmit(): void {
     if (this.registerForm.invalid || this.passwordsDontMatch()) return;
     this.registerError = '';
@@ -98,18 +140,14 @@ export class RegisterComponent {
   }
 
   /**
-   * Verifica si las contraseñas introducidas no coinciden.
-   * @returns true si son diferentes, false si coinciden
-   */
+ * Verifica si las contraseñas introducidas no coinciden.
+ * @returns true si son diferentes, false si coinciden
+ */
   passwordsDontMatch(): boolean {
-    return this.registerForm.value.password !== this.registerForm.value.confirmPassword;
+    const confirmPassword = this.registerForm.get('confirmPassword');
+    return confirmPassword ? confirmPassword.hasError('passwordMismatch') : false;
   }
 
-  /**
-   * Validador asíncrono que comprueba si el email ya está registrado.
-   * 
-   * @returns AsyncValidatorFn que emite `{ emailTaken: true }` si existe
-   */
   emailExistsValidator(): AsyncValidatorFn {
     return (control: AbstractControl) => {
       return control.valueChanges.pipe(

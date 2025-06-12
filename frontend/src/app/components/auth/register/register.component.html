@@ -33,21 +33,32 @@
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Contraseña</mat-label>
           <input matInput formControlName="password" type="password" required>
+          <mat-hint>Debe contener al menos 7 caracteres, mayúsculas, minúsculas y números</mat-hint>
           <mat-error *ngIf="registerForm.get('password')?.hasError('required')">
             La contraseña es obligatoria
           </mat-error>
-          <mat-error *ngIf="registerForm.get('password')?.hasError('minlength')">
-            Mínimo 7 caracteres
+          <mat-error *ngIf="registerForm.get('password')?.hasError('passwordMinLength')">
+            La contraseña debe tener al menos 7 caracteres
+          </mat-error>
+          <mat-error *ngIf="registerForm.get('password')?.hasError('passwordNoUpperCase')">
+            La contraseña debe contener al menos una mayúscula
+          </mat-error>
+          <mat-error *ngIf="registerForm.get('password')?.hasError('passwordNoLowerCase')">
+            La contraseña debe contener al menos una minúscula
+          </mat-error>
+          <mat-error *ngIf="registerForm.get('password')?.hasError('passwordNoNumber')">
+            La contraseña debe contener al menos un número
           </mat-error>
         </mat-form-field>
 
+        <!-- confirmación de contraseña  -->
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Confirmar contraseña</mat-label>
           <input matInput formControlName="confirmPassword" type="password" required>
           <mat-error *ngIf="registerForm.get('confirmPassword')?.hasError('required')">
             Confirma la contraseña
           </mat-error>
-          <mat-error *ngIf="passwordsDontMatch()">
+          <mat-error *ngIf="registerForm.get('confirmPassword')?.hasError('passwordMismatch')">
             Las contraseñas no coinciden
           </mat-error>
         </mat-form-field>
@@ -89,7 +100,6 @@
         Registrarse
       </button>
     </form>
-
 
     <div class="login-link">
       ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>

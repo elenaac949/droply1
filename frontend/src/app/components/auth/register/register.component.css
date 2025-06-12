@@ -58,7 +58,11 @@ mat-form-field {
 }
 
 mat-error{
-  font-size: 1rem;
+  font-size: 0.7rem;
+}
+
+mat-hint{
+  font-size: 0.6rem;
 }
 .register-button:hover {
   background-color: #005c99;
